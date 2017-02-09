@@ -55,11 +55,11 @@ architecture arch of cache is
 
 	-- signal i_addr : std_logic_vector (31 downto 0);
 
-    -- separate input address into tokens
-    alias i_byteOffset is s_addr(1 downto 0); -- ignore?
-    alias i_blockOffset is s_addr(3 downto 2);
-    alias i_index is s_addr(8 downto 4);
-    alias i_tag is s_addr(14 downto 9);
+    -- separate input address into tokens (ignore byte offset)
+    signal i_byteOffset : std_logic_vector(1 downto 0);
+    signal i_blockOffset : std_logic_vector(1 downto 0);
+    signal i_index : std_logic_vector(4 downto 0);
+    signal i_tag : std_logic_vector(5 downto 0);
 
     -- block to be read from or written to
     signal targetBlock : cache_block;
@@ -72,10 +72,11 @@ architecture arch of cache is
     alias t_word4 is targetBlock(31 downto 0);
 
     signal tagEqual : std_logic;
+    signal bytesWritten : integer;
+    signal bytesRead : integer;
 
--- compareTag:  compare two tags
-impure function compareTags( tag1 : std_logic_vector(5 downto 0);
-                             tag2 : std_logic_vector(5 downto 0))
+function compareTags( tag1 : std_logic_vector(5 downto 0);
+                      tag2 : std_logic_vector(5 downto 0))
             return std_logic is
     begin
         if (tag1 AND tag2) = "000000" then
@@ -104,6 +105,14 @@ end process;
 
 process (s_read, s_write, STATE)
     begin
+    -- only want to deal with the values given when s_read or s_write were changed
+    -- in order to be independent from s_addr changes
+    i_byteOffset <= s_addr(1 downto 0);
+    i_blockOffset <= s_addr(3 downto 2);
+    i_index <= s_addr(8 downto 4);
+    i_tag <= s_addr(14 downto 9);
+    targetBlock <= cache_instance(to_integer(unsigned(i_index)));
+
     case STATE is
         when sIDLE  =>
             if (s_read = '1') and (s_write = '1') then
@@ -120,8 +129,6 @@ process (s_read, s_write, STATE)
                 NEXT_STATE <= sCOMPARE_TAG;
             end if;
         when sCOMPARE_TAG  =>
-            targetBlock <= cache_instance(to_integer(unsigned(i_index)));
-
             tagEqual <= compareTags(t_tag, i_tag);
             if ((t_validBit AND tagEqual) = '1') then    -- hit
                 if (s_write = '1') then
@@ -160,19 +167,32 @@ process (s_read, s_write, STATE)
                 end if;
             end if;
         when sWRITE_BACK  =>
-            -- only one byte written to MM at a time, need to write 16
-            -- while memory is not ready (byteWritten < 16)
+            -- only one byte written to MM at a time, need to write 4x4 = 16
+            -- when should tag be set?
+            nextm_addr : integer range 0 to ram_size-1;
+            nextm_write <= '1';
+            nextm_writedata <= targetBlock;
+            while (bytesWritten < 16) loop
+                -- write to memory
+                bytesWritten <= bytesWritten + 1;
                 NEXT_STATE <= sWRITE_BACK;
-            -- if byteWritten = 16
-                -- set byteWritten = 0
-                NEXT_STATE <= sALLOCATE;
-        when sALLOCATE  =>
-            -- while memory is not ready (byteRead < 16)
-                NEXT_STATE <= sALLOCATE;
-            -- if byteRead = 16
-                -- set byteRead = 0
-                NEXT_STATE <= sCOMPARE_TAG;
+            end loop;
             
+            -- set tag
+            bytesWritten <= 0;
+            NEXT_STATE <= sALLOCATE;
+        when sALLOCATE  =>
+            -- when does new memory space need to be allocated?
+            nextm_addr : integer range 0 to ram_size-1;
+            nextm_read <= '1';
+            while (bytesRead < 16) loop
+                -- read from memory
+                bytersRead <= bytesRead + 1;
+                NEXT_STATE <= sALLOCATE;
+            end loop;
+
+            bytesRead <= 0;
+            NEXT_STATE <= sCOMPARE_TAG;   
         end case;
 end process;
 
