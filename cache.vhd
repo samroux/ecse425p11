@@ -27,6 +27,11 @@ port(
 );
 end cache;
 
+--------------------------------------------------------------------------------
+-- TODO:    figure out waitrequest (use diagram in instructions)
+--          make sure all outputs are set in all states
+--------------------------------------------------------------------------------
+
 architecture arch of cache is
 	
 	--subtype addr_int is integer range 0 to 65535;
@@ -65,14 +70,16 @@ architecture arch of cache is
     alias t_validBit is targetBlock(135);
     alias t_dirtyBit is targetBlock(134);
     alias t_tag is targetBlock(133 downto 128);
+    alias t_data is targetBlock(127 downto 0);
     alias t_word1 is targetBlock(127 downto 96);
     alias t_word2 is targetBlock(95 downto 64);
     alias t_word3 is targetBlock(63 downto 32);
     alias t_word4 is targetBlock(31 downto 0);
 
     signal tagEqual : std_logic;
-    signal wordsWritten : integer;
-    signal wordsRead : integer;
+    signal pos1, pos2 : integer := 0;
+    signal bytesWritten : integer := 16;
+    signal bytesRead : integer := 16;
 
 function compareTags( tag1 : std_logic_vector(5 downto 0);
                       tag2 : std_logic_vector(5 downto 0))
@@ -163,38 +170,44 @@ process (s_read, s_write, STATE)
                 end if;
             end if;
         when sWRITE_BACK  =>
-            while (wordsWritten < 4) loop
-                -- write to memory
-                nextm_addr <= to(integer(unsiged(i_addr(31 downto 4))));
+            -- write to memory
+            -- avalon writes one byte at a time, so need to ensure it has a counter
+            -- to write 4x4 = 16 bytes
+            while (bytesWritten > 0) loop
+                -- ignore trailing offsets
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
                 nextm_write <= '1';
+                -- move from pos1 = 127 and pos2 = 120 to pos1 = 7 and pos2 = 0
+                pos1 <= bytesWritten * 8 - 1;
+                pos2 <= pos1 - 7;
 
-                case (wordsWritten) is
-                    when 0 => nextm_writedata <= i_word1;
-                    when 1 => nextm_writedata <= i_word2;
-                    when 2 => nextm_writedata <= i_word3;
-                    when 3 => nextm_writedata <= i_word4;
-                end case;
+                nextm_writedata <= t_data(pos1 downto pos2);
 
-                wordsWritten <= wordsWritten + 1;
+                bytesWritten <= bytesWritten - 1;
                 NEXT_STATE <= sWRITE_BACK;
             end loop;
             
             -- in case of tag mismatch, this will ensure that the new tag
             -- can take ownership of a block after the prev one has been written
             t_tag <= i_tag;
-            wordsWritten <= 0;
+            bytesWritten <= 16;
             NEXT_STATE <= sALLOCATE;
         when sALLOCATE  =>
-            -- when does new memory space need to be allocated?
-            nextm_addr <= to(integer(unsiged(i_addr)));
-            nextm_read <= '1';
-            while (wordsRead < 4) loop
-                -- read from memory
-                bytersRead <= wordsRead + 1;
+            -- read from memory
+            while (bytesRead > 0) loop
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
+                nextm_read <= '1';
+
+                pos1 <= bytesRead * 8 - 1;
+                pos2 <= pos1 - 7;
+
+                --nexts_readdata <= 
+
+                bytersRead <= bytesRead - 1;
                 NEXT_STATE <= sALLOCATE;
             end loop;
 
-            wordsRead <= 0;
+            bytesRead <= 16;
             NEXT_STATE <= sCOMPARE_TAG;   
         end case;
 end process;
