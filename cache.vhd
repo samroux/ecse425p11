@@ -31,16 +31,14 @@ architecture arch of cache is
 	
 	--subtype addr_int is integer range 0 to 65535;
 
-	SUBTYPE cache_block is std_logic_vector(31 downto 0);
+	SUBTYPE cache_block is std_logic_vector(135 downto 0);
 	TYPE CACHE IS ARRAY(31 downto 0) OF cache_block;
-
 	SIGNAL CACHE_INSTANCE : CACHE;
-	
 
 	--CACHE ()
 		-- 32 CACHE BLOCK (136-BIT)
-			 -- 1 VALID BIT (1-bit)
-			 -- 1 DIRTY BIT (1-BIT)
+			 -- 1 VALID BIT (1 BIT)
+			 -- 1 DIRTY BIT (1 BIT)
 			 -- 1 TAG (6 BITS)
 			 -- 1 DATA (128 BITS)
 				-- 4 WORD (32 BITS)
@@ -55,11 +53,39 @@ architecture arch of cache is
 	signal nextm_write : std_logic;
 	signal nextm_writedata : std_logic_vector (7 downto 0);
 
-	signal input_adr : std_logic_vector (31 down to 0);
+	-- signal i_addr : std_logic_vector (31 downto 0);
+
+    -- separate input address into tokens
+    alias i_byteOffset is s_addr(1 downto 0); -- ignore?
+    alias i_blockOffset is s_addr(3 downto 2);
+    alias i_index is s_addr(8 downto 4);
+    alias i_tag is s_addr(14 downto 9);
+
+    -- block to be read from or written to
+    signal targetBlock : cache_block;
+    alias t_validBit is targetBlock(135);
+    alias t_dirtyBit is targetBlock(134);
+    alias t_tag is targetBlock(133 downto 128);
+    alias t_word1 is targetBlock(127 downto 96);
+    alias t_word2 is targetBlock(95 downto 64);
+    alias t_word3 is targetBlock(63 downto 32);
+    alias t_word4 is targetBlock(31 downto 0);
+
+    signal tagEqual : std_logic;
+
+-- compareTag:  compare two tags
+impure function compareTags( tag1 : std_logic_vector(5 downto 0);
+                             tag2 : std_logic_vector(5 downto 0))
+            return std_logic is
+    begin
+        if (tag1 AND tag2) = "000000" then
+            return '1';
+        else
+            return '0';
+        end if;
+end compareTags;
 
 begin
-
--- make circuits here
 
 process (clock, reset)
     begin
@@ -76,7 +102,6 @@ process (clock, reset)
     end if;
 end process;
 
-
 process (s_read, s_write, STATE)
     begin
     case STATE is
@@ -91,40 +116,49 @@ process (s_read, s_write, STATE)
                 nextm_writedata <= "00000000";
             elsif (s_read = '0') and (s_read = '0') then
                 NEXT_STATE <= sIDLE;
-                nexts_readdata <= "00000000000000000000000000000000";
-                nexts_waitrequest <= '0';
-                nextm_addr <= 0;
-                nextm_read <= '0';
-                nextm_write <= '0';
-                nextm_writedata <= "00000000";
             else
                 NEXT_STATE <= sCOMPARE_TAG;
-                nexts_readdata <= "00000000000000000000000000000000";
-                nexts_waitrequest <= '0';
-                nextm_addr <= 0;
-                nextm_read <= '0';
-                nextm_write <= '0';
-                nextm_writedata <= "00000000";
             end if;
         when sCOMPARE_TAG  =>
-            -- if isValid and if tag equal there is a hit
-                -- setValid and setTag
-                -- if isWrite then
-                    -- if isDirty = 0 then
-                        -- writeToBlock
+            targetBlock <= cache_instance(to_integer(unsigned(i_index)));
+
+            tagEqual <= compareTags(t_tag, i_tag);
+            if ((t_validBit AND tagEqual) = '1') then    -- hit
+                if (s_write = '1') then
+                    if (t_dirtyBit = '0') then
+                        -- write to block
+                        case i_blockOffset is
+                            when "00" => t_word1 <= s_writedata;
+                            when "01" => t_word2 <= s_writedata;
+                            when "10" => t_word3 <= s_writedata;
+                            when "11" => t_word4 <= s_writedata;
+                            when others => null;
+                        end case;
+
                         -- setDirty
+                        t_dirtyBit <= '1';
                         NEXT_STATE <= sIDLE;
-                    -- else
+                    else
                         NEXT_STATE <= sWRITE_BACK;
-                -- if isRead then
-                    -- readFromBlock
+                    end if;
+                else
+                    -- read from block
+                    case i_blockOffset is
+                        when "00" => nexts_readdata <= t_word1;
+                        when "01" => nexts_readdata <= t_word2;
+                        when "10" => nexts_readdata <= t_word3;
+                        when "11" => nexts_readdata <= t_word4;
+                        when others => null;
+                    end case;
                     NEXT_STATE <= sIDLE;
-            -- else miss
-                -- if isDirty = 0 then
+                end if;
+            else    -- miss
+                if (t_dirtyBit = '0') then
                     NEXT_STATE <= sALLOCATE;
-                -- else
+                else
                     NEXT_STATE <= sWRITE_BACK;
-            -- end if
+                end if;
+            end if;
         when sWRITE_BACK  =>
             -- only one byte written to MM at a time, need to write 16
             -- while memory is not ready (byteWritten < 16)
