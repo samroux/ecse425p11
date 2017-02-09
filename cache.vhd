@@ -1,0 +1,145 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity cache is
+generic(
+	ram_size : INTEGER := 32768
+);
+port(
+	clock : in std_logic;
+	reset : in std_logic;
+	
+	-- Avalon interface --
+	s_addr : in std_logic_vector (31 downto 0);
+	s_read : in std_logic;
+	s_readdata : out std_logic_vector (31 downto 0);
+	s_write : in std_logic;
+	s_writedata : in std_logic_vector (31 downto 0);
+	s_waitrequest : out std_logic; 
+    
+	m_addr : out integer range 0 to ram_size-1;
+	m_read : out std_logic;
+	m_readdata : in std_logic_vector (7 downto 0);
+	m_write : out std_logic;
+	m_writedata : out std_logic_vector (7 downto 0);
+	m_waitrequest : in std_logic
+);
+end cache;
+
+architecture arch of cache is
+	
+	--subtype addr_int is integer range 0 to 65535;
+
+	SUBTYPE cache_block is std_logic_vector(31 downto 0);
+	TYPE CACHE IS ARRAY(31 downto 0) OF cache_block;
+
+	SIGNAL CACHE_INSTANCE : CACHE;
+	
+
+	--CACHE ()
+		-- 32 CACHE BLOCK (136-BIT)
+			 -- 1 VALID BIT (1-bit)
+			 -- 1 DIRTY BIT (1-BIT)
+			 -- 1 TAG (6 BITS)
+			 -- 1 DATA (128 BITS)
+				-- 4 WORD (32 BITS)
+
+	type state_type is (sIDLE, sCOMPARE_TAG, sWRITE_BACK, sALLOCATE);
+	signal STATE : state_type;
+	signal NEXT_STATE : state_type;
+	signal nexts_readdata : std_logic_vector (31 downto 0);
+	signal nexts_waitrequest : std_logic; 
+	signal nextm_addr : integer range 0 to ram_size-1;
+	signal nextm_read : std_logic;
+	signal nextm_write : std_logic;
+	signal nextm_writedata : std_logic_vector (7 downto 0);
+
+	signal input_adr : std_logic_vector (31 down to 0);
+
+begin
+
+-- make circuits here
+
+process (clock, reset)
+    begin
+    if reset = '1' then 
+        STATE <= sIDLE;
+    elsif (rising_edge(clock)) then
+        STATE <= NEXT_STATE;
+        s_readdata <= nexts_readdata;
+        s_waitrequest <= nexts_waitrequest;
+        m_addr <= nextm_addr;
+        m_read <= nextm_read;
+        m_write <= nextm_write; 
+        m_writedata <= nextm_writedata;
+    end if;
+end process;
+
+
+process (s_read, s_write, STATE)
+    begin
+    case STATE is
+        when sIDLE  =>
+            if (s_read = '1') and (s_write = '1') then
+                NEXT_STATE <= sIDLE;
+                nexts_readdata <= "00000000000000000000000000000000";
+                nexts_waitrequest <= '0';
+                nextm_addr <= 0;
+                nextm_read <= '0';
+                nextm_write <= '0';
+                nextm_writedata <= "00000000";
+            elsif (s_read = '0') and (s_read = '0') then
+                NEXT_STATE <= sIDLE;
+                nexts_readdata <= "00000000000000000000000000000000";
+                nexts_waitrequest <= '0';
+                nextm_addr <= 0;
+                nextm_read <= '0';
+                nextm_write <= '0';
+                nextm_writedata <= "00000000";
+            else
+                NEXT_STATE <= sCOMPARE_TAG;
+                nexts_readdata <= "00000000000000000000000000000000";
+                nexts_waitrequest <= '0';
+                nextm_addr <= 0;
+                nextm_read <= '0';
+                nextm_write <= '0';
+                nextm_writedata <= "00000000";
+            end if;
+        when sCOMPARE_TAG  =>
+            -- if isValid and if tag equal there is a hit
+                -- setValid and setTag
+                -- if isWrite then
+                    -- if isDirty = 0 then
+                        -- writeToBlock
+                        -- setDirty
+                        NEXT_STATE <= sIDLE;
+                    -- else
+                        NEXT_STATE <= sWRITE_BACK;
+                -- if isRead then
+                    -- readFromBlock
+                    NEXT_STATE <= sIDLE;
+            -- else miss
+                -- if isDirty = 0 then
+                    NEXT_STATE <= sALLOCATE;
+                -- else
+                    NEXT_STATE <= sWRITE_BACK;
+            -- end if
+        when sWRITE_BACK  =>
+            -- only one byte written to MM at a time, need to write 16
+            -- while memory is not ready (byteWritten < 16)
+                NEXT_STATE <= sWRITE_BACK;
+            -- if byteWritten = 16
+                -- set byteWritten = 0
+                NEXT_STATE <= sALLOCATE;
+        when sALLOCATE  =>
+            -- while memory is not ready (byteRead < 16)
+                NEXT_STATE <= sALLOCATE;
+            -- if byteRead = 16
+                -- set byteRead = 0
+                NEXT_STATE <= sCOMPARE_TAG;
+            
+        end case;
+end process;
+
+end arch;
