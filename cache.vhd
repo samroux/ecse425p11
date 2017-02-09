@@ -53,9 +53,8 @@ architecture arch of cache is
 	signal nextm_write : std_logic;
 	signal nextm_writedata : std_logic_vector (7 downto 0);
 
-	-- signal i_addr : std_logic_vector (31 downto 0);
-
-    -- separate input address into tokens (ignore byte offset)
+    -- separate input address into tokens
+    signal i_addr : std_logic_vector (31 downto 0);
     signal i_byteOffset : std_logic_vector(1 downto 0);
     signal i_blockOffset : std_logic_vector(1 downto 0);
     signal i_index : std_logic_vector(4 downto 0);
@@ -72,8 +71,8 @@ architecture arch of cache is
     alias t_word4 is targetBlock(31 downto 0);
 
     signal tagEqual : std_logic;
-    signal bytesWritten : integer;
-    signal bytesRead : integer;
+    signal wordsWritten : integer;
+    signal wordsRead : integer;
 
 function compareTags( tag1 : std_logic_vector(5 downto 0);
                       tag2 : std_logic_vector(5 downto 0))
@@ -107,10 +106,11 @@ process (s_read, s_write, STATE)
     begin
     -- only want to deal with the values given when s_read or s_write were changed
     -- in order to be independent from s_addr changes
-    i_byteOffset <= s_addr(1 downto 0);
-    i_blockOffset <= s_addr(3 downto 2);
-    i_index <= s_addr(8 downto 4);
-    i_tag <= s_addr(14 downto 9);
+    i_addr <= s_addr;
+    i_byteOffset <= i_addr(1 downto 0);
+    i_blockOffset <= i_addr(3 downto 2);
+    i_index <= i_addr(8 downto 4);
+    i_tag <= i_addr(14 downto 9);
     targetBlock <= cache_instance(to_integer(unsigned(i_index)));
 
     case STATE is
@@ -132,22 +132,18 @@ process (s_read, s_write, STATE)
             tagEqual <= compareTags(t_tag, i_tag);
             if ((t_validBit AND tagEqual) = '1') then    -- hit
                 if (s_write = '1') then
-                    if (t_dirtyBit = '0') then
-                        -- write to block
-                        case i_blockOffset is
-                            when "00" => t_word1 <= s_writedata;
-                            when "01" => t_word2 <= s_writedata;
-                            when "10" => t_word3 <= s_writedata;
-                            when "11" => t_word4 <= s_writedata;
-                            when others => null;
-                        end case;
+                    -- write to block
+                    case i_blockOffset is
+                        when "00" => t_word1 <= s_writedata;
+                        when "01" => t_word2 <= s_writedata;
+                        when "10" => t_word3 <= s_writedata;
+                        when "11" => t_word4 <= s_writedata;
+                        when others => null;
+                    end case;
 
-                        -- setDirty
-                        t_dirtyBit <= '1';
-                        NEXT_STATE <= sIDLE;
-                    else
-                        NEXT_STATE <= sWRITE_BACK;
-                    end if;
+                    -- setDirty
+                    t_dirtyBit <= '1';
+                    NEXT_STATE <= sIDLE;
                 else
                     -- read from block
                     case i_blockOffset is
@@ -167,31 +163,38 @@ process (s_read, s_write, STATE)
                 end if;
             end if;
         when sWRITE_BACK  =>
-            -- only one byte written to MM at a time, need to write 4x4 = 16
-            -- when should tag be set?
-            nextm_addr : integer range 0 to ram_size-1;
-            nextm_write <= '1';
-            nextm_writedata <= targetBlock;
-            while (bytesWritten < 16) loop
+            while (wordsWritten < 4) loop
                 -- write to memory
-                bytesWritten <= bytesWritten + 1;
+                nextm_addr <= to(integer(unsiged(i_addr(31 downto 4))));
+                nextm_write <= '1';
+
+                case (wordsWritten) is
+                    when 0 => nextm_writedata <= i_word1;
+                    when 1 => nextm_writedata <= i_word2;
+                    when 2 => nextm_writedata <= i_word3;
+                    when 3 => nextm_writedata <= i_word4;
+                end case;
+
+                wordsWritten <= wordsWritten + 1;
                 NEXT_STATE <= sWRITE_BACK;
             end loop;
             
-            -- set tag
-            bytesWritten <= 0;
+            -- in case of tag mismatch, this will ensure that the new tag
+            -- can take ownership of a block after the prev one has been written
+            t_tag <= i_tag;
+            wordsWritten <= 0;
             NEXT_STATE <= sALLOCATE;
         when sALLOCATE  =>
             -- when does new memory space need to be allocated?
-            nextm_addr : integer range 0 to ram_size-1;
+            nextm_addr <= to(integer(unsiged(i_addr)));
             nextm_read <= '1';
-            while (bytesRead < 16) loop
+            while (wordsRead < 4) loop
                 -- read from memory
-                bytersRead <= bytesRead + 1;
+                bytersRead <= wordsRead + 1;
                 NEXT_STATE <= sALLOCATE;
             end loop;
 
-            bytesRead <= 0;
+            wordsRead <= 0;
             NEXT_STATE <= sCOMPARE_TAG;   
         end case;
 end process;
