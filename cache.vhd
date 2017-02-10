@@ -82,6 +82,9 @@ architecture arch of cache is
     signal bytesRead : integer := 4;
     signal finalReadData : std_logic_vector(31 downto 0);
 
+    signal temp : std_logic_vector (127 downto 0);
+    signal temp_allocate : std_logic_vector (31 downto 0);
+
 function compareTags( tag1 : std_logic_vector(5 downto 0);
                       tag2 : std_logic_vector(5 downto 0))
             return std_logic is
@@ -111,6 +114,9 @@ process (clock, reset)
 end process;
 
 process (s_read, s_write, STATE)
+variable bytesWritten, bytesRead: integer range 0 to 16;
+variable  pos1, pos2: integer range 0 to 127;
+
     begin
     -- only want to deal with the values given when s_read or s_write were changed
     -- in order to be independent from s_addr changes
@@ -122,7 +128,10 @@ process (s_read, s_write, STATE)
     targetBlock <= cache_instance(to_integer(unsigned(i_index)));
 
     case STATE is
-        when sIDLE  =>
+	
+	--idle state
+        when sIDLE  => 
+	    Report "In sIDLE state";
             if (s_read = '1') and (s_write = '1') then
                 NEXT_STATE <= sIDLE;
                 nexts_readdata <= "00000000000000000000000000000000";
@@ -136,7 +145,10 @@ process (s_read, s_write, STATE)
             else
                 NEXT_STATE <= sCOMPARE_TAG;
             end if;
+
+	--compare tab state
         when sCOMPARE_TAG  =>
+		Report "In sCOMPARE_TAG state";
             tagEqual <= compareTags(t_tag, i_tag);
             if ((t_validBit AND tagEqual) = '1') then    -- hit
                 if (s_write = '1') then
@@ -164,51 +176,80 @@ process (s_read, s_write, STATE)
                     NEXT_STATE <= sIDLE;
                 end if;
             else    -- miss
-                if (t_dirtyBit = '0') then
+               -- if (t_dirtyBit = '0' or t_dirtyBit = 'U') then
+		if (t_dirtyBit = '0') then
                     NEXT_STATE <= sALLOCATE;
                 else
                     NEXT_STATE <= sWRITE_BACK;
                 end if;
             end if;
+
+	--write back state
         when sWRITE_BACK  =>
+		Report "In sWRITE_BACK state";
             -- write to memory
             -- avalon writes one byte at a time, so need to ensure it has a counter
             -- to write 4x4 = 16 bytes
+	    bytesWritten := 16;	
+		pos1 := 0;
+		pos2 :=0;
+		temp <= t_data;	
             while (bytesWritten > 0) loop
                 -- ignore trailing offsets
-                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4)));
                 nextm_write <= '1';
                 -- move from pos1 = 127 and pos2 = 120 to pos1 = 7 and pos2 = 0
-                pos1 <= bytesWritten * 8 - 1;
-                pos2 <= pos1 - 7;
+		--pos1:=0;
+		Report "pos1_after0: " & integer'image(pos1);
+                pos1 := bytesWritten * 8 - 1;
+                pos2 := pos1 - 7;
 
-                nextm_writedata <= t_data(pos1 downto pos2);
+		--Report "ByteWritten: " & integer'image(bytesWritten);
+		--Report "pos1_afterCalc: " & integer'image(pos1);
+		--Report "pos2: " & integer'image(pos2);
+                --nextm_writedata <= t_data(pos1 downto pos2);
+		nextm_writedata <= temp (127 downto 120);
+		temp <= temp (119 downto 0) & temp (127 downto 120);
 
-                bytesWritten <= bytesWritten - 1;
+                bytesWritten := bytesWritten - 1;
                 NEXT_STATE <= sWRITE_BACK;
             end loop;
             
             -- in case of tag mismatch, this will ensure that the new tag
             -- can take ownership of a block after the prev one has been written
             t_tag <= i_tag;
-            bytesWritten <= 16;
+            bytesWritten := 16;
             NEXT_STATE <= sALLOCATE;
+
+	--Allocate state
         when sALLOCATE  =>
+	
+		Report "In sALLOCATE state";
             -- read from memory
+	    bytesRead := 4;
+		pos1 := 0;
+		pos2 :=0;
+		
             while (bytesRead > 0) loop
-                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4)));
                 nextm_read <= '1';
                 
-                pos1 <= bytesRead * 8 - 1;
-                pos2 <= pos1 - 7;
-                finalReadData(pos1 downto pos2) <= m_readdata;
+                pos1 := bytesRead * 8 - 1;
+                pos2 := pos1 - 7;
+		
+		--Report "bytesRead: " & integer'image(bytesRead);
+		--Report "pos1_afterCalc: " & integer'image(pos1);
+		--Report "pos2: " & integer'image(pos2);
 
-                bytesRead <= bytesRead - 1;
+                temp_allocate(31 downto 24) <= m_readdata;
+		temp_allocate <= temp_allocate(23 downto 0) & temp_allocate(31 downto 24);
+
+                bytesRead := bytesRead - 1;
                 NEXT_STATE <= sALLOCATE;
             end loop;
 
-            nexts_readdata <= finalReadData;
-            bytesRead <= 4;
+            nexts_readdata <= temp_allocate;
+            bytesRead := 4;
             NEXT_STATE <= sCOMPARE_TAG;   
         end case;
 end process;

@@ -112,10 +112,64 @@ begin
   wait for clk_period/2;
 end process;
 
+
+--test cases
+--12 cases to test
+
+-- v d r w t.equal
+
+-- 0 0 1 0 0
+-- 0 0 1 0 1
+-- 0 0 0 1 0
+-- 0 0 0 1 1
+
+-- 1 0 1 0 0
+-- 1 0 1 0 1
+-- 1 0 0 1 0
+-- 1 0 0 1 1
+
+-- 1 1 1 0 0
+-- 1 1 1 0 1
+-- 1 1 0 1 0
+-- 1 1 0 1 1
+
 test_process : process
 begin
+	Report "Starting test bench";
 
--- put your tests here
+	--start by resetting the fsm
+	reset <= '1';
+	WAIT FOR 1 * clk_period;
+	reset <= '0';
+	
+	WAIT FOR 1 * clk_period;
+	 
+	 Report "start with addr, index = 00000, b.offset = 00, tag = 000000";
+	-- v d r w t.equal
+	-- 0 0 0 1 0
+	-- this should be a miss -> Allocate, set v =1, d =1
+	s_addr <= "00000000000000000000000000000000";
+	s_read <= '0';
+	s_write <= '1';
+	s_writedata <= "00000000000000000000000000000011";
+	
+	WAIT FOR 1 * clk_period;
+	
+	-- v d r w t.equal
+	-- 0 0 0 1 1
+	-- this should be a hit -> 
+	s_addr <= "00000000000000000000000000000000";
+	s_read <= '0';
+	s_write <= '1';
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_readdata = "00000000000000000000000000000011") REPORT "When reading this, the output should be '00000000000000000000000000000011'" SEVERITY ERROR;
+
+
+
+
+
+	
+
 
 WAIT;
 	
