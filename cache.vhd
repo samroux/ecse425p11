@@ -78,8 +78,8 @@ architecture arch of cache is
 
     signal tagEqual : std_logic;
     signal pos1, pos2 : integer := 0;
-    signal bytesWritten : integer := 16;
-    signal bytesRead : integer := 4;
+    signal bytesToWrite : integer := 16;
+    signal bytesToRead : integer := 4;
     signal finalReadData : std_logic_vector(31 downto 0);
 
 function compareTags( tag1 : std_logic_vector(5 downto 0);
