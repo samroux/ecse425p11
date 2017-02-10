@@ -79,7 +79,8 @@ architecture arch of cache is
     signal tagEqual : std_logic;
     signal pos1, pos2 : integer := 0;
     signal bytesWritten : integer := 16;
-    signal bytesRead : integer := 16;
+    signal bytesRead : integer := 4;
+    signal finalReadData : std_logic_vector(31 downto 0);
 
 function compareTags( tag1 : std_logic_vector(5 downto 0);
                       tag2 : std_logic_vector(5 downto 0))
@@ -197,17 +198,17 @@ process (s_read, s_write, STATE)
             while (bytesRead > 0) loop
                 nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
                 nextm_read <= '1';
-
+                
                 pos1 <= bytesRead * 8 - 1;
                 pos2 <= pos1 - 7;
+                finalReadData(pos1 downto pos2) <= m_readdata;
 
-                --nexts_readdata <= 
-
-                bytersRead <= bytesRead - 1;
+                bytesRead <= bytesRead - 1;
                 NEXT_STATE <= sALLOCATE;
             end loop;
 
-            bytesRead <= 16;
+            nexts_readdata <= finalReadData;
+            bytesRead <= 4;
             NEXT_STATE <= sCOMPARE_TAG;   
         end case;
 end process;
