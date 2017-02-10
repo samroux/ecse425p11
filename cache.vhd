@@ -176,8 +176,7 @@ variable  pos1, pos2: integer range 0 to 127;
                     NEXT_STATE <= sIDLE;
                 end if;
             else    -- miss
-               -- if (t_dirtyBit = '0' or t_dirtyBit = 'U') then
-		if (t_dirtyBit = '0') then
+                if (t_dirtyBit = '0' or t_dirtyBit = 'U') then
                     NEXT_STATE <= sALLOCATE;
                 else
                     NEXT_STATE <= sWRITE_BACK;
