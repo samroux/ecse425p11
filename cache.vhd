@@ -176,7 +176,7 @@ process (s_read, s_write, STATE)
             -- to write 4x4 = 16 bytes
             while (bytesWritten > 0) loop
                 -- ignore trailing offsets
-                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4)));
                 nextm_write <= '1';
                 -- move from pos1 = 127 and pos2 = 120 to pos1 = 7 and pos2 = 0
                 pos1 <= bytesWritten * 8 - 1;
@@ -196,7 +196,7 @@ process (s_read, s_write, STATE)
         when sALLOCATE  =>
             -- read from memory
             while (bytesRead > 0) loop
-                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4))));
+                nextm_addr <= to_integer(unsigned(i_addr(31 downto 4)));
                 nextm_read <= '1';
                 
                 pos1 <= bytesRead * 8 - 1;
