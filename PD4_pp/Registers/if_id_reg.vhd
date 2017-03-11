@@ -15,8 +15,8 @@ port (
 	-- to move to next inst. Our memory has size 4096 * 8 bits, which
 	-- means 4096/4 = 1024 instructions.
 	clock : in std_logic;
-	NPC_IF: in std_logic_vector(1023 downto 0);
-	NPC_ID : out std_logic_vector(1023 downto 0);
+	NPC_IF: in std_logic_vector(4095 downto 0);
+	NPC_ID : out std_logic_vector(4095 downto 0);
 	IR_IF: in std_logic_vector(31 downto 0);
 	IR_ID : out std_logic_vector(31 downto 0)
 	);
@@ -24,16 +24,15 @@ end IF_ID_REG;
 
 architecture behavior of IF_ID_REG is
 
-	signal NPC_IF_STORED : std_logic_vector(1023 downto 0) := (others=>'0');
+	signal NPC_IF_STORED : std_logic_vector(4095 downto 0) := (others=>'0');
 	signal IR_IF_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 
 	begin
 
-	-- If register_in is the current value,
-	-- register_out should be the last value stored
-	-- (1 clock cycle before the current value).
-	-- Values should be fed on rising_edge to
-	-- be returned on the next rising_edge.
+	-- If register_in is the current value, register_out should be 
+	-- the last value stored (1 clock cycle before the current value).
+	-- Values should be fed on rising_edge to be returned on the next 
+	-- rising_edge (i.e a full cycle after).
 
 	process (clock)
 	begin
