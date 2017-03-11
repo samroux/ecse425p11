@@ -33,27 +33,37 @@ begin
 					when "0101" =>
 						operation <= "0001"; --OR
 					when "1010" =>
-						operation <= "0111"; --set on less than
+						operation <= "0111"; --set on less than/div
 					when "0111" =>
 						operation <= "0011"; --NOR
 					when "0110" =>
 						operation <= "0100"; --XOR
 					when "1000" =>
 						operation <= "0101"; --mult
+					when "0011" =>
+						operation <= "1011"; --sra
 					when others =>
-						operation => "1111";
+						operation <= "1111";
 				end case;
 			when "11" =>
 				case (funct(3 downto 0)) is
+					when "1000" =>
+						operation <= "0010"; --addi
 					when "0010" =>
 						operation <= "0110"; --substract
 					when "1010" =>
-						operation <= "0111"; --set on less than
+						operation <= "0111"; --slti
+					when "1100" =>
+						operation <= "1000"; --andi
+					when "1110" =>
+						operation <= "1001"; --xori
+					when "1111" =>
+						operation <= "1010"; --lui
 					when others =>
-						operation => "1111";
+						operation <= "1111";
 				end case;
 			when others =>
-				operation => "1111";
+				operation <= "1111";
 		end case;
 end process;
 

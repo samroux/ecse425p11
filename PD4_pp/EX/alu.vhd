@@ -30,6 +30,8 @@ alu: process(ALU_operation, funct, read_data_1, read_data_2)
 begin
 		case(ALU_operation) is
 			when "0010" => --add
+				if funct = "000000" then --sll
+					ALU_result <= std_logic_vector(shift_left(unsigned(port_2), to_integer(unsigned(read_data_2))));
 				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) + to_integer(signed(read_data_2)), 32));
 				if funct = "010000" then --mfhi
 					ALU_result <= Hi;
@@ -63,6 +65,10 @@ begin
 				HiLo <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) * to_integer(signed(read_data_2)), 64));
 				Hi <= HiLo(63 downto 32);
 				Lo <= HiLo(31 downto 0);
+			when "1010" => --lui
+				ALU_result <= read_data_2;
+			when "1011" => --sra
+				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) / to_integer(signed(read_data_2)), 32));
 		end case;
 end process;
 
