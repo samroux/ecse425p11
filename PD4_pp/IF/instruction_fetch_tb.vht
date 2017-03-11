@@ -44,9 +44,7 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
 BEGIN
 
     --dut => Device Under Test
-    dut: instruction_fetch GENERIC MAP(
-            ram_size => 15
-                )
+    dut: instruction_fetch
                 PORT MAP(
                     clk,
 					reset,

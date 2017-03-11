@@ -40,7 +40,7 @@ BEGIN
 		variable VEC_LINE : line;
 		variable VEC_VAR : bit_vector(0 to 31);
 		variable mem_address: integer := 0;
-		file VEC_FILE : text is in "../Assembler/program.txt"; -- Path of any output of assembler. (Correct relative path in actual config)
+		file VEC_FILE : text is in "C:\Users\Sam\Documents\_ecse425\ecse425p11\PD4_pp\Assembler\program.txt"; -- Path of any output of assembler. (Correct relative path in actual config)
 
 		begin
 			if reset = '1' then
@@ -63,10 +63,12 @@ BEGIN
 	process(clock, address)
 		begin
 		--Goal of this process is to output instruction from address
-			instruction(31 downto 24) <= ram_block(to_integer(unsigned(address)));
-			instruction(23 downto 16) <= ram_block(to_integer(unsigned(address)) + 1);
-			instruction(15 downto 8) <= ram_block(to_integer(unsigned(address)) + 2);
-			instruction(7 downto 0) <= ram_block(to_integer(unsigned(address)) + 3);
+			if (rising_edge(clock)) then
+				instruction(31 downto 24) <= ram_block(to_integer(unsigned(address)));
+				instruction(23 downto 16) <= ram_block(to_integer(unsigned(address)) + 1);
+				instruction(15 downto 8) <= ram_block(to_integer(unsigned(address)) + 2);
+				instruction(7 downto 0) <= ram_block(to_integer(unsigned(address)) + 3);
+			end if;
 	end process;
 
 END behaviour;
