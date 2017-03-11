@@ -71,6 +71,12 @@ architecture if_id_reg_arch of if_id_reg_tst is
         	wait for clock_period;
         	NPC_IF <= (others=>'0');
         	IR_IF  <= (others=>'0');
+        	wait for clock_period;
+        	NPC_IF <= (others=>'0');
+        	IR_IF  <= (others=>'0');
+        	wait for clock_period;
+        	NPC_IF <= (others=>'0');
+        	IR_IF  <= (others=>'0');
 		wait;                                                        
 	end process generate_test;                                     
 end if_id_reg_arch;
