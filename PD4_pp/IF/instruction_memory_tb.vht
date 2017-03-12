@@ -1,4 +1,4 @@
--- @filename	instruction_memory_tb.vhd
+-- @filename	instruction_memory_tb.vht
 -- @author		Samuel Roux
 -- @timestamp	2017-03-11 12:55 AM
 -- @brief		Testbench for instruction_memory.vhd
@@ -33,7 +33,7 @@ ARCHITECTURE behaviour OF instruction_memory_tb IS
 
 BEGIN
 	
-	i : instruction_memory
+	dut : instruction_memory
 	port map (
 			clock,
 			s_reset,
@@ -61,6 +61,10 @@ BEGIN
 		wait for clock_period;
 		
 		s_reset <= '1';
+		
+		wait for clock_period;
+		
+		s_reset <= '0';
 		
 		wait for clock_period;
 		
