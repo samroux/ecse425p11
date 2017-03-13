@@ -1,4 +1,4 @@
--- @filename:	if_id_reg.vht
+-- @filename:	if_id_reg_tb.vht
 -- @author:		William Bouchard
 -- @timestamp:	2017-03-10
 -- @brief:		Test bench for the IF/ID register
