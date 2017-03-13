@@ -21,8 +21,8 @@ SIGNAL s_reset : std_logic := '0';
 -- instruction fetch stage --
 signal s_branch_taken : std_logic := '0';
 signal s_branch_address : std_logic_vector(11 downto 0):= (others => '0');
-signal s_PC : std_logic_vector(11 downto 0) := (others => '0');
 signal s_IR : std_logic_vector(31 downto 0):= (others => '0');
+signal s_PC : std_logic_vector(11 downto 0) := (others => '0');
 
 component instruction_fetch		
 	PORT (
@@ -40,12 +40,14 @@ end component;
 
 
 -- IF/ID register --
+signal s_NPC_ID : std_logic_vector(11 downto 0) := (others => '0');
+signal s_IR_ID : std_logic_vector(31 downto 0)	:= (others => '0');
 
 component if_id_reg				
 	PORT (
 		clock : in std_logic;
-		NPC_IF: in std_logic_vector(4095 downto 0);
-		NPC_ID : out std_logic_vector(4095 downto 0);
+		NPC_IF: in std_logic_vector(11 downto 0);
+		NPC_ID : out std_logic_vector(11 downto 0);
 		IR_IF: in std_logic_vector(31 downto 0);
 		IR_ID : out std_logic_vector(31 downto 0)
 	);
@@ -136,13 +138,17 @@ BEGIN
 			s_reset,
 			s_branch_taken,
 			s_branch_address,
-			s_PC,
-			s_IR
+			s_IR,
+			s_PC
 		);
 		
 	IF_ID: if_id_reg
 	port map (
 			clock,
+			s_PC,
+			s_NPC_ID,
+			s_IR,
+			s_IR_ID
 		);
 		
 --	I_D: instruction_decode
@@ -187,34 +193,9 @@ BEGIN
 --		s_reset
 --		);
 
-fetch :	process (clock, reset)
-			-- performing instruction fetch
-			begin
-				if reset = '1' then
-					-- This should bring to fill Instruction Memory Register
-					--since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
-					s_reset <= reset;
-					s_PC <= (others => '0');
-				elsif (rising_edge(clock)) then
-					-- can fetch instruction on rising edge
-					-- Get instruction from instruction memory
-					-- Here, s_IR should contain instruction
-					
-					-- Perform add = PC + 4
-					
-					s_PC <= std_logic_vector(unsigned(s_PC) + unsigned(s_FOUR));
-					
-					-- Check MUX and output
-					if(branch_taken = '1') then
-						s_PC <= branch_address; --set PC to branch_address
-					else
-						-- do nothing, keep the added PC
-					end if;
-					
-				end if;
-			end process;
-
-	PC <= s_PC;	--set output to signal value
-	IR <= s_IR;
+	process (clock, reset)
+		begin
+			
+		end process;
 
 END behaviour;
