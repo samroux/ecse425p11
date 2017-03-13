@@ -17,7 +17,7 @@ ENTITY instruction_memory IS
 	PORT (
 		clock: IN STD_LOGIC;
 		reset: IN STD_LOGIC;
-		address: in std_logic_vector(1023 downto 0);
+		address: in std_logic_vector(11 downto 0);
 		instruction: out std_logic_vector(31 downto 0)
 	);
 END instruction_memory;

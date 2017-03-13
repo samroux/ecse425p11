@@ -20,9 +20,9 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
     constant clock_period : time := 1 ns;
 	
 	signal s_branch_taken : std_logic := '0';	--initialy, assume no branch is taken
-	signal s_branch_address : std_logic_vector(11 downto 0):= (others => '0');  --set branch address to 0 for now, but won't be used
+	signal s_branch_address : std_logic_vector(1023 downto 0):= (others => '0');  --set branch address to 0 for now, but won't be used
 	
-	signal s_PC : std_logic_vector(11 downto 0) := (others => '0'); --initialize PC to 0
+	signal s_PC : std_logic_vector(1023 downto 0) := (others => '0'); --initialize PC to 0
 	signal s_IR : std_logic_vector(31 downto 0):= (others => '0');
 	
 	component instruction_fetch
@@ -31,10 +31,10 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
 			reset : in std_logic;
 			
 			branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
-			branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
+			branch_address : in std_logic_vector (1023 downto 0);	-- address to jump to when Branch is Taken
 			
 			IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
-			PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
+			PC : out std_logic_vector (1023 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
 		);
 	end component;
 
@@ -61,7 +61,7 @@ BEGIN
 	end process;
 	
 	generate_test : process
-		variable pc_temp : std_logic_vector (11 downto 0);
+		variable pc_temp : std_logic_vector (1023 downto 0);
 	begin
 	
 		REPORT "-------SIMULATION START-------";

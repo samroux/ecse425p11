@@ -19,14 +19,14 @@ ARCHITECTURE behaviour OF instruction_memory_tb IS
 	signal s_reset : std_logic;
     constant clock_period : time := 1 ns;
 	
-	signal s_address : std_logic_vector(1023 downto 0);
+	signal s_address : std_logic_vector(11 downto 0);
 	signal s_instruction : std_logic_vector(31 downto 0);
 	
 	component instruction_memory
 		port (
 			clock : in std_logic;
 			reset : in std_logic;
-			address: in std_logic_vector(1023 downto 0);
+			address: in std_logic_vector(11 downto 0);
 			instruction : out std_logic_vector(31 downto 0)
 		);
 	end component;
