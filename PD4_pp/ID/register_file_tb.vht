@@ -76,9 +76,10 @@ architecture register_file_arch of register_file_tb is
 			report "Reading from address $1";
 			MemWrite <= '0';
 			MemRead <= '1';
-			wait for clock_period;
+			wait for clock_period/2;
 			assert (reg_output = "01010101") severity ERROR;
 			report "______";
+			wait for clock_period/2;
 
 			report "Moving back to no read/write";
 			MemRead <= '0';
@@ -97,12 +98,14 @@ architecture register_file_arch of register_file_tb is
 			reg_address <= "00001";
 			MemWrite <= '0';
 			MemRead <= '1';
-			wait for clock_period;
+			wait for clock_period/2;
 			assert (reg_output = "01010101") severity ERROR;
+			wait for clock_period/2;
 			
 			reg_address <= "00010";
-			wait for clock_period;
+			wait for clock_period/2;
 			assert (reg_output = "10000001") severity ERROR;
+			wait for clock_period/2;
 			report "______";
 
 			report "Test simultaneous read/write on half cycle";
