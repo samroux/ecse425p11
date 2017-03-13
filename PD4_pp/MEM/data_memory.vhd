@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 
 entity DATA_MEMORY is
 generic(
-		mem_size : integer := 32768;
+		mem_size : integer := 32768;	-- given in spec
 		mem_delay : time := 1 ns;
 		clock_period : time := 1 ns
 	);
@@ -34,13 +34,19 @@ architecture behavior of DATA_MEMORY is
 	begin
 
 	-- TODO: where does memdelay come in?
-	process(ALUOutput)
+	process(clock)
 	begin
 		if (MemWrite = '0') and (MemRead = '1') then
-			LMD <= data_mem_inst(to_integer(unsigned(ALUOutput)));
+			-- ALUOutput is a 16-bit vector, so it has a range of 65 535
+			-- Memory only has a range of 32768, so we take the abs value
+			-- of the signed ALUOutput to find the address.
+			-- This creates duplicate addresses.
+			LMD <= data_mem_inst(abs(to_integer(signed(ALUOutput))));
 		elsif (MemWrite = '1') and (MemRead = '0') then
-			data_mem_inst(to_integer(unsigned(ALUOutput))) <= B;
+			data_mem_inst(abs(to_integer(signed(ALUOutput)))) <= B;
             LMD <= (others => '0');
+       	else
+       		LMD <= (others => '0');
 		end if;
 	end process;
 
