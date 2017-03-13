@@ -40,7 +40,9 @@ architecture behavior of DATA_MEMORY is
 			-- ALUOutput is a 16-bit vector, so it has a range of 65 535
 			-- Memory only has a range of 32768, so we take the abs value
 			-- of the signed ALUOutput to find the address.
-			-- This creates duplicate addresses.
+			-- This creates duplicate addresses, which is a limitation.
+			-- eg. 8 = 0000 0000 0000 1000 and -8 = 1111 1111 1111 1000
+			-- will point to the same address.
 			LMD <= data_mem_inst(abs(to_integer(signed(ALUOutput))));
 		elsif (MemWrite = '1') and (MemRead = '0') then
 			data_mem_inst(abs(to_integer(signed(ALUOutput)))) <= B;
