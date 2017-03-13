@@ -29,10 +29,11 @@ end DATA_MEMORY;
 architecture behavior of DATA_MEMORY is
 
 	type DATA_MEM is array(mem_size-1 downto 0) of std_logic_vector(7 downto 0);
-	signal data_mem_inst : DATA_MEM;
+	signal data_mem_inst : DATA_MEM := ((others => (others => '0')));
 
 	begin
 
+	-- TODO: where does memdelay come in?
 	process(ALUOutput)
 	begin
 		if (MemWrite = '0') and (MemRead = '1') then
