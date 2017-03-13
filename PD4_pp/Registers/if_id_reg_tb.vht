@@ -16,8 +16,8 @@ architecture if_id_reg_arch of if_id_reg_tst is
            
     -- test signals
     signal clock : std_logic;                                      
-	signal NPC_IF : std_logic_vector(4095 downto 0);
-	signal NPC_ID : std_logic_vector(4095 downto 0);
+	signal NPC_IF : std_logic_vector(11 downto 0);
+	signal NPC_ID : std_logic_vector(11 downto 0);
 	signal IR_IF : std_logic_vector(31 downto 0);
 	signal IR_ID : std_logic_vector(31 downto 0);
 
@@ -27,8 +27,8 @@ architecture if_id_reg_arch of if_id_reg_tst is
 	component if_id_reg
 		port (
 			clock : in std_logic;
-			NPC_IF: in std_logic_vector(4095 downto 0);
-			NPC_ID : out std_logic_vector(4095 downto 0);
+			NPC_IF: in std_logic_vector(11 downto 0);
+			NPC_ID : out std_logic_vector(11 downto 0);
 			IR_IF: in std_logic_vector(31 downto 0);
 			IR_ID : out std_logic_vector(31 downto 0)
 		);
@@ -60,13 +60,13 @@ architecture if_id_reg_arch of if_id_reg_tst is
 			IR_IF  <= (others=>'0');                       
 			wait for clock_period;    
 			wait for clock_period/2; -- start at rising edge                  
-        	NPC_IF <= (4095=>'1', 4094=>'1', 4093=>'0', 4092=>'1', others=>'0');
+        	NPC_IF <= (11=>'1', 10=>'1', 9=>'0', 8=>'1', others=>'0');
         	IR_IF  <= (31=>'0', 30=>'0', 29=>'1', 28=>'0', others=>'0');
         	wait for clock_period;
         	NPC_IF <= (others=>'0');
         	IR_IF  <= (others=>'0');
-        	wait for clock_period;                         
-        	NPC_IF <= (4095=>'1', 4094=>'1', 4093=>'0', 4092=>'1', others=>'0');
+        	wait for clock_period;                 
+        	NPC_IF <= (11=>'1', 10=>'1', 9=>'0', 8=>'1', others=>'0');
         	IR_IF  <= (31=>'0', 30=>'0', 29=>'1', 28=>'0', others=>'0');
         	wait for clock_period;
         	NPC_IF <= (others=>'0');
