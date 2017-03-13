@@ -35,10 +35,10 @@ architecture behavior of DATA_MEMORY is
 
 	process(ALUOutput)
 	begin
-		if (MemWrite = '0' && MemRead = '1') then
-			LMD <= data_mem_inst(ALUOutput);
-		elsif (MemWrite = '1' && MemRead = '0') then
-			data_mem_inst(ALUOutput) <= B;
+		if (MemWrite = '0') and (MemRead = '1') then
+			LMD <= data_mem_inst(to_integer(unsigned(ALUOutput)));
+		elsif (MemWrite = '1') and (MemRead = '0') then
+			data_mem_inst(to_integer(unsigned(ALUOutput))) <= B;
             LMD <= (others => '0');
 		end if;
 	end process;
