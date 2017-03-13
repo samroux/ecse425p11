@@ -7,12 +7,12 @@ library ieee;
 use ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;                               
 
-entity if_id_reg_tst is
-end if_id_reg_tst;
+entity if_id_reg_tb is
+end if_id_reg_tb;
 
 -- need to ensure that the register is properly edge-triggered
 
-architecture if_id_reg_arch of if_id_reg_tst is
+architecture if_id_reg_arch of if_id_reg_tb is
            
     -- test signals
     signal clock : std_logic;                                      
