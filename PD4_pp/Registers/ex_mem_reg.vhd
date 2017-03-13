@@ -14,13 +14,13 @@ port (
 	Cond_EX : in std_logic; -- whether branch should be taken (BEQZ)
 	ALUOutput_EX : in std_logic_vector(15 downto 0); -- need to make sure that only 12 bits
 													 -- are used when this is used as index
-	B_EX : in std_logic_vector(15 downto 0);	-- rt, used for reg-reg store
-												-- should come from id/ex directly
+	B_EX : in std_logic_vector(7 downto 0);	-- rt, used for reg-reg store
+										    -- should come from id/ex directly
 	IR_EX : in std_logic_vector(31 downto 0);	-- same as above
 	
 	Cond_MEM : out std_logic;
 	ALUOutput_MEM : out std_logic_vector(15 downto 0);
-	B_MEM : out std_logic_vector(15 downto 0);
+	B_MEM : out std_logic_vector(7 downto 0);
 	IR_MEM : out std_logic_vector(31 downto 0)
 	);
 end EX_MEM_REG;
@@ -29,7 +29,7 @@ architecture behavior of EX_MEM_REG is
 
 	signal Cond_EX_STORED : std_logic;
 	signal ALUOutput_EX_STORED : std_logic_vector(15 downto 0) := (others=>'0');
-	signal B_EX_STORED : std_logic_vector(15 downto 0) := (others=>'0');
+	signal B_EX_STORED : std_logic_vector(7 downto 0) := (others=>'0');
 	signal IR_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 
 	begin
