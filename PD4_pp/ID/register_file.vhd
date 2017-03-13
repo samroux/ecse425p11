@@ -35,7 +35,7 @@ architecture behavior of REGISTER_FILE is
 	process(clock)
 	variable addr_int : integer;
 	begin
-		addr_int <= to_integer(unsigned(reg_address));
+		addr_int := to_integer(unsigned(reg_address));
 
 		if falling_edge(clock) then		-- 1st half of cycle: read
 			if (MemWrite = '0') and (MemRead = '1') then
