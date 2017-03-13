@@ -61,7 +61,7 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			-- read/write process is entered only when ALU_Output changes
+			-- read/write process is entered only when ALUOutput changes
 			B <= "01010101"; -- test rt register
 			ALUOutput <= "1100110011001100";
 
@@ -87,6 +87,7 @@ architecture data_memory_arch of data_memory_tb is
 
 			report "Moving back to no read/write";
 			MemRead <= '0';
+			wait for clock_period;
 			assert (LMD = "00000000") severity ERROR;
 			report "______";
 		wait;                                                        
