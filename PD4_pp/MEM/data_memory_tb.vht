@@ -61,9 +61,8 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			-- read/write process is entered only when ALUOutput changes
-			B <= "01010101"; -- test rt register
-			ALUOutput <= "1100110011001100";
+			B <= "01010101"; -- rt register used for testing
+			ALUOutput <= "1100110011001100"; -- address used for testing
 
 			report "Initial state; no read/write";
 			MemRead <= '0';
@@ -90,6 +89,32 @@ architecture data_memory_arch of data_memory_tb is
 			wait for clock_period;
 			assert (LMD = "00000000") severity ERROR;
 			report "______";
+
+			report "Writing to a new address, 0011001100110011";
+			B <= "10000001";
+			ALUOutput <= "0011001100110011";
+			MemWrite <= '1';
+			wait for clock_period;
+			assert (LMD = "00000000") severity ERROR;
+
+			report "Test persistency; read both written addresses successively";
+			ALUOutput <= "1100110011001100";
+			MemWrite <= '0';
+			MemRead <= '1';
+			wait for clock_period;
+			assert (LMD = "01010101") severity ERROR;
+			
+			ALUOutput <= "0011001100110011";
+			wait for clock_period;
+			assert (LMD = "10000001") severity ERROR;
+			report "______";
+
+			report "Test simultaneous read/write";
+			MemRead <= '1';
+			MemWrite <= '1';
+			wait for clock_period;
+			assert (LMD = "00000000") severity ERROR;
+
 		wait;                                                        
 	end process generate_test;                                     
 end data_memory_arch;
