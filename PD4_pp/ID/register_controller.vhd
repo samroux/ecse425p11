@@ -13,17 +13,16 @@ port (
 	clock : in std_logic;
 	--PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
-
 	IR_MEM_WB : in std_logic_vector(31 downto 0);
 	WB_return : in std_logic_vector(31 downto 0); -- either a loaded register from memory 
-												 -- or the ALU output (mux decided)
+												  -- or the ALU output (mux decided)
 	isRegReg: in std_logic;	-- WB should have a mux to determine this flag (not in diagram!)
 							-- it is used to know whether to write to rs (1) or rt (0)
 
+	opcode : out std_logic_vector(5 downto 0);
 	A : out std_logic_vector(31 downto 0);
 	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0);
-	opcode : out std_logic_vector(5 downto 0);
 	branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
 								-- or if rs /= rt and instruction is bne.
 								-- to be used in EX stage 
@@ -99,10 +98,17 @@ architecture behavior of REGISTER_CONTROLLER is
 		B_temp <= reg_output;
 
 		-- Preemptive steps	
-		-- Sign extend immediate 16->32
-		Imm <= std_logic_vector(resize(signed(Imm_to_extend), Imm'length));
+		-- Sign extend immediate 16->32 for signed instructions (general case)
+		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
+		if (instruction = "001100") OR (instruction = "001101") then
+			Imm <= std_logic_vector(resize(unsigned(Imm_to_extend), Imm'length));
+		else
+			Imm <= std_logic_vector(resize(signed(Imm_to_extend), Imm'length));
+		end if;
 
 		-- Do equality test on registers -> branch
+		-- Compute branch target address PC+4+Imm
+		-- TODO: why is this not done in EX?
 		if (instruction = "000100") then	-- beq
 			if (A_temp = B_temp) then 	branchTaken <= '1';
 			else 						branchTaken <= '0';
@@ -114,9 +120,6 @@ architecture behavior of REGISTER_CONTROLLER is
 		else
 			branchTaken <= '0';
 		end if;
-
-		-- Compute branch target address PC+4+Imm
-		-- TODO: why is this not done in EX?
 	end if;
 	end process;
 
