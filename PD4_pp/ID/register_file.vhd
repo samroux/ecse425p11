@@ -16,16 +16,16 @@ generic(
 port (
 	clock : in std_logic;
 	reg_address : in std_logic_vector(4 downto 0); -- 32 = 2^5 addressing bits
-	reg_write_input : in std_logic_vector(7 downto 0);
+	reg_write_input : in std_logic_vector(31 downto 0);
 	MemWrite : in std_logic;
 	MemRead : in std_logic;
-	reg_output : out std_logic_vector(7 downto 0)
+	reg_output : out std_logic_vector(31 downto 0)
 	);
 end REGISTER_FILE;
 
 architecture behavior of REGISTER_FILE is
 
-	type REGISTERS is array(number_of_registers-1 downto 0) of std_logic_vector(7 downto 0);
+	type REGISTERS is array(number_of_registers-1 downto 0) of std_logic_vector(31 downto 0);
 	signal registers_inst : REGISTERS := ((others => (others => '0')));
 
 	begin
@@ -41,17 +41,17 @@ architecture behavior of REGISTER_FILE is
 			if (MemWrite = '0') and (MemRead = '1') then
 				if (addr_int /= 0) then 
 					reg_output <= registers_inst(addr_int);
-				else reg_output <= "00000000"; -- $0 hardwired to 0
+				else reg_output <= (others => '0'); -- $0 hardwired to 0
 				end if;
-			else reg_output <= "00000000";
+			else reg_output <= (others => '0');
 			end if;
 		elsif rising_edge(clock) then	-- 2nd half of cycle: write
 			if (MemWrite = '1') and (MemRead = '0') then
 				if (addr_int /= 0) then 
 					registers_inst(addr_int) <= reg_write_input;
 				end if;
-				reg_output <= "00000000";
-			else reg_output <= "00000000";
+				reg_output <= (others => '0');
+			else reg_output <= (others => '0');
 			end if;
 		end if;
 	end process;

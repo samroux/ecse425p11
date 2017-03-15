@@ -11,17 +11,17 @@ entity REGISTER_CONTROLLER is
 
 port (
 	clock : in std_logic;
-	PC_IF : in std_logic_vector (11 downto 0);
+	--PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
 
 	IR_MEM_WB : in std_logic_vector(31 downto 0);
-	WB_return : in std_logic_vector(7 downto 0); -- either a loaded register from memory 
+	WB_return : in std_logic_vector(31 downto 0); -- either a loaded register from memory 
 												 -- or the ALU output (mux decided)
 	isRegReg: in std_logic;	-- WB should have a mux to determine this flag (not in diagram!)
 							-- it is used to know whether to write to rs (1) or rt (0)
 
-	A : out std_logic_vector(7 downto 0);
-	B : out std_logic_vector(7 downto 0);
+	A : out std_logic_vector(31 downto 0);
+	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0);
 	opcode : out std_logic_vector(5 downto 0);
 	branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
@@ -41,23 +41,23 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	-- register file signals
 	signal reg_address : std_logic_vector(4 downto 0);
-	signal reg_write_input : std_logic_vector(7 downto 0);
+	signal reg_write_input : std_logic_vector(31 downto 0);
 	signal MemWrite : std_logic;
 	signal MemRead : std_logic;
-	signal reg_output : std_logic_vector(7 downto 0);
+	signal reg_output : std_logic_vector(31 downto 0);
 
 	-- temporary register contents used for beq/bne comparison
-	signal A_temp : std_logic_vector(7 downto 0);
-	signal B_temp : std_logic_vector(7 downto 0);
+	signal A_temp : std_logic_vector(31 downto 0);
+	signal B_temp : std_logic_vector(31 downto 0);
 
 	component REGISTER_FILE
 		port (
 			clock : in std_logic;
 			reg_address : in std_logic_vector(4 downto 0);
-			reg_write_input : in std_logic_vector(7 downto 0);
+			reg_write_input : in std_logic_vector(31 downto 0);
 			MemWrite : in std_logic;
 			MemRead : in std_logic;
-			reg_output : out std_logic_vector(7 downto 0)
+			reg_output : out std_logic_vector(31 downto 0)
 		);
 	end component;
 
@@ -115,8 +115,8 @@ architecture behavior of REGISTER_CONTROLLER is
 			branchTaken <= '0';
 		end if;
 
-		-- TODO: why is this not done in EX?
 		-- Compute branch target address PC+4+Imm
+		-- TODO: why is this not done in EX?
 	end if;
 	end process;
 
@@ -134,10 +134,8 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Write to appropriate register
 		MemRead <= '0';
 		MemWrite <= '1';
-		if (isRegReg = '1') then
-			reg_address <= A_addr;
-		else
-			reg_address <= B_addr;
+		if (isRegReg = '1') then 	reg_address <= A_addr;
+		elsif (isRegReg = '0') then	reg_address <= B_addr;
 		end if;
 		reg_write_input <= WB_return;
 	end if;
