@@ -61,8 +61,8 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			B <= (31=>'1', 30=>'1', 29=>'1', 28=>'1', others=>'0'); -- rt register used for testing
-			ALUOutput <= (31=>'0', 30=>'0', 29=>'0', 28=>'1', others=>'0'); -- address used for testing
+			B <= "00000000000000000000000000001111"; -- rt register used for testing
+			ALUOutput <= "00000000000000000000000000001000"; -- address used for testing
 
 			report "Initial state; no read/write";
 			MemRead <= '0';
@@ -81,7 +81,7 @@ architecture data_memory_arch of data_memory_tb is
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period;
-			assert (LMD = "11110000000000000000000000000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000001111") severity ERROR;
 			report "______";
 
 			report "Moving back to no read/write";
@@ -91,22 +91,22 @@ architecture data_memory_arch of data_memory_tb is
 			report "______";
 
 			report "Writing 1001 to a new address 1000";
-			B <= (31=>'1', 30=>'0', 29=>'0', 28=>'1', others=>'0');
-			ALUOutput <= (31=>'1', 30=>'0', 29=>'0', 28=>'0', others=>'0');
+			B <= "00000000000000000000000000001001";
+			ALUOutput <= "00000000000000000000000000000001";
 			MemWrite <= '1';
 			wait for clock_period;
 			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
 			report "Test persistency; read both written addresses successively";
-			ALUOutput <= (31=>'0', 30=>'0', 29=>'0', 28=>'1', others=>'0');
+			ALUOutput <= "00000000000000000000000000001000";
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period;
-			assert (LMD = "11110000000000000000000000000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000001111") severity ERROR;
 			
-			ALUOutput <= (31=>'1', 30=>'0', 29=>'0', 28=>'0', others=>'0');
+			ALUOutput <= "00000000000000000000000000000001";
 			wait for clock_period;
-			assert (LMD = "10010000000000000000000000000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000001001") severity ERROR;
 			report "______";
 
 			report "Test simultaneous read/write";

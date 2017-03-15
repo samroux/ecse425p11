@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 
 entity DATA_MEMORY is
 generic(
-		mem_size : integer := 32768;	-- given in spec
+		mem_size : integer := 8192;
 		mem_delay : time := 1 ns;
 		clock_period : time := 1 ns
 	);
@@ -28,7 +28,9 @@ end DATA_MEMORY;
 
 architecture behavior of DATA_MEMORY is
 
-	type DATA_MEM is array(mem_size-1 downto 0) of std_logic_vector(7 downto 0);
+	-- size needs to be 32768 bytes (spec): 8192*32/8 = 32768 bytes
+	-- equivalent to 8192 registers, whereas CPU has 32 registers.
+	type DATA_MEM is array(mem_size-1 downto 0) of std_logic_vector(31 downto 0);
 	signal data_mem_inst : DATA_MEM := ((others => (others => '0')));
 
 	begin
@@ -38,15 +40,15 @@ architecture behavior of DATA_MEMORY is
 	process(clock)
 	begin
 		if (MemWrite = '0') and (MemRead = '1') then
-			-- ALUOutput is a 16-bit vector, so it has a range of 65 535
-			-- Memory only has a range of 32768, so we take the abs value
-			-- of the signed ALUOutput to find the address.
-			-- This creates duplicate addresses, which is a limitation.
-			-- eg. 8 = 0000 0000 0000 1000 and -8 = 1111 1111 1111 1000
-			-- will point to the same address.
-			LMD <= data_mem_inst(abs(to_integer(signed(ALUOutput))));
+			-- ALUOutput is a 32-bit vector, so it has a range of 2^32 - 1
+			-- Memory only has a range of 8192 = 2^13, so we take as address
+			-- the bottom 13 bits of the ALUOutput.
+			
+			-- TODO: Ensure that the other bits returned by the EX stage
+			--		 are not significant (i.e. sign/zero extended)	 
+			LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0))));
 		elsif (MemWrite = '1') and (MemRead = '0') then
-			data_mem_inst(abs(to_integer(signed(ALUOutput)))) <= B;
+			data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B;
             LMD <= (others => '0');
        	else
        		LMD <= (others => '0');
