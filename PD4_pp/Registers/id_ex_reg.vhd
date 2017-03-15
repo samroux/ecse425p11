@@ -11,14 +11,14 @@ use ieee.numeric_std.all;
 entity ID_EX_REG is
 port (
 	clock : in std_logic;
-	A_ID : in std_logic_vector(7 downto 0); 	-- regs have length 8
-	B_ID : in std_logic_vector(7 downto 0); 	
+	A_ID : in std_logic_vector(31 downto 0); 	-- regs have length 32
+	B_ID : in std_logic_vector(31 downto 0); 	
 	IMM_ID : in std_logic_vector(31 downto 0); 	-- last 16 bits of instruction (sign-extended)
 	NPC_ID : in std_logic_vector(11 downto 0);-- should come from if/id directly
 	IR_ID : in std_logic_vector(31 downto 0);	-- same as above
 
-	A_EX : out std_logic_vector(7 downto 0);
-	B_EX : out std_logic_vector(7 downto 0);
+	A_EX : out std_logic_vector(31 downto 0);
+	B_EX : out std_logic_vector(31 downto 0);
 	IMM_EX : out std_logic_vector(31 downto 0);
 	NPC_EX : out std_logic_vector(11 downto 0);
 	IR_EX : out std_logic_vector(31 downto 0)
@@ -27,8 +27,8 @@ end ID_EX_REG;
 
 architecture behavior of ID_EX_REG is
 
-	signal A_ID_STORED : std_logic_vector(7 downto 0) := (others=>'0');
-	signal B_ID_STORED : std_logic_vector(7 downto 0) := (others=>'0');
+	signal A_ID_STORED : std_logic_vector(31 downto 0) := (others=>'0');
+	signal B_ID_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal IMM_ID_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal NPC_ID_STORED : std_logic_vector(11 downto 0) := (others=>'0');
 	signal IR_ID_STORED : std_logic_vector(31 downto 0) := (others=>'0');

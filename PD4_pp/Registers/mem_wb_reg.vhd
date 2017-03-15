@@ -11,20 +11,20 @@ use ieee.numeric_std.all;
 entity MEM_WB_REG is
     port (
     clock : in std_logic;
-    LMD_MEM : in std_logic_vector(7 downto 0);-- load memory data
-    ALUOutput_MEM : in std_logic_vector(15 downto 0);-- comes from ex/mem (see notes there)
+    LMD_MEM : in std_logic_vector(31 downto 0);-- load memory data
+    ALUOutput_MEM : in std_logic_vector(31 downto 0);-- comes from ex/mem (see notes there)
     IR_MEM : in std_logic_vector(31 downto 0); -- comes from ex/mem
 
-    LMD_WB : out std_logic_vector(7 downto 0);
-    ALUOutput_WB : out std_logic_vector(15 downto 0);
+    LMD_WB : out std_logic_vector(31 downto 0);
+    ALUOutput_WB : out std_logic_vector(31 downto 0);
     IR_WB : out std_logic_vector(31 downto 0)
 );
 end MEM_WB_REG;
 
 architecture behavior of MEM_WB_REG is
 
-    signal LMD_MEM_STORED : std_logic_vector(7 downto 0) := (others=>'0');
-    signal ALUOutput_MEM_STORED : std_logic_vector(15 downto 0) := (others=>'0');
+    signal LMD_MEM_STORED : std_logic_vector(31 downto 0) := (others=>'0');
+    signal ALUOutput_MEM_STORED : std_logic_vector(31 downto 0) := (others=>'0');
     signal IR_MEM_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 
 begin
