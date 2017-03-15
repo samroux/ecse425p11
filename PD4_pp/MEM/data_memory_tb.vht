@@ -16,12 +16,12 @@ architecture data_memory_arch of data_memory_tb is
            
     -- test signals                                     
 	signal clock : std_logic;
-	signal ALUOutput : std_logic_vector(15 downto 0);
-	signal B: std_logic_vector(7 downto 0);
+	signal ALUOutput : std_logic_vector(31 downto 0);
+	signal B: std_logic_vector(31 downto 0);
 	signal MemRead : std_logic;
 	signal MemWrite : std_logic;
 
-	signal LMD : std_logic_vector(7 downto 0);
+	signal LMD : std_logic_vector(31 downto 0);
 
 	constant clock_period : time := 1 ns;
 
@@ -29,12 +29,12 @@ architecture data_memory_arch of data_memory_tb is
 	component data_memory
 		port (
 			clock : in std_logic;
-			ALUOutput : in std_logic_vector(15 downto 0);
-			B: in std_logic_vector(7 downto 0);
+			ALUOutput : in std_logic_vector(31 downto 0);
+			B: in std_logic_vector(31 downto 0);
 			MemRead : in std_logic;
 			MemWrite : in std_logic;
 
-			LMD : out std_logic_vector(7 downto 0)
+			LMD : out std_logic_vector(31 downto 0)
 		);
 	end component;
 
@@ -61,59 +61,59 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			B <= "01010101"; -- rt register used for testing
-			ALUOutput <= "1100110011001100"; -- address used for testing
+			B <= (31=>'1', 30=>'1', 29=>'1', 28=>'1', others=>'0'); -- rt register used for testing
+			ALUOutput <= (31=>'0', 30=>'0', 29=>'0', 28=>'1', others=>'0'); -- address used for testing
 
 			report "Initial state; no read/write";
 			MemRead <= '0';
 			MemWrite <= '0';
 			wait for clock_period;
-			assert (LMD = "00000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
-			report "Writing to address 1100110011001100";
+			report "Writing 1111 to address 0001";
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (LMD = "00000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
-			report "Reading from address 1100110011001100";
+			report "Reading from address 0001";
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period;
-			assert (LMD = "01010101") severity ERROR;
+			assert (LMD = "11110000000000000000000000000000") severity ERROR;
 			report "______";
 
 			report "Moving back to no read/write";
 			MemRead <= '0';
 			wait for clock_period;
-			assert (LMD = "00000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
-			report "Writing to a new address, 0011001100110011";
-			B <= "10000001";
-			ALUOutput <= "0011001100110011";
+			report "Writing 1001 to a new address 1000";
+			B <= (31=>'1', 30=>'0', 29=>'0', 28=>'1', others=>'0');
+			ALUOutput <= (31=>'1', 30=>'0', 29=>'0', 28=>'0', others=>'0');
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (LMD = "00000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
 			report "Test persistency; read both written addresses successively";
-			ALUOutput <= "1100110011001100";
+			ALUOutput <= (31=>'0', 30=>'0', 29=>'0', 28=>'1', others=>'0');
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period;
-			assert (LMD = "01010101") severity ERROR;
+			assert (LMD = "11110000000000000000000000000000") severity ERROR;
 			
-			ALUOutput <= "0011001100110011";
+			ALUOutput <= (31=>'1', 30=>'0', 29=>'0', 28=>'0', others=>'0');
 			wait for clock_period;
-			assert (LMD = "10000001") severity ERROR;
+			assert (LMD = "10010000000000000000000000000000") severity ERROR;
 			report "______";
 
 			report "Test simultaneous read/write";
 			MemRead <= '1';
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (LMD = "00000000") severity ERROR;
+			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
 		wait;                                                        
 	end process generate_test;                                     

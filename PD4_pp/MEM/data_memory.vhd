@@ -17,12 +17,12 @@ generic(
 	);
 port (
 	clock : in std_logic;
-	ALUOutput : in std_logic_vector(15 downto 0);
-	B: in std_logic_vector(7 downto 0);
+	ALUOutput : in std_logic_vector(31 downto 0);
+	B: in std_logic_vector(31 downto 0);
 	MemRead : in std_logic;		-- comes from ALU control unit
 	MemWrite : in std_logic;	-- same as above
 
-	LMD : out std_logic_vector(7 downto 0)
+	LMD : out std_logic_vector(31 downto 0)
 	);
 end DATA_MEMORY;
 
@@ -33,7 +33,8 @@ architecture behavior of DATA_MEMORY is
 
 	begin
 
-	-- TODO: where does memdelay come in?
+	-- TODO:	where does memdelay come in?
+	--			should this be edge triggered?
 	process(clock)
 	begin
 		if (MemWrite = '0') and (MemRead = '1') then
