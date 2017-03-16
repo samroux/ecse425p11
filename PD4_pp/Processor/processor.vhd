@@ -19,12 +19,12 @@ SIGNAL s_reset : std_logic := '0';
 
 
 -- instruction fetch stage --
-signal s_branch_taken : std_logic := '0';
-signal s_branch_address : std_logic_vector(11 downto 0):= (others => '0');
-signal s_IR : std_logic_vector(31 downto 0):= (others => '0');
-signal s_PC : std_logic_vector(11 downto 0) := (others => '0');
+signal s_branch_taken_EX_MEM : std_logic := '0';
+signal s_branch_address_EX_MEM : std_logic_vector(11 downto 0):= (others => '0');
+signal s_IR_Fetch : std_logic_vector(31 downto 0):= (others => '0');
+signal s_PC_Fetch : std_logic_vector(11 downto 0) := (others => '0');
 
-component instruction_fetch		
+component instruction_fetch
 	PORT (
 		clock : in std_logic;
 		reset : in std_logic;
@@ -40,8 +40,8 @@ end component;
 
 
 -- IF/ID register --
-signal s_NPC_ID : std_logic_vector(11 downto 0) := (others => '0');
-signal s_IR_ID : std_logic_vector(31 downto 0)	:= (others => '0');
+signal s_PC_IF_ID : std_logic_vector(11 downto 0) := (others => '0');
+signal s_IR_IF_ID : std_logic_vector(31 downto 0)	:= (others => '0');
 
 component if_id_reg				
 	PORT (
@@ -57,30 +57,42 @@ end component;
 
 
 --instruction decode stage --
---
+
+signal s_WB_addr : std_logic_vector(4 downto 0);
+signal s_WB_return : std_logic_vector(31 downto 0); 
+signal s_IR_decode : std_logic_vector(31 downto 0);
+signal s_A_decode : std_logic_vector(31 downto 0);
+signal s_B_decode : std_logic_vector(31 downto 0);
+signal s_imm_decode : std_logic_vector(31 downto 0);
+signal s_branch_taken_decode : std_logic;
+signal s_PC_decode : std_logic_vector(11 downto 0);
 
 component register_controller
 	port (
 		clock : in std_logic;
-		--PC_IF : in std_logic_vector (11 downto 0);
+		PC_IF : in std_logic_vector (11 downto 0);
 		IR_IF : in std_logic_vector(31 downto 0);
-		NPC_ID : in std_logic_vector(31 downto 0);
 		WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
 		WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 														-- or the ALU output (mux decided)
 
-		opcode : out std_logic_vector(5 downto 0);
+		IR : out std_logic_vector(31 downto 0);	--TODO modify file itself
 		A : out std_logic_vector(31 downto 0);
 		B : out std_logic_vector(31 downto 0);
 		Imm : out std_logic_vector(31 downto 0);
-		branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
+		branchTaken : out std_logic;	-- returns 1 if rs == rt and instruction is beq
 									-- or if rs /= rt and instruction is bne.
 									-- to be used in EX stage
-		PC_ID : out std_logic_vector(31 downto 0);
+		PC_ID : out std_logic_vector(11 downto 0) --TODO modify file itself
 		);
 end component;
 
 -- ID/EX register
+signal s_A_ID_EX : std_logic_vector(7 downto 0);
+signal s_B_ID_EX : std_logic_vector(7 downto 0);
+signal s_IMM_ID_EX : std_logic_vector(31 downto 0);
+signal s_PC_ID_EX : std_logic_vector(11 downto 0);
+signal s_IR_ID_EX : std_logic_vector(31 downto 0);
 
 component id_ex_reg				
 	PORT (
@@ -89,13 +101,13 @@ component id_ex_reg
 		A_ID : in std_logic_vector(7 downto 0); 	-- regs have length 8
 		B_ID : in std_logic_vector(7 downto 0); 	
 		IMM_ID : in std_logic_vector(31 downto 0); 	-- last 16 bits of instruction (sign-extended)
-		NPC_ID : in std_logic_vector(4095 downto 0);-- should come from if/id directly
+		NPC_ID : in std_logic_vector(11 downto 0);-- should come from if/id directly
 		IR_ID : in std_logic_vector(31 downto 0);	-- same as above
 
 		A_EX : out std_logic_vector(7 downto 0);
 		B_EX : out std_logic_vector(7 downto 0);
 		IMM_EX : out std_logic_vector(31 downto 0);
-		NPC_EX : out std_logic_vector(4095 downto 0);
+		NPC_EX : out std_logic_vector(11 downto 0);
 		IR_EX : out std_logic_vector(31 downto 0)
 	);
 end component;
@@ -176,28 +188,43 @@ BEGIN
 
 	I_F: instruction_fetch
 	port map (
+			--in
 			clock,
 			s_reset,
-			s_branch_taken,
-			s_branch_address,
-			s_IR,
-			s_PC
+			s_branch_taken_EX_MEM,
+			s_branch_address_EX_MEM,
+			--out
+			s_IR_Fetch,
+			s_PC_Fetch
 		);
 		
 	IF_ID: if_id_reg
 	port map (
+			--in
 			clock,
-			s_PC,
-			s_IR,
-			s_NPC_ID,
-			s_IR_ID
+			s_PC_Fetch,
+			s_IR_Fetch,
+			--out
+			s_PC_IF_ID,
+			s_IR_IF_ID
 		);
 		
---	I_D: register_controller
---	port map (
---			clock,
---			s_reset
---		);
+	I_D: register_controller
+	port map (
+			--in
+			clock,
+			s_PC_IF_ID,
+			s_IR_IF_ID,
+			s_WB_addr,
+			s_WB_return,
+			--out
+			s_IR_decode,
+			s_A_decode,
+			s_B_decode,
+			s_imm_decode,
+			s_branch_taken_decode,
+			s_PC_decode
+		);
 		
 --	ID_EX: id_ex_reg
 --	port map (
