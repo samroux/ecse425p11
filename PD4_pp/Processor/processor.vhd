@@ -176,22 +176,27 @@ end component;
 
 
 -- MEM/WB register --
+signal s_LMD_MEM_WB : std_logic_vector(31 downto 0);
+signal s_ALUOutput_MEM_WB : std_logic_vector(31 downto 0);
+signal s_IR_MEM_WB : std_logic_vector(31 downto 0);
 
 component mem_wb_reg			
     PORT (
 		clock : in std_logic;
 		
-		LMD_MEM : in std_logic_vector(7 downto 0);-- load memory data
-		ALUOutput_MEM : in std_logic_vector(15 downto 0);-- comes from ex/mem (see notes there)
+		LMD_MEM : in std_logic_vector(31 downto 0);-- load memory data
+		ALUOutput_MEM : in std_logic_vector(31 downto 0);-- comes from ex/mem (see notes there)
 		IR_MEM : in std_logic_vector(31 downto 0); -- comes from ex/mem
 
-		LMD_WB : out std_logic_vector(7 downto 0);
-		ALUOutput_WB : out std_logic_vector(15 downto 0);
+		LMD_WB : out std_logic_vector(31 downto 0);
+		ALUOutput_WB : out std_logic_vector(31 downto 0);
 		IR_WB : out std_logic_vector(31 downto 0)
 	);
 end component;
 
 --write back stage --
+signal s_IR_WB : std_logic_vector(4 downto 0);
+signal s_WB_output : std_logic_vector(31 downto 0);
 
 component write_back
    port (
@@ -306,17 +311,30 @@ BEGIN
 			s_B_MEM
 		);
 		
---	MEM_WB: mem_wb_reg
---	port map (
---			clock,
---			s_reset
---		);
+	MEM_WB: mem_wb_reg
+	port map (
+			--in
+			clock,
+			s_LMD_MEM,
+			s_B_MEM,
+			s_IR_MEM,
+			--out
+			s_LMD_MEM_WB,
+			s_ALUOutput_MEM_WB,
+			s_IR_MEM_WB
+		);
 		
---	WB: write_back
---	port map (
---		clock,
---		s_reset
---		);
+	WB: write_back
+	port map (
+		--in
+		clock,
+		s_IR_EX_MEM,
+		s_LMD_MEM_WB,
+		s_ALUOutput_EX_MEM,
+		--out
+		s_IR_WB,
+		s_WB_output
+		);
 
 	process (clock, reset)
 		begin
