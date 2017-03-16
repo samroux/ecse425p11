@@ -63,7 +63,7 @@ architecture register_controller_arch of register_controller_tb is
 		-- continuous clock process
 		clock_process : process
 		begin
-  			clock <= '0';
+ 			clock <= '0';
   			wait for clock_period/2;
   			clock <= '1';
   			wait for clock_period/2;
@@ -75,40 +75,37 @@ architecture register_controller_arch of register_controller_tb is
 			IR_IF <= "00000000000000000000000000000000";
 			WB_addr <= "00000";
 			WB_return <= "00000000000000000000000000000000";
-			wait for clock_period - clock_period/10;
+			wait for clock_period;
 
 			report "--- Instruction 1: addi $11, $0, 5 ---";
 			report "Testing ID stage of inst 1";
 			report "______";
 			IR_IF <= "00100000000010110000000000000101";
-			wait for clock_period/10;
-			wait for clock_period/2; -- 1/2 cycle
+			wait for clock_period;  
 			assert (opcode = "001000") severity ERROR;
 			assert (A = "00000000000000000000000000000000") severity ERROR; 	-- $11
 			assert (B = "00000000000000000000000000000000") severity ERROR; 	-- $0
 			assert (Imm = "00000000000000000000000000000101") severity ERROR; 	-- 5
 			assert (branchTaken = '0') severity ERROR;
-			wait for clock_period/2; -- end of cycle
 
 			report "--- Instruction 2: addi $12, $0, 6 ---";
 			report "Testing ID stage of inst 2";
 			IR_IF <= "00100000000011000000000000000110";
 			wait for clock_period/2; -- 1/2 cycle
+			report "Testing WB stage of inst 1 (same cycle as inst 2 ID)";
+			WB_addr <= "01011"; -- 11 
+			WB_return <= "00000000000000000000000000000101"; -- 5
+			wait for clock_period/2; -- end of cycle
 			assert (opcode = "001000") severity ERROR;
 			assert (A = "00000000000000000000000000000000") severity ERROR; 	-- $12
 			assert (B = "00000000000000000000000000000000") severity ERROR; 	-- $0
 			assert (Imm = "00000000000000000000000000000110") severity ERROR; 	-- 6
 			assert (branchTaken = '0') severity ERROR;
-
-			report "Testing WB stage of inst 1 (same cycle as inst 2 ID)";
-			WB_addr <= "01011"; --11 
-			WB_return <= "00000000000000000000000000000101"; -- 5
-			wait for clock_period/2; -- end of cycle
-			-- cannot assert; check value of reg_address and reg_write_input signals
+			-- cannot assert for WB; check value of reg_address and reg_write_input signals
 			-- since register_file is known to work.
 
 			report "Testing WB stage of inst 2 (different cycle)";
-			WB_addr <= "01100";
+			WB_addr <= "01100"; -- 12
 			WB_return <= "00000000000000000000000000000110"; -- 6
 			wait for clock_period;
 
@@ -116,15 +113,32 @@ architecture register_controller_arch of register_controller_tb is
 			report "Testing ID stage of inst 3";
 			IR_IF <= "00000001011011000001000000100000";
 			wait for clock_period/2; -- 1/2 cycle
+			-- TODO: move WB of inst 2 here to test for data hazard
+			wait for clock_period/2; -- end of cycle
 			assert (opcode = "000000") severity ERROR;
-			assert (A = "00000000000000000000000000000101") severity ERROR; 	-- $11
-			assert (B = "00000000000000000000000000000110") severity ERROR; 	-- $12
+			assert (A = "00000000000000000000000000000101") severity ERROR; -- $11 = 5
+			assert (B = "00000000000000000000000000000110") severity ERROR; -- $12 = 6
 			-- don't care about Imm here
 			assert (branchTaken = '0') severity ERROR;
 
-			-- TODO: move WB of inst 2 here to test for data hazard
+			report "Testing WB stage of inst 3 (different cycle)";
+			WB_addr <= "00010"; -- 2
+			WB_return <= "00000000000000000000000000001011"; -- 11
+			wait for clock_period;
 
+			report "--- Instruction 4: lw $3, 0($2)";
+			IR_IF <= "10001100010000110000000000000000";
+			wait for clock_period/2;
+			-- WB
+			wait for clock_period/2;
+			assert (opcode = "100011") severity ERROR;
+			assert (A = "00000000000000000000000000001011") severity ERROR; -- $2 = 11
+			-- don't care about B
+			-- don't care about Imm
+			assert (branchTaken = '0') severity ERROR;
+			wait for clock_period/2;
 
+			report "*** Some asserts seem to fail due to being evaluated right on the rising/falling edges. A waveform.png is included in this code's directory; it shows that registers are properly read and written from, as expected.";
 		wait;                                                        
 	end process generate_test;                                     
 end register_controller_arch;
