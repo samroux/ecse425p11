@@ -46,23 +46,46 @@ signal s_IR_ID : std_logic_vector(31 downto 0)	:= (others => '0');
 component if_id_reg				
 	PORT (
 		clock : in std_logic;
+		
 		NPC_IF: in std_logic_vector(11 downto 0);
-		NPC_ID : out std_logic_vector(11 downto 0);
 		IR_IF: in std_logic_vector(31 downto 0);
+		
+		NPC_ID : out std_logic_vector(11 downto 0);
 		IR_ID : out std_logic_vector(31 downto 0)
 	);
 end component;
 
 
 --instruction decode stage --
+--
 
-component instruction_decode
---TODO
+component register_controller
+	port (
+		clock : in std_logic;
+		--PC_IF : in std_logic_vector (11 downto 0);
+		IR_IF : in std_logic_vector(31 downto 0);
+		NPC_ID : in std_logic_vector(31 downto 0);
+		WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
+		WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
+														-- or the ALU output (mux decided)
+
+		opcode : out std_logic_vector(5 downto 0);
+		A : out std_logic_vector(31 downto 0);
+		B : out std_logic_vector(31 downto 0);
+		Imm : out std_logic_vector(31 downto 0);
+		branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
+									-- or if rs /= rt and instruction is bne.
+									-- to be used in EX stage
+		PC_ID : out std_logic_vector(31 downto 0);
+		);
 end component;
 
-component id_ex_reg				-- ID/EX register
+-- ID/EX register
+
+component id_ex_reg				
 	PORT (
 		clock : in std_logic;
+		
 		A_ID : in std_logic_vector(7 downto 0); 	-- regs have length 8
 		B_ID : in std_logic_vector(7 downto 0); 	
 		IMM_ID : in std_logic_vector(31 downto 0); 	-- last 16 bits of instruction (sign-extended)
@@ -88,6 +111,7 @@ end component;
 component ex_mem_reg
 	PORT (
 		clock : in std_logic;
+		
 		Cond_EX : in std_logic; -- whether branch should be taken (BEQZ)
 		ALUOutput_EX : in std_logic_vector(15 downto 0); -- need to make sure that only 12 bits
 														 -- are used when this is used as index
@@ -104,8 +128,16 @@ end component;
 
 -- memory stage --
 
-component data_memory			
---TODO
+component data_memory
+	port (
+		clock : in std_logic;
+		ALUOutput : in std_logic_vector(31 downto 0);
+		B: in std_logic_vector(31 downto 0);
+		MemRead : in std_logic;		-- comes from ALU control unit
+		MemWrite : in std_logic;	-- same as above
+
+		LMD : out std_logic_vector(31 downto 0)
+	);
 end component;
 
 
@@ -114,6 +146,7 @@ end component;
 component mem_wb_reg			
     PORT (
 		clock : in std_logic;
+		
 		LMD_MEM : in std_logic_vector(7 downto 0);-- load memory data
 		ALUOutput_MEM : in std_logic_vector(15 downto 0);-- comes from ex/mem (see notes there)
 		IR_MEM : in std_logic_vector(31 downto 0); -- comes from ex/mem
@@ -127,7 +160,16 @@ end component;
 --write back stage --
 
 component write_back
---TODO
+   port (
+   		clock : in std_logic;
+		
+		IR_reg : in std_logic_vector(31 downto 0);		--instruction following thru from IF and out of MEM/WB register
+		LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
+		ALUOutput : in std_logic_vector(31 downto 0);	-- ALU Output
+		
+		IR_dest_reg : out std_logic_vector(4 downto 0);
+		WB_output : out std_logic_vector(31 downto 0)
+   );
 end component;
 
 BEGIN
@@ -146,12 +188,12 @@ BEGIN
 	port map (
 			clock,
 			s_PC,
-			s_NPC_ID,
 			s_IR,
+			s_NPC_ID,
 			s_IR_ID
 		);
 		
---	I_D: instruction_decode
+--	I_D: register_controller
 --	port map (
 --			clock,
 --			s_reset

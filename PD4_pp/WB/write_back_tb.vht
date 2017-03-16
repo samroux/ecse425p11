@@ -16,7 +16,6 @@ ARCHITECTURE behaviour OF write_back_tb IS
 
     --all the input signals with initial values
     signal clock : std_logic;
-	signal s_reset : std_logic := '0';
     constant clock_period : time := 1 ns;
 	
 	signal s_IR_reg : std_logic_vector(31 downto 0) := (others => '0');
@@ -29,7 +28,6 @@ ARCHITECTURE behaviour OF write_back_tb IS
 	component write_back
 		PORT (
 			clock : in std_logic;
-			reset : in std_logic;
 			
 			IR_reg : in std_logic_vector(31 downto 0);		--instruction following thru from IF and out of MEM/WB register
 			LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
@@ -45,7 +43,6 @@ BEGIN
 	dut : write_back
 	port map (
 			clock,
-			s_reset,
 			s_IR_reg,
 			s_LMD,
 			s_ALUOutput,

@@ -10,7 +10,6 @@ USE ieee.numeric_std.all;
 entity write_back is
    port (
    		clock : in std_logic;
-		reset : in std_logic;
 		
 		IR_reg : in std_logic_vector(31 downto 0);		--instruction following thru from IF and out of MEM/WB register
 		LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
