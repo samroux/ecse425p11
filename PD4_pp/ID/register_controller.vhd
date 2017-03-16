@@ -13,11 +13,9 @@ port (
 	clock : in std_logic;
 	--PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
-	IR_MEM_WB : in std_logic_vector(31 downto 0);
-	WB_return : in std_logic_vector(31 downto 0); -- either a loaded register from memory 
-												  -- or the ALU output (mux decided)
-	isRegReg: in std_logic;	-- WB should have a mux to determine this flag (not in diagram!)
-							-- it is used to know whether to write to rs (1) or rt (0)
+	WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
+	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
+												  	-- or the ALU output (mux decided)
 
 	opcode : out std_logic_vector(5 downto 0);
 	A : out std_logic_vector(31 downto 0);
@@ -31,12 +29,6 @@ port (
 end REGISTER_CONTROLLER;
 
 architecture behavior of REGISTER_CONTROLLER is
-
-	-- temporary tokens for IR
-	signal instruction : std_logic_vector(5 downto 0);
-	signal A_addr : std_logic_vector(4 downto 0);
-	signal B_addr : std_logic_vector(4 downto 0);
-	signal Imm_to_extend : std_logic_vector(15 downto 0);
 
 	-- register file signals
 	signal reg_address : std_logic_vector(4 downto 0);
@@ -74,18 +66,22 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	-- ID should only read from reg file
 	ID: process(clock)
+		-- Separate instruction into tokens
+		variable opcode_read : std_logic_vector(5 downto 0);
+		variable A_addr : std_logic_vector(4 downto 0);
+		variable B_addr : std_logic_vector(4 downto 0);
+		variable Imm_to_extend : std_logic_vector(15 downto 0);
 	begin
 	if falling_edge(clock) then
-		-- Separate instruction in tokens
-		instruction <= IR_IF(5 downto 0);
-		A_addr <= IR_IF(10 downto 6);
-		B_addr <= IR_IF(15 downto 11);
-		Imm_to_extend <= IR_IF(31 downto 16);
+		opcode_read := IR_IF(31 downto 26);
+		A_addr := IR_IF(25 downto 21);
+		B_addr := IR_IF(20 downto 16);
+		Imm_to_extend := IR_IF(15 downto 0);
 
 		-- Return opcode. Needs to match the following:
 		-- http://www-inst.eecs.berkeley.edu/~cs61c/resources/MIPS_Green_Sheet.pdf
 		-- TODO: ensure ALU compatibility and fallback case (invalid inst)
-		opcode <= instruction;
+		opcode <= opcode_read;
 
 		-- Read registers
 		MemRead <= '1';
@@ -100,7 +96,7 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Preemptive steps	
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
-		if (instruction = "001100") OR (instruction = "001101") then
+		if (opcode_read = "001100") OR (opcode_read = "001101") then
 			Imm <= std_logic_vector(resize(unsigned(Imm_to_extend), Imm'length));
 		else
 			Imm <= std_logic_vector(resize(signed(Imm_to_extend), Imm'length));
@@ -109,11 +105,11 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Do equality test on registers -> branch
 		-- Compute branch target address PC+4+Imm
 		-- TODO: why is this not done in EX?
-		if (instruction = "000100") then	-- beq
+		if (opcode_read = "000100") then	-- beq
 			if (A_temp = B_temp) then 	branchTaken <= '1';
 			else 						branchTaken <= '0';
 			end if;
-		elsif (instruction = "000101") then	-- bne
+		elsif (opcode_read = "000101") then	-- bne
 			if (A_temp /= B_temp) then 	branchTaken <= '1';
 			else 						branchTaken <= '0';
 			end if;
@@ -128,18 +124,10 @@ architecture behavior of REGISTER_CONTROLLER is
 	WB: process(clock)
 	begin
 	if rising_edge(clock) then
-		-- Separate instruction in tokens
-		instruction <= IR_MEM_WB(5 downto 0);
-		A_addr <= IR_MEM_WB(10 downto 6);
-		B_addr <= IR_MEM_WB(15 downto 11);
-		Imm_to_extend <= IR_MEM_WB(31 downto 16);
-
 		-- Write to appropriate register
 		MemRead <= '0';
 		MemWrite <= '1';
-		if (isRegReg = '1') then 	reg_address <= A_addr;
-		elsif (isRegReg = '0') then	reg_address <= B_addr;
-		end if;
+		reg_address <= WB_addr;
 		reg_write_input <= WB_return;
 	end if;
 	end process;
