@@ -23,7 +23,7 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
 	signal s_branch_address : std_logic_vector(11 downto 0):= (others => '0');  --set branch address to 0 for now, but won't be used
 	
 	signal s_PC : std_logic_vector(11 downto 0) := (others => '0'); --initialize PC to 0
-	signal s_IR : std_logic_vector(31 downto 0):= (others => '0');
+	signal s_IR : std_logic_vector(31 downto 0) := (others => '0');
 	
 	component instruction_fetch
 		PORT (
