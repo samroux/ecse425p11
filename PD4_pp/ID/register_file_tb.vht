@@ -1,7 +1,9 @@
 -- @filename:	register_file_tb.vht
 -- @author:		William Bouchard
 -- @timestamp:	2017-03-13
--- @brief:		Test bench for the register file in the ID stage.
+-- @brief:		Test bench for the register file in the ID stage. It tests
+--				a single register; proper integration testing with the controller
+--				tests more advanced features.
 
 library ieee;                                               
 use ieee.std_logic_1164.all; 
@@ -14,11 +16,14 @@ architecture register_file_arch of register_file_tb is
            
     -- test signals                                     
 	signal clock : std_logic;
-	signal reg_address : std_logic_vector(4 downto 0);
+	signal reg_address_A : std_logic_vector(4 downto 0);
+	signal reg_address_B : std_logic_vector(4 downto 0);
 	signal reg_write_input : std_logic_vector(31 downto 0);
-	signal MemWrite : std_logic;
-	signal MemRead : std_logic;
-	signal reg_output : std_logic_vector(31 downto 0);
+	signal reg_write_addr : std_logic_vector (4 downto 0);
+	signal MemWrite : std_logic := '0';
+	signal MemRead : std_logic := '0';
+	signal reg_output_A : std_logic_vector(31 downto 0);
+	signal reg_output_B : std_logic_vector(31 downto 0);
 
 	constant clock_period : time := 1 ns;
 
@@ -26,24 +31,30 @@ architecture register_file_arch of register_file_tb is
 	component register_file
 		port (
 			clock : in std_logic;
-			reg_address : in std_logic_vector(4 downto 0);
+			reg_address_A : in std_logic_vector(4 downto 0);
+			reg_address_B : in std_logic_vector(4 downto 0);
 			reg_write_input : in std_logic_vector(31 downto 0);
+			reg_write_addr : in std_logic_vector (4 downto 0);
 			MemWrite : in std_logic;
 			MemRead : in std_logic;
-			reg_output : out std_logic_vector(31 downto 0)
-		);
+			reg_output_A : out std_logic_vector(31 downto 0);
+			reg_output_B : out std_logic_vector(31 downto 0)		
+			);
 	end component;
 
 	begin
 		-- map test signals to component in/out
-		i : register_file
+		rf : register_file
 		port map (
 			clock => clock,
-			reg_address => reg_address,
+			reg_address_A => reg_address_A,
+			reg_address_B => reg_address_B,
+			reg_write_addr => reg_write_addr,
 			reg_write_input => reg_write_input,
 			MemWrite => MemWrite,
 			MemRead => MemRead,
-			reg_output => reg_output
+			reg_output_A => reg_output_A,
+			reg_output_B => reg_output_B
 		);
 
 		-- continuous clock process
@@ -58,53 +69,55 @@ architecture register_file_arch of register_file_tb is
 		generate_test : process                                           
 		begin
 			reg_write_input <= "01010101000000000000000000000000";
-			reg_address <= "00001";
+			reg_address_A <= "00001";
 
 			report "Initial state; no read/write";
 			MemRead <= '0';
 			MemWrite <= '0';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
 			report "Writing to register $1";
+			reg_write_addr <= "00001";
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
 			report "Reading from address $1";
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period/2;
-			assert (reg_output = "01010101000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "01010101000000000000000000000000") severity ERROR;
 			report "______";
 			wait for clock_period/2;
 
 			report "Moving back to no read/write";
 			MemRead <= '0';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 			report "______";
 
 			report "Writing to a new register $2";
 			reg_write_input <= "10000001000000000000000000000000";
-			reg_address <= "00010";
+			reg_address_A <= "00010";
+			reg_write_addr <= "00010";
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 
 			report "Test persistency; read both written registers successively";
-			reg_address <= "00001";
+			reg_address_A <= "00001";
 			MemWrite <= '0';
 			MemRead <= '1';
 			wait for clock_period/2;
-			assert (reg_output = "01010101000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "01010101000000000000000000000000") severity ERROR;
 			wait for clock_period/2;
 			
-			reg_address <= "00010";
+			reg_address_A <= "00010";
 			wait for clock_period/2;
-			assert (reg_output = "10000001000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "10000001000000000000000000000000") severity ERROR;
 			wait for clock_period/2;
 			report "______";
 
@@ -112,32 +125,34 @@ architecture register_file_arch of register_file_tb is
 			MemRead <= '1';
 			MemWrite <= '0';
 			wait for clock_period/2;
-			assert (reg_output = "10000001000000000000000000000000") severity ERROR;
-			reg_address <= "00001";
+			assert (reg_output_A = "10000001000000000000000000000000") severity ERROR;
+			reg_address_A <= "00001";
 			reg_write_input <= "10000000000000000000000000000000";
+			reg_write_addr <= "00001";
 			MemRead <= '0';
 			MemWrite <= '1';
 			wait for clock_period/2;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 			MemRead <= '1';
 			MemWrite <= '0';
 			wait for clock_period/2;
-			assert (reg_output = "10000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "10000000000000000000000000000000") severity ERROR;
 			
 			wait for clock_period/2;
 			wait for clock_period;
 
 			report "Test read/writing from $0 register";
-			reg_address <= "00000";
+			reg_address_A <= "00000";
 			reg_write_input <= "10101010000000000000000000000000";
+			reg_write_addr <= "00000";
 			MemRead <= '0';
 			MemWrite <= '1';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 			MemRead <= '1';
 			MemWrite <= '0';
 			wait for clock_period;
-			assert (reg_output = "00000000000000000000000000000000") severity ERROR;
+			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 
 		wait;                                                        
 	end process generate_test;                                     

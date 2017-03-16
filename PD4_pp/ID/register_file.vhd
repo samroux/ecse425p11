@@ -15,11 +15,14 @@ generic(
 	);
 port (
 	clock : in std_logic;
-	reg_address : in std_logic_vector(4 downto 0); -- 32 = 2^5 addressing bits
+	reg_address_A : in std_logic_vector(4 downto 0); -- 32 = 2^5 addressing bits
+	reg_address_B : in std_logic_vector(4 downto 0);
 	reg_write_input : in std_logic_vector(31 downto 0);
+	reg_write_addr : in std_logic_vector(4 downto 0);
 	MemWrite : in std_logic;
 	MemRead : in std_logic;
-	reg_output : out std_logic_vector(31 downto 0)
+	reg_output_A : out std_logic_vector(31 downto 0);
+	reg_output_B : out std_logic_vector(31 downto 0)
 	);
 end REGISTER_FILE;
 
@@ -27,32 +30,36 @@ architecture behavior of REGISTER_FILE is
 
 	type REGISTERS is array(number_of_registers-1 downto 0) of std_logic_vector(31 downto 0);
 	signal registers_inst : REGISTERS := ((others => (others => '0')));
+	--signal addr_int : integer := 0;
 
 	begin
 
 	-- need to ensure that writes are done on rising edge, and
 	-- reads are done on falling edge, to allow for ID/WB overlap
 	process(clock)
-	variable addr_int : integer;
+	variable addr_int_A : integer;
+	variable addr_int_B : integer;
+	variable addr_int_w : integer;
 	begin
-		addr_int := to_integer(unsigned(reg_address));
+		addr_int_A := to_integer(unsigned(reg_address_A));
+		addr_int_B := to_integer(unsigned(reg_address_B));
+		addr_int_w := to_integer(unsigned(reg_write_addr));
 
-		if falling_edge(clock) then		-- 1st half of cycle: read
-			if (MemWrite = '0') and (MemRead = '1') then
-				if (addr_int /= 0) then 
-					reg_output <= registers_inst(addr_int);
-				else reg_output <= (31=>'1', others => '0'); -- $0 hardwired to 0
-				end if;
-			else reg_output <= (30=>'1', others => '0');
+		-- may read an unneeded register
+		if (MemRead = '1') then
+			reg_output_A <= registers_inst(addr_int_A);	
+			reg_output_B <= registers_inst(addr_int_B); 
+
+		-- only need a single input, other one can be gibberish
+		elsif (MemWrite = '1') then
+			if (addr_int_w /= 0) then -- $0 hardwired to 0
+				registers_inst(addr_int_w) <= reg_write_input;
 			end if;
-		elsif rising_edge(clock) then	-- 2nd half of cycle: write
-			if (MemWrite = '1') and (MemRead = '0') then
-				if (addr_int /= 0) then 
-					registers_inst(addr_int) <= reg_write_input;
-				end if;
-				reg_output <= (29=>'1', others => '0');
-			else reg_output <= (28=>'1', others => '0');
-			end if;
+			reg_output_A <= (others => '0');
+			reg_output_B <= (others => '0');
+		else
+			reg_output_A <= (others => '0');
+			reg_output_B <= (others => '0');
 		end if;
 	end process;
 
