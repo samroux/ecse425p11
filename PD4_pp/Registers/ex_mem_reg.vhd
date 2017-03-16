@@ -17,11 +17,15 @@ port (
 	B_EX : in std_logic_vector(31 downto 0);	-- rt, used for reg-reg store
 										    -- should come from id/ex directly
 	IR_EX : in std_logic_vector(31 downto 0);	-- same as above
+	MemRead_MEM : in std_logic;
+	MemWrite_MEM : in std_logic;
 	
 	Cond_MEM : out std_logic;
 	ALUOutput_MEM : out std_logic_vector(31 downto 0);
 	B_MEM : out std_logic_vector(31 downto 0);
 	IR_MEM : out std_logic_vector(31 downto 0)
+	MemRead_MEM : out std_logic;
+	MemWrite_MEM : out std_logic;
 	);
 end EX_MEM_REG;
 

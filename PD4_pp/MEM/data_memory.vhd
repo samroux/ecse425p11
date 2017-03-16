@@ -22,7 +22,8 @@ port (
 	MemRead : in std_logic;		-- comes from ALU control unit
 	MemWrite : in std_logic;	-- same as above
 
-	LMD : out std_logic_vector(31 downto 0)
+	LMD : out std_logic_vector(31 downto 0);
+	IR : out std_logic_vector(31 downto 0) --TODO need to implement delay on this signal
 	);
 end DATA_MEMORY;
 

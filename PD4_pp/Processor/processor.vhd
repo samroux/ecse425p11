@@ -113,28 +113,46 @@ component id_ex_reg
 end component;
 
 -- execute stage --
+signal s_cond_EX : std_logic;
+signal s_ALUOutput_EX : std_logic_vector(31 downto 0);
+signal s_B_EX : std_logic_vector(31 downto 0);
+signal s_IR_EX : std_logic_vector(31 downto 0);
+signal s_MemRead_EX : std_logic;
+signal s_MemWrite_EX : std_logic;
 
 component execute
 --TODO
 end component;
 
 -- EX/MEM register --
+signal s_cond_EX_MEM : std_logic;
+signal s_ALUOutput_EX_MEM : std_logic_vector(31 downto 0);
+signal s_B_EX_MEM : std_logic_vector(31 downto 0);
+signal s_IR_EX_MEM : std_logic_vector(31 downto 0);
+signal s_MemRead_EX_MEM : std_logic;
+signal s_MemWrite_EX_MEM : std_logic;
 
 component ex_mem_reg
 	PORT (
 		clock : in std_logic;
-		
 		Cond_EX : in std_logic; -- whether branch should be taken (BEQZ)
-		ALUOutput_EX : in std_logic_vector(15 downto 0); -- need to make sure that only 12 bits
+		ALUOutput_EX : in std_logic_vector(31 downto 0); -- need to make sure that only 12 bits
 														 -- are used when this is used as index
-		B_EX : in std_logic_vector(7 downto 0);	-- rt, used for reg-reg store
+		B_EX : in std_logic_vector(31 downto 0);	-- rt, used for reg-reg store
 												-- should come from id/ex directly
 		IR_EX : in std_logic_vector(31 downto 0);	-- same as above
 		
+		MemRead_EX : in std_logic;		-- comes from ALU control unit
+		MemWrite_EX : in std_logic;
+		
+		
+		
 		Cond_MEM : out std_logic;
-		ALUOutput_MEM : out std_logic_vector(15 downto 0);
-		B_MEM : out std_logic_vector(7 downto 0);
+		ALUOutput_MEM : out std_logic_vector(31 downto 0);
+		B_MEM : out std_logic_vector(31 downto 0);
 		IR_MEM : out std_logic_vector(31 downto 0)
+		MemRead_MEM : out std_logic;
+		MemWrite_MEM : out std_logic;
 	);
 end component;
 
@@ -148,7 +166,8 @@ component data_memory
 		MemRead : in std_logic;		-- comes from ALU control unit
 		MemWrite : in std_logic;	-- same as above
 
-		LMD : out std_logic_vector(31 downto 0)
+		LMD : out std_logic_vector(31 downto 0);
+		IR : out std_logic_vector(31 downto 0)
 	);
 end component;
 
@@ -244,16 +263,19 @@ BEGIN
 		);
 		
 --	EX: execute
+--TODO
 --	port map (
 --			clock,
 --			s_reset
 --		);
 	
---	EX_MEM: ex_mem_reg
---	port map (
---			clock,
---			s_reset
---		);
+	EX_MEM: ex_mem_reg
+	port map (
+			clock,
+			s_ALUOutput_EX,
+			s_B_EX,
+			s_M
+		);
 		
 --	MEM: data_memory
 --	port map (
