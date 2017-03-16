@@ -16,11 +16,13 @@ architecture register_controller_arch of register_controller_tb is
            
     -- test signals                                     
 	signal clock : std_logic;
+	signal PC_IF : std_logic_vector (11 downto 0);
 	signal IR_IF : std_logic_vector(31 downto 0);
 	signal WB_addr : std_logic_vector(4 downto 0);
 	signal WB_return : std_logic_vector(31 downto 0);
 
-	signal opcode : std_logic_vector(5 downto 0);
+	signal PC_ID : std_logic_vector (11 downto 0);
+	signal IR_ID : std_logic_vector(31 downto 0);
 	signal A : std_logic_vector(31 downto 0);
 	signal B : std_logic_vector(31 downto 0);
 	signal Imm : std_logic_vector(31 downto 0);
@@ -32,11 +34,14 @@ architecture register_controller_arch of register_controller_tb is
 	component register_controller
 		port (
 			clock : in std_logic;
+
+			PC_IF : in std_logic_vector (11 downto 0);
 			IR_IF : in std_logic_vector(31 downto 0);
 			WB_addr : in std_logic_vector(4 downto 0);
 			WB_return : in std_logic_vector(31 downto 0);
 
-			opcode : out std_logic_vector(5 downto 0);
+			PC_ID : out std_logic_vector (11 downto 0);
+			IR_ID : out std_logic_vector(31 downto 0);
 			A : out std_logic_vector(31 downto 0);
 			B : out std_logic_vector(31 downto 0);
 			Imm : out std_logic_vector(31 downto 0);
@@ -49,11 +54,13 @@ architecture register_controller_arch of register_controller_tb is
 		rc : register_controller
 		port map (
 			clock => clock,
+			PC_IF => PC_IF,
 			IR_IF => IR_IF,
 			WB_addr => WB_addr,
 			WB_return => WB_return,
 
-			opcode => opcode,
+			PC_ID => PC_ID,
+			IR_ID => IR_ID,
 			A => A,
 			B => B,
 			Imm => Imm,
@@ -82,7 +89,7 @@ architecture register_controller_arch of register_controller_tb is
 			report "______";
 			IR_IF <= "00100000000010110000000000000101";
 			wait for clock_period;  
-			assert (opcode = "001000") severity ERROR;
+			assert (IR_ID = "00100000000010110000000000000101") severity ERROR;
 			assert (A = "00000000000000000000000000000000") severity ERROR; 	-- $11
 			assert (B = "00000000000000000000000000000000") severity ERROR; 	-- $0
 			assert (Imm = "00000000000000000000000000000101") severity ERROR; 	-- 5
@@ -96,7 +103,7 @@ architecture register_controller_arch of register_controller_tb is
 			WB_addr <= "01011"; -- 11 
 			WB_return <= "00000000000000000000000000000101"; -- 5
 			wait for clock_period/2; -- end of cycle
-			assert (opcode = "001000") severity ERROR;
+			assert (IR_ID = "00100000000011000000000000000110") severity ERROR;
 			assert (A = "00000000000000000000000000000000") severity ERROR; 	-- $12
 			assert (B = "00000000000000000000000000000000") severity ERROR; 	-- $0
 			assert (Imm = "00000000000000000000000000000110") severity ERROR; 	-- 6
@@ -115,7 +122,7 @@ architecture register_controller_arch of register_controller_tb is
 			wait for clock_period/2; -- 1/2 cycle
 			-- TODO: move WB of inst 2 here to test for data hazard
 			wait for clock_period/2; -- end of cycle
-			assert (opcode = "000000") severity ERROR;
+			assert (IR_ID = "00000001011011000001000000100000") severity ERROR;
 			assert (A = "00000000000000000000000000000101") severity ERROR; -- $11 = 5
 			assert (B = "00000000000000000000000000000110") severity ERROR; -- $12 = 6
 			-- don't care about Imm here
@@ -131,7 +138,7 @@ architecture register_controller_arch of register_controller_tb is
 			wait for clock_period/2;
 			-- WB
 			wait for clock_period/2;
-			assert (opcode = "100011") severity ERROR;
+			assert (IR_ID = "10001100010000110000000000000000") severity ERROR;
 			assert (A = "00000000000000000000000000001011") severity ERROR; -- $2 = 11
 			-- don't care about B
 			-- don't care about Imm

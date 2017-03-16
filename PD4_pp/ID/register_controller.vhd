@@ -12,15 +12,14 @@ entity REGISTER_CONTROLLER is
 port (
 	clock : in std_logic;
 
-	--PC_IF : in std_logic_vector (11 downto 0);
+	PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
 	WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
 	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 												  	-- or the ALU output (mux decided)
 
-	-- NEED PC in to out and
-	-- out IR_ID
-	opcode : out std_logic_vector(5 downto 0);
+	PC_ID : out std_logic_vector (11 downto 0);
+	IR_ID : out std_logic_vector(31 downto 0);
 	A : out std_logic_vector(31 downto 0);
 	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0);
@@ -81,12 +80,6 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	-- ID process's only interaction with reg file should be reads.
 	if falling_edge(clock) then
-
-		-- Return opcode. Needs to match the following:
-		-- http://www-inst.eecs.berkeley.edu/~cs61c/resources/MIPS_Green_Sheet.pdf
-		-- TODO: ensure ALU compatibility and fallback case (invalid inst)
-		opcode <= IR_IF(31 downto 26);
-
 		-- Read registers
 		MemRead <= '1';
 		MemWrite <= '0';
@@ -130,7 +123,11 @@ architecture behavior of REGISTER_CONTROLLER is
 		MemWrite <= '1';
 		reg_write_addr <= WB_addr;
 		reg_write_input <= WB_return;
+
+		-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
+		PC_ID <= PC_IF;
+		IR_ID <= IR_IF;
 	end if;
 	end process;
-	
+
 end behavior;
