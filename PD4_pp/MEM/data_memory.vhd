@@ -18,13 +18,14 @@ generic(
 port (
 	clock : in std_logic;
 	ALUOutput : in std_logic_vector(31 downto 0);
-	B: in std_logic_vector(31 downto 0);
+	B_i: in std_logic_vector(31 downto 0);
 	MemRead : in std_logic;		-- comes from ALU control unit
 	MemWrite : in std_logic;	-- same as above
 	IR_i : in std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
 
 	LMD : out std_logic_vector(31 downto 0);
-	IR_o : out std_logic_vector(31 downto 0) --TODO need to implement delay on this signal
+	IR_o : out std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
+	B_o: out std_logic_vector(31 downto 0)
 	);
 end DATA_MEMORY;
 
@@ -55,7 +56,8 @@ architecture behavior of DATA_MEMORY is
        	else
        		LMD <= (others => '0');
 		end if;
-		IR_i <= IR_o;
+		B_o <= B_i;
+		IR_o <= IR_i;
 	end process;
 
 end behavior;
