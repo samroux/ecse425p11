@@ -16,7 +16,7 @@ entity write_back is
 		LMD : in std_logic_vector(7 downto 0);			-- Load Memory Data	
 		ALUOutput : in std_logic_vector(15 downto 0);	-- ALU Output
 		
-		IR_dest_reg : out std_logic_vector(3 downto 0);
+		IR_dest_reg : out std_logic_vector(4 downto 0);
 		WB_output : out std_logic_vector(15 downto 0)	--TODO: Verify size and name of this output
 		
    );
@@ -24,14 +24,15 @@ end entity write_back;
 
 architecture behaviour of write_back is
 
-signal s_IR_dest_reg : std_logic_vector(3 downto 0);
+signal s_IR_dest_reg : std_logic_vector(4 downto 0) := (others=>'0');
 signal s_WB_output : std_logic_vector(15 downto 0);
 
-signal instruction_type : std_logic;
-signal is_load : std_logic;
-signal opcode : std_logic_vector (5 downto 0);
-signal rt : std_logic_vector(3 downto 0);
-signal rd : std_logic_vector(3 downto 0);
+signal instruction_type : std_logic := '0';
+signal is_load : std_logic := '0';
+signal opcode_it : std_logic_vector (5 downto 0):= (others=>'0');
+signal opcode_o : std_logic_vector (5 downto 0):= (others=>'0');
+signal rt : std_logic_vector(4 downto 0):= (others=>'0');
+signal rd : std_logic_vector(4 downto 0):= (others=>'0');
 
 
 
@@ -69,15 +70,37 @@ begin
 
 	MUX_instruction_type: process(clock)
 	--Process Defining the MUX choosing the destination register
+	variable op : std_logic_vector(5 downto 0);
 	begin
       if (rising_edge(clock)) then
 		
 		-- Separate instruction in tokens
-		opcode <= IR_reg(5 downto 0);
+		op := IR_reg(31 downto 26);
 		rt <= IR_reg(20 downto 16); --for immediate or load
 		rd <= IR_reg(15 downto 11);	--for ALU op type RegReg
 		
-		instruction_type <= opcode_to_instruction_type(opcode);	--get type of instruction to defin register
+		--report "IR_Reg: "&integer'image(to_integer(unsigned(IR_reg(31 downto 26))));
+		
+		
+		--report "op: "&integer'image(to_integer(unsigned(op)));
+		--report "opcode_it: "&integer'image(to_integer(unsigned(opcode_it)));
+		
+		--instruction_type <= opcode_to_instruction_type(opcode_it);	--get type of instruction to defin register
+		
+		if (op = "001000" or	--addi
+			op = "001010" or 	--slti
+			op = "001100" or 	--andi
+			op = "001101" or 	--ori
+			op = "001110" or 	--xori
+			op = "001111" or	--lui
+			op = "100011"		--lw
+			)then
+			instruction_type <= '1'; --instruction of type ALU immediate or load
+			--REPORT "Instruction Type should be set now";
+		else
+			instruction_type <= '0';
+			--REPORT "Instruction Type NOT set";
+		end if;
 		
 		--select register
 		if(instruction_type = '1') then
@@ -87,6 +110,7 @@ begin
 			s_IR_dest_reg <= rd;	-- rd for ALU reg-reg operations
 			
 		end if;
+		
       end if;
 	end process;
    
@@ -96,9 +120,18 @@ begin
 		if (rising_edge(clock)) then
 		
 			-- Separate instruction in tokens
-			opcode <= IR_reg(5 downto 0);
+			opcode_o <= IR_reg(31 downto 26);
 			
-			is_load <= is_load_instruction(opcode);	--get if instrcution is of type load
+			--is_load <= is_load_instruction(opcode_o);	--get if instrcution is of type load
+			
+			if (	opcode_o = "001111" or	--lui
+					opcode_o = "100011"		--lw
+				)then
+				is_load <= '1';
+			else
+				is_load <= '0';
+			end if;
+				
 			
 			--select output
 			if(is_load = '1') then
