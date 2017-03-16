@@ -41,17 +41,17 @@ architecture behavior of REGISTER_FILE is
 			if (MemWrite = '0') and (MemRead = '1') then
 				if (addr_int /= 0) then 
 					reg_output <= registers_inst(addr_int);
-				else reg_output <= (others => '0'); -- $0 hardwired to 0
+				else reg_output <= (31=>'1', others => '0'); -- $0 hardwired to 0
 				end if;
-			else reg_output <= (others => '0');
+			else reg_output <= (30=>'1', others => '0');
 			end if;
 		elsif rising_edge(clock) then	-- 2nd half of cycle: write
 			if (MemWrite = '1') and (MemRead = '0') then
 				if (addr_int /= 0) then 
 					registers_inst(addr_int) <= reg_write_input;
 				end if;
-				reg_output <= (others => '0');
-			else reg_output <= (others => '0');
+				reg_output <= (29=>'1', others => '0');
+			else reg_output <= (28=>'1', others => '0');
 			end if;
 		end if;
 	end process;
