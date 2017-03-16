@@ -20,11 +20,11 @@ ARCHITECTURE behaviour OF write_back_tb IS
     constant clock_period : time := 1 ns;
 	
 	signal s_IR_reg : std_logic_vector(31 downto 0) := (others => '0');
-	signal s_LMD : std_logic_vector(7 downto 0) := (others => '0');
-	signal s_ALUOutput : std_logic_vector(15 downto 0) := (others => '0');
+	signal s_LMD : std_logic_vector(31 downto 0) := (others => '0');
+	signal s_ALUOutput : std_logic_vector(31 downto 0) := (others => '0');
 	
 	signal s_IR_dest_reg : std_logic_vector(4 downto 0) := (others => '0');
-	signal s_WB_output : std_logic_vector(15 downto 0) := (others => '0');
+	signal s_WB_output : std_logic_vector(31 downto 0) := (others => '0');
 	
 	component write_back
 		PORT (
@@ -32,11 +32,11 @@ ARCHITECTURE behaviour OF write_back_tb IS
 			reset : in std_logic;
 			
 			IR_reg : in std_logic_vector(31 downto 0);		--instruction following thru from IF and out of MEM/WB register
-			LMD : in std_logic_vector(7 downto 0);			-- Load Memory Data	
-			ALUOutput : in std_logic_vector(15 downto 0);	-- ALU Output
+			LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
+			ALUOutput : in std_logic_vector(31 downto 0);	-- ALU Output
 			
 			IR_dest_reg : out std_logic_vector(4 downto 0);
-			WB_output : out std_logic_vector(15 downto 0)
+			WB_output : out std_logic_vector(31 downto 0)
 		);
 	end component;
 
@@ -75,25 +75,50 @@ BEGIN
 		
 		--addi (Testing immediate operation)
 		
-		s_IR_reg <= "00100000000010110000011111010000"; --addi $10,  $0, 4
-		s_LMD <= "11110000";
-		s_ALUOutput <= "0000111100001111";
-		
-		REPORT "Values are set";
+		s_IR_reg <= "00100000000010110000011111010000"; --addi $10,  $0, 4 (001000 00000 01011 0000011111010000)
+		s_LMD <= "11111111111111111111111111111111";
+		s_ALUOutput <= "00000000000000000000000000000000";
 		
 		wait for clock_period;
-		--wait for clock_period/4;
+		wait for clock_period/10;
 		
-		ASSERT(s_WB_output = "0000111100001111") REPORT "NOT Taking ALUOutput" SEVERITY ERROR;
+		ASSERT(s_WB_output = "00000000000000000000000000000000") REPORT "NOT Taking ALUOutput" SEVERITY ERROR;
 		
 		ASSERT(s_IR_dest_reg = "01011") REPORT "NOT Taking rt register for destination" SEVERITY ERROR;
 		
 		
-		
-
+		wait for 9*clock_period/10;
+		-------------------------------------------------------------
 		--add (Testing regular add operation)
 		
+		s_IR_reg <= "00000001011011000001000000100000"; --add     $2,  $11, $12 (000000 01011 01100 00010 00000100000)
+		s_LMD <= "11111111111111111111111111111111";
+		s_ALUOutput <= "00000000000000000000000000000000";
+		
+		wait for clock_period;
+		wait for clock_period/10;
+		
+		ASSERT(s_WB_output = "00000000000000000000000000000000") REPORT "NOT Taking ALUOutput" SEVERITY ERROR;
+		
+		ASSERT(s_IR_dest_reg = "00010") REPORT "NOT Taking rd register for destination" SEVERITY ERROR;
+		
+		wait for 9*clock_period/10;
+		
+		-------------------------------------------------------------
 		--lw (Testing load operation)
+		
+		s_IR_reg <= "10001100010000110000000000000000"; --lw $3,  0($2) (100011 00010 00011 0000000000000000)
+		s_LMD <= "11111111111111111111111111111111";
+		s_ALUOutput <= "00000000000000000000000000000000";
+		
+		wait for clock_period;
+		wait for clock_period/10;
+		
+		ASSERT(s_WB_output = "11111111111111111111111111111111") REPORT "NOT Taking LMD" SEVERITY ERROR;
+		
+		ASSERT(s_IR_dest_reg = "00011") REPORT "NOT Taking rt register for destination" SEVERITY ERROR;
+		
+		wait for 9*clock_period/10;	
 		
 		------------------------
 		

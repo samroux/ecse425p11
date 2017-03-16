@@ -13,11 +13,11 @@ entity write_back is
 		reset : in std_logic;
 		
 		IR_reg : in std_logic_vector(31 downto 0);		--instruction following thru from IF and out of MEM/WB register
-		LMD : in std_logic_vector(7 downto 0);			-- Load Memory Data	
-		ALUOutput : in std_logic_vector(15 downto 0);	-- ALU Output
+		LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
+		ALUOutput : in std_logic_vector(31 downto 0);	-- ALU Output
 		
 		IR_dest_reg : out std_logic_vector(4 downto 0);
-		WB_output : out std_logic_vector(15 downto 0)	--TODO: Verify size and name of this output
+		WB_output : out std_logic_vector(31 downto 0)
 		
    );
 end entity write_back;
@@ -25,7 +25,7 @@ end entity write_back;
 architecture behaviour of write_back is
 
 signal s_IR_dest_reg : std_logic_vector(4 downto 0) := (others=>'0');
-signal s_WB_output : std_logic_vector(15 downto 0);
+signal s_WB_output : std_logic_vector(31 downto 0);
 
 signal instruction_type : std_logic := '0';
 signal is_load : std_logic := '0';
@@ -85,22 +85,22 @@ begin
 		--report "op: "&integer'image(to_integer(unsigned(op)));
 		--report "opcode_it: "&integer'image(to_integer(unsigned(opcode_it)));
 		
-		--instruction_type <= opcode_to_instruction_type(opcode_it);	--get type of instruction to defin register
+		instruction_type <= opcode_to_instruction_type(op);	--get type of instruction to defin register
 		
-		if (op = "001000" or	--addi
-			op = "001010" or 	--slti
-			op = "001100" or 	--andi
-			op = "001101" or 	--ori
-			op = "001110" or 	--xori
-			op = "001111" or	--lui
-			op = "100011"		--lw
-			)then
-			instruction_type <= '1'; --instruction of type ALU immediate or load
-			--REPORT "Instruction Type should be set now";
-		else
-			instruction_type <= '0';
-			--REPORT "Instruction Type NOT set";
-		end if;
+		-- if (op = "001000" or	--addi
+			-- op = "001010" or 	--slti
+			-- op = "001100" or 	--andi
+			-- op = "001101" or 	--ori
+			-- op = "001110" or 	--xori
+			-- op = "001111" or	--lui
+			-- op = "100011"		--lw
+			-- )then
+			-- instruction_type <= '1'; --instruction of type ALU immediate or load
+			-- --REPORT "Instruction Type should be set now";
+		-- else
+			-- instruction_type <= '0';
+			-- --REPORT "Instruction Type NOT set";
+		-- end if;
 		
 		--select register
 		if(instruction_type = '1') then
@@ -116,21 +116,22 @@ begin
    
 	MUX_output: process(clock)
 	--Process defining the MUX choosing the main output of WB stage
+	variable opcode : std_logic_vector(5 downto 0);
 	begin
 		if (rising_edge(clock)) then
 		
 			-- Separate instruction in tokens
-			opcode_o <= IR_reg(31 downto 26);
+			opcode := IR_reg(31 downto 26);
 			
-			--is_load <= is_load_instruction(opcode_o);	--get if instrcution is of type load
+			is_load <= is_load_instruction(opcode);	--get if instrcution is of type load
 			
-			if (	opcode_o = "001111" or	--lui
-					opcode_o = "100011"		--lw
-				)then
-				is_load <= '1';
-			else
-				is_load <= '0';
-			end if;
+			-- if (	opcode_o = "001111" or	--lui
+					-- opcode_o = "100011"		--lw
+				-- )then
+				-- is_load <= '1';
+			-- else
+				-- is_load <= '0';
+			-- end if;
 				
 			
 			--select output
