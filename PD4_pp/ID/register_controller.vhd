@@ -30,6 +30,12 @@ end REGISTER_CONTROLLER;
 
 architecture behavior of REGISTER_CONTROLLER is
 
+	-- Separate instruction into tokens
+	--signal opcode_read : std_logic_vector(5 downto 0);
+	--signal A_addr : std_logic_vector(4 downto 0);
+	--signal B_addr : std_logic_vector(4 downto 0);
+	--signal Imm_to_extend : std_logic_vector(15 downto 0);
+
 	-- register file signals
 	signal reg_address : std_logic_vector(4 downto 0);
 	signal reg_write_input : std_logic_vector(31 downto 0);
@@ -64,66 +70,65 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_output => reg_output
 		);	
 
-	-- ID should only read from reg file
-	ID: process(clock)
-		-- Separate instruction into tokens
-		variable opcode_read : std_logic_vector(5 downto 0);
-		variable A_addr : std_logic_vector(4 downto 0);
-		variable B_addr : std_logic_vector(4 downto 0);
-		variable Imm_to_extend : std_logic_vector(15 downto 0);
+	process(clock)
 	begin
+
+	-- ID process's only interaction with reg file should be reads.
 	if falling_edge(clock) then
-		opcode_read := IR_IF(31 downto 26);
-		A_addr := IR_IF(25 downto 21);
-		B_addr := IR_IF(20 downto 16);
-		Imm_to_extend := IR_IF(15 downto 0);
+		--opcode_read <= IR_IF(31 downto 26);
+		--A_addr <= IR_IF(25 downto 21);
+		--B_addr <= IR_IF(20 downto 16);
+		--Imm_to_extend <= IR_IF(15 downto 0);
 
 		-- Return opcode. Needs to match the following:
 		-- http://www-inst.eecs.berkeley.edu/~cs61c/resources/MIPS_Green_Sheet.pdf
 		-- TODO: ensure ALU compatibility and fallback case (invalid inst)
-		opcode <= opcode_read;
+		--opcode <= opcode_read;
+		opcode <= IR_IF(31 downto 26);
 
 		-- Read registers
 		MemRead <= '1';
 		MemWrite <= '0';
-		reg_address <= A_addr;
+		--reg_address <= A_addr;
+		reg_address <= IR_IF(25 downto 21);
 		A <= reg_output;
 		A_temp <= reg_output;
-		reg_address <= B_addr;
+
+		--reg_address <= B_addr;
+		reg_address <= IR_IF(20 downto 16);
 		B <= reg_output;
 		B_temp <= reg_output;
 
 		-- Preemptive steps	
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
-		if (opcode_read = "001100") OR (opcode_read = "001101") then
-			Imm <= std_logic_vector(resize(unsigned(Imm_to_extend), Imm'length));
+		--if (opcode_read = "001100") OR (opcode_read = "001101") then
+		if (IR_IF(31 downto 26) = "001100") OR (IR_IF(31 downto 26) = "001101") then
+			--Imm <= std_logic_vector(resize(unsigned(Imm_to_extend), Imm'length));
+			Imm <= std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
 		else
-			Imm <= std_logic_vector(resize(signed(Imm_to_extend), Imm'length));
+			--Imm <= std_logic_vector(resize(signed(Imm_to_extend), Imm'length));
+			Imm <= std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
 		end if;
 
 		-- Do equality test on registers -> branch
-		-- Compute branch target address PC+4+Imm
-		-- TODO: why is this not done in EX?
-		if (opcode_read = "000100") then	-- beq
+		-- TODO: Compute branch target address PC+4+Imm
+		-- 		 why is this not done in EX?
+		if (IR_IF(31 downto 26) = "000100") then	-- beq
 			if (A_temp = B_temp) then 	branchTaken <= '1';
 			else 						branchTaken <= '0';
 			end if;
-		elsif (opcode_read = "000101") then	-- bne
+		elsif (IR_IF(31 downto 26) = "000101") then	-- bne
 			if (A_temp /= B_temp) then 	branchTaken <= '1';
 			else 						branchTaken <= '0';
 			end if;
 		else
 			branchTaken <= '0';
 		end if;
-	end if;
-	end process;
 
 	-- WB process runs concurrently but works on a previous instruction.
 	-- It only writes to reg file, which supports read/write in a single cycle.
-	WB: process(clock)
-	begin
-	if rising_edge(clock) then
+	elsif rising_edge(clock) then
 		-- Write to appropriate register
 		MemRead <= '0';
 		MemWrite <= '1';
@@ -131,5 +136,18 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_write_input <= WB_return;
 	end if;
 	end process;
+
+	-- WB process runs concurrently but works on a previous instruction.
+	-- It only writes to reg file, which supports read/write in a single cycle.
+	--WB: process(clock)
+	--begin
+	--if rising_edge(clock) then
+		-- Write to appropriate register
+	--	MemRead <= '0';
+	--	MemWrite <= '1';
+	--	reg_address <= WB_addr;
+	--	reg_write_input <= WB_return;
+	--end if;
+	--end process;
 
 end behavior;
