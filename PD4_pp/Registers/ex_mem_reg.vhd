@@ -17,15 +17,15 @@ port (
 	B_EX : in std_logic_vector(31 downto 0);	-- rt, used for reg-reg store
 										    -- should come from id/ex directly
 	IR_EX : in std_logic_vector(31 downto 0);	-- same as above
-	MemRead_MEM : in std_logic;
-	MemWrite_MEM : in std_logic;
+	MemRead_EX : in std_logic;
+	MemWrite_EX : in std_logic;
 	
 	Cond_MEM : out std_logic;
 	ALUOutput_MEM : out std_logic_vector(31 downto 0);
 	B_MEM : out std_logic_vector(31 downto 0);
-	IR_MEM : out std_logic_vector(31 downto 0)
+	IR_MEM : out std_logic_vector(31 downto 0);
 	MemRead_MEM : out std_logic;
-	MemWrite_MEM : out std_logic;
+	MemWrite_MEM : out std_logic
 	);
 end EX_MEM_REG;
 
@@ -35,6 +35,8 @@ architecture behavior of EX_MEM_REG is
 	signal ALUOutput_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal B_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal IR_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
+	signal MemRead_EX_STORED : std_logic;
+	signal MemWrite_EX_STORED : std_logic;
 
 	begin
 
@@ -65,6 +67,17 @@ architecture behavior of EX_MEM_REG is
 				IR_MEM <= IR_EX_STORED;
 				IR_EX_STORED <= IR_EX;
 			end if;
+			
+			if (MemRead_EX_STORED /= MemRead_EX) then
+				MemRead_MEM <= MemRead_EX_STORED;
+				MemRead_EX_STORED <= MemRead_EX;
+			end if;
+			
+			if (MemWrite_EX_STORED /= MemWrite_EX) then
+				MemWrite_MEM <= MemWrite_EX_STORED;
+				MemWrite_EX_STORED <= MemWrite_EX;
+			end if;
+			
 		end if;
 	end process;
 

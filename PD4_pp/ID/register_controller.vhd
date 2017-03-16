@@ -17,7 +17,7 @@ port (
 	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 												  	-- or the ALU output (mux decided)
 
-	IR : out std_logic_vector(31 downto 0);
+	IR_ID : out std_logic_vector(31 downto 0);
 	A : out std_logic_vector(31 downto 0);
 	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0);

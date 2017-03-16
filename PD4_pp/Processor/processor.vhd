@@ -76,7 +76,7 @@ component register_controller
 		WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 														-- or the ALU output (mux decided)
 
-		IR : out std_logic_vector(31 downto 0);	--TODO modify file itself
+		IR_ID : out std_logic_vector(31 downto 0);	--TODO modify file itself
 		A : out std_logic_vector(31 downto 0);
 		B : out std_logic_vector(31 downto 0);
 		Imm : out std_logic_vector(31 downto 0);
@@ -145,29 +145,30 @@ component ex_mem_reg
 		MemRead_EX : in std_logic;		-- comes from ALU control unit
 		MemWrite_EX : in std_logic;
 		
-		
-		
 		Cond_MEM : out std_logic;
 		ALUOutput_MEM : out std_logic_vector(31 downto 0);
 		B_MEM : out std_logic_vector(31 downto 0);
-		IR_MEM : out std_logic_vector(31 downto 0)
+		IR_MEM : out std_logic_vector(31 downto 0);
 		MemRead_MEM : out std_logic;
-		MemWrite_MEM : out std_logic;
+		MemWrite_MEM : out std_logic
 	);
 end component;
 
 -- memory stage --
+signal s_LMD_MEM : std_logic_vector(31 downto 0);
+signal s_IR_MEM : std_logic_vector(31 downto 0);
 
-component data_memory
+component data_memory 
 	port (
 		clock : in std_logic;
 		ALUOutput : in std_logic_vector(31 downto 0);
 		B: in std_logic_vector(31 downto 0);
 		MemRead : in std_logic;		-- comes from ALU control unit
 		MemWrite : in std_logic;	-- same as above
+		IR_i : in std_logic_vector(31 downto 0);
 
 		LMD : out std_logic_vector(31 downto 0);
-		IR : out std_logic_vector(31 downto 0)
+		IR_o : out std_logic_vector(31 downto 0)
 	);
 end component;
 
@@ -271,10 +272,21 @@ BEGIN
 	
 	EX_MEM: ex_mem_reg
 	port map (
+			--in
 			clock,
+			s_cond_EX,
 			s_ALUOutput_EX,
 			s_B_EX,
-			s_M
+			s_IR_EX,
+			s_MemRead_EX,
+			s_MemWrite_EX,
+			--out
+			s_cond_EX_MEM,
+			s_ALUOutput_EX_MEM,
+			s_B_EX_MEM,
+			s_IR_EX_MEM,
+			s_MemRead_EX_MEM,
+			s_MemWrite_EX_MEM
 		);
 		
 --	MEM: data_memory
