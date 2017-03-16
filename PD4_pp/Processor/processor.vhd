@@ -88,8 +88,8 @@ component register_controller
 end component;
 
 -- ID/EX register
-signal s_A_ID_EX : std_logic_vector(7 downto 0);
-signal s_B_ID_EX : std_logic_vector(7 downto 0);
+signal s_A_ID_EX : std_logic_vector(31 downto 0);
+signal s_B_ID_EX : std_logic_vector(31 downto 0);
 signal s_IMM_ID_EX : std_logic_vector(31 downto 0);
 signal s_PC_ID_EX : std_logic_vector(11 downto 0);
 signal s_IR_ID_EX : std_logic_vector(31 downto 0);
@@ -98,14 +98,14 @@ component id_ex_reg
 	PORT (
 		clock : in std_logic;
 		
-		A_ID : in std_logic_vector(7 downto 0); 	-- regs have length 8
-		B_ID : in std_logic_vector(7 downto 0); 	
+		A_ID : in std_logic_vector(31 downto 0); 	-- regs have length 8
+		B_ID : in std_logic_vector(31 downto 0); 	
 		IMM_ID : in std_logic_vector(31 downto 0); 	-- last 16 bits of instruction (sign-extended)
 		NPC_ID : in std_logic_vector(11 downto 0);-- should come from if/id directly
 		IR_ID : in std_logic_vector(31 downto 0);	-- same as above
 
-		A_EX : out std_logic_vector(7 downto 0);
-		B_EX : out std_logic_vector(7 downto 0);
+		A_EX : out std_logic_vector(31 downto 0);
+		B_EX : out std_logic_vector(31 downto 0);
 		IMM_EX : out std_logic_vector(31 downto 0);
 		NPC_EX : out std_logic_vector(11 downto 0);
 		IR_EX : out std_logic_vector(31 downto 0)
@@ -226,11 +226,22 @@ BEGIN
 			s_PC_decode
 		);
 		
---	ID_EX: id_ex_reg
---	port map (
---			clock,
---			s_reset
---		);
+	ID_EX: id_ex_reg
+	port map (
+			--in
+			clock,
+			s_A_decode,
+			s_B_decode,
+			s_imm_decode,
+			s_PC_decode,
+			s_IR_decode,
+			--out
+			s_A_ID_EX,
+			s_B_ID_EX,
+			s_IMM_ID_EX,
+			s_PC_ID_EX,
+			s_IR_ID_EX
+		);
 		
 --	EX: execute
 --	port map (
