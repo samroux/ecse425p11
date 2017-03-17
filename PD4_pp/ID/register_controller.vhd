@@ -98,7 +98,7 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
 		if (IR_IF(31 downto 26) = "001100") OR (IR_IF(31 downto 26) = "001101") then
-			Imm <= std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
+			Imm <= std_logic_vector(resize(signed(IR_IF(15 downto 0)), Imm'length));
 		else
 			Imm <= std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
 		end if;
