@@ -22,6 +22,8 @@ architecture register_file_arch of register_file_tb is
 	signal reg_write_addr : std_logic_vector (4 downto 0);
 	signal MemWrite : std_logic := '0';
 	signal MemRead : std_logic := '0';
+	signal write_to_file : std_logic;
+
 	signal reg_output_A : std_logic_vector(31 downto 0);
 	signal reg_output_B : std_logic_vector(31 downto 0);
 
@@ -37,6 +39,8 @@ architecture register_file_arch of register_file_tb is
 			reg_write_addr : in std_logic_vector (4 downto 0);
 			MemWrite : in std_logic;
 			MemRead : in std_logic;
+			write_to_file : in std_logic;
+
 			reg_output_A : out std_logic_vector(31 downto 0);
 			reg_output_B : out std_logic_vector(31 downto 0)		
 			);
@@ -53,6 +57,7 @@ architecture register_file_arch of register_file_tb is
 			reg_write_input => reg_write_input,
 			MemWrite => MemWrite,
 			MemRead => MemRead,
+			write_to_file => write_to_file,
 			reg_output_A => reg_output_A,
 			reg_output_B => reg_output_B
 		);
@@ -68,6 +73,7 @@ architecture register_file_arch of register_file_tb is
 
 		generate_test : process                                           
 		begin
+			write_to_file <= '0';
 			reg_write_input <= "01010101000000000000000000000000";
 			reg_address_A <= "00001";
 
@@ -154,6 +160,7 @@ architecture register_file_arch of register_file_tb is
 			wait for clock_period;
 			assert (reg_output_A = "00000000000000000000000000000000") severity ERROR;
 
+			write_to_file <= '1';
 		wait;                                                        
 	end process generate_test;                                     
 end register_file_arch;

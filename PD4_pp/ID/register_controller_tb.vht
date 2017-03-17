@@ -20,6 +20,7 @@ architecture register_controller_arch of register_controller_tb is
 	signal IR_IF : std_logic_vector(31 downto 0);
 	signal WB_addr : std_logic_vector(4 downto 0);
 	signal WB_return : std_logic_vector(31 downto 0);
+	signal write_to_file : std_logic;
 
 	signal PC_ID : std_logic_vector (11 downto 0);
 	signal IR_ID : std_logic_vector(31 downto 0);
@@ -39,6 +40,7 @@ architecture register_controller_arch of register_controller_tb is
 			IR_IF : in std_logic_vector(31 downto 0);
 			WB_addr : in std_logic_vector(4 downto 0);
 			WB_return : in std_logic_vector(31 downto 0);
+			write_to_file : in std_logic;
 
 			PC_ID : out std_logic_vector (11 downto 0);
 			IR_ID : out std_logic_vector(31 downto 0);
@@ -58,6 +60,7 @@ architecture register_controller_arch of register_controller_tb is
 			IR_IF => IR_IF,
 			WB_addr => WB_addr,
 			WB_return => WB_return,
+			write_to_file => write_to_file,
 
 			PC_ID => PC_ID,
 			IR_ID => IR_ID,
@@ -79,6 +82,7 @@ architecture register_controller_arch of register_controller_tb is
 		generate_test : process                                           
 		begin
 			report "Initial state";
+			write_to_file <= '0';
 			IR_IF <= "00000000000000000000000000000000";
 			WB_addr <= "00000";
 			WB_return <= "00000000000000000000000000000000";
@@ -145,6 +149,7 @@ architecture register_controller_arch of register_controller_tb is
 			assert (branchTaken = '0') severity ERROR;
 			wait for clock_period/2;
 
+			write_to_file <= '1';
 			report "*** Some asserts seem to fail due to being evaluated right on the rising/falling edges. A waveform.png is included in this code's directory; it shows that registers are properly read and written from, as expected.";
 		wait;                                                        
 	end process generate_test;                                     

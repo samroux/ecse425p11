@@ -17,13 +17,14 @@ port (
 	WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
 	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 												  	-- or the ALU output (mux decided)
+	write_to_file : in std_logic;
 
 	PC_ID : out std_logic_vector (11 downto 0);
 	IR_ID : out std_logic_vector(31 downto 0);
 	A : out std_logic_vector(31 downto 0);
 	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0);
-	branchTaken : out std_logic;	-- returns 1 if rs == rt and instruction is beq
+	branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
 								-- or if rs /= rt and instruction is bne.
 								-- to be used in EX stage 
 								
@@ -55,6 +56,7 @@ architecture behavior of REGISTER_CONTROLLER is
 			reg_write_addr : in std_logic_vector (4 downto 0);
 			MemWrite : in std_logic;
 			MemRead : in std_logic;
+			write_to_file : in std_logic;
 			reg_output_A : out std_logic_vector(31 downto 0);
 			reg_output_B : out std_logic_vector(31 downto 0)
 		);
@@ -71,6 +73,7 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_write_input => reg_write_input,
 		MemWrite => MemWrite,
 		MemRead => MemRead,
+		write_to_file => write_to_file,
 		reg_output_A => reg_output_A,
 		reg_output_B => reg_output_B
 		);	

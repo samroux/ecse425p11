@@ -7,6 +7,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 
 entity REGISTER_FILE is
 
@@ -21,6 +23,8 @@ port (
 	reg_write_addr : in std_logic_vector(4 downto 0);
 	MemWrite : in std_logic;
 	MemRead : in std_logic;
+	write_to_file : in std_logic;
+
 	reg_output_A : out std_logic_vector(31 downto 0);
 	reg_output_B : out std_logic_vector(31 downto 0)
 	);
@@ -30,7 +34,7 @@ architecture behavior of REGISTER_FILE is
 
 	type REGISTERS is array(number_of_registers-1 downto 0) of std_logic_vector(31 downto 0);
 	signal registers_inst : REGISTERS := ((others => (others => '0')));
-	--signal addr_int : integer := 0;
+	file reg_file : text;
 
 	begin
 
@@ -62,5 +66,20 @@ architecture behavior of REGISTER_FILE is
 			reg_output_B <= (others => '0');
 		end if;
 	end process;
+
+	final_write : process(write_to_file)
+	variable memory_address : integer := 0;
+	variable line_to_write : line;
+	variable bit_vector : bit_vector(0 to 31);
+	begin
+		if(write_to_file = '1') then
+			file_open(reg_file, "register_file.txt", write_mode);
+			while (memory_address /= number_of_registers) loop
+				write(line_to_write, registers_inst(memory_address), right, 32);
+				writeline(reg_file, line_to_write);
+				memory_address := memory_address + 1;
+			end loop;
+		end if;
+	end process final_write;
 
 end behavior;
