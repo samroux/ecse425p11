@@ -40,7 +40,8 @@ BEGIN
 		variable VEC_LINE : line;
 		variable VEC_VAR : bit_vector(0 to 31);
 		variable mem_address: integer := 0;
-		file VEC_FILE : text is in "C:\Users\Sam\Documents\_ecse425\ecse425p11\PD4_pp\Assembler\program.txt"; -- Path of any output of assembler. (Correct relative path in actual config)
+		file VEC_FILE : text is in "program.txt"; -- Path of the program to be run.
+												  -- needs to be in PD4_pp/IF/
 
 		begin
 			if reset = '1' then

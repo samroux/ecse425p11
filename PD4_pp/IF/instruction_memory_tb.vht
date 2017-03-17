@@ -54,7 +54,7 @@ BEGIN
 	generate_test : process                                                
 	begin
 	
-		REPORT "Starting Simulation. Will check if can get 10 first lines of file correctly";
+		REPORT "Starting Simulation. Will check if can get 6 first lines of file correctly";
 		
 		s_reset <= '0';
 		
@@ -68,14 +68,14 @@ BEGIN
 		
 		wait for clock_period;
 		
-		REPORT "System has been resetted";
+		REPORT "System has been reset";
 		
 		-----------------
 		s_address <= (others=>'0');	--addr 0
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00100000000010110000011111010000") REPORT "1 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "00100000000010110000000000000101") REPORT "1 is wrong" SEVERITY ERROR;
 		
 		-----------------
 		
@@ -85,7 +85,7 @@ BEGIN
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00100000000011110000000000000100") REPORT "2 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "00100000000011000000000000000110") REPORT "2 is wrong" SEVERITY ERROR;
 		
 		-----------------
 		
@@ -95,7 +95,7 @@ BEGIN
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00100000000000010000000000000011") REPORT "3 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "00000001011011000001000000100000") REPORT "3 is wrong" SEVERITY ERROR;
 	
 		-----------------
 		
@@ -105,7 +105,7 @@ BEGIN
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00100000000000100000000000000100") REPORT "4 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "10001100010000110000000000000000") REPORT "4 is wrong" SEVERITY ERROR;
 	
 		-----------------
 		wait for clock_period;
@@ -114,7 +114,7 @@ BEGIN
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00000000001000100001100000100100") REPORT "5 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "00100000011001000000000000001011") REPORT "5 is wrong" SEVERITY ERROR;
 	
 		-----------------
 		
@@ -124,47 +124,10 @@ BEGIN
 		
 		wait for clock_period;
 		
-		ASSERT (s_instruction = "00100000000010100000000000000000") REPORT "6 is wrong" SEVERITY ERROR;
+		ASSERT (s_instruction = "00010000100001000000000000000100") REPORT "6 is wrong" SEVERITY ERROR;
 		
 		-----------------
 		
-		wait for clock_period;
-		
-		s_address <= (3=>'1', 4=> '1', others=>'0');	--addr 24
-		
-		wait for clock_period;
-		
-		ASSERT (s_instruction = "00000001010011110000000000011000") REPORT "7 is wrong" SEVERITY ERROR;
-		
-		-----------------
-		
-		wait for clock_period;
-		
-		s_address <= (2=>'1', 3=>'1', 4=> '1', others=>'0');	--addr 28
-		
-		wait for clock_period;
-		
-		ASSERT (s_instruction = "00000000000000000110000000010010") REPORT "8 is wrong" SEVERITY ERROR;
-		
-		-----------------
-		
-		wait for clock_period;
-		
-		s_address <= (5=> '1', others=>'0');	--addr 32
-		
-		wait for clock_period;
-		
-		ASSERT (s_instruction = "00000001011011000110100000100000") REPORT "9 is wrong" SEVERITY ERROR;
-		
-		-----------------
-		
-		wait for clock_period;
-		
-		s_address <= (2=>'1', 5=> '1', others=>'0');	--addr 36
-		
-		wait for clock_period;
-		
-		ASSERT (s_instruction = "00000000000000110001000000100000") REPORT "10 is wrong" SEVERITY ERROR;
 		
 		REPORT "Simulation Done";
 		wait;                                                        
