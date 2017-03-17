@@ -38,6 +38,7 @@ architecture behavior of DATA_MEMORY is
 	-- equivalent to 8192 registers, whereas CPU has 32 registers.
 	type DATA_MEM is array(mem_size-1 downto 0) of std_logic_vector(31 downto 0);
 	signal data_mem_inst : DATA_MEM := ((others => (others => '0')));
+	file data_file : text;
 
 	begin
 
@@ -69,12 +70,11 @@ architecture behavior of DATA_MEMORY is
 
 	final_write : process(write_to_file)
 	variable memory_address : integer := 0;
-	-- to change according to destination machine
-	file data_file : text is in "C:\Users\will\Documents\McGill\6 Winter 2017\ecse 425\ecse425p11\PD4_pp\memory.txt";
 	variable line_to_write : line;
 	variable bit_vector : bit_vector(0 to 31);
 	begin
 		if(write_to_file = '1') then
+			file_open(data_file, "memory.txt", write_mode);
 			while (memory_address /= mem_size) loop
 				write(line_to_write, data_mem_inst(memory_address), right, 32);
 				writeline(data_file, line_to_write);
