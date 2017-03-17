@@ -41,7 +41,7 @@ begin
 					when "1000" =>
 						operation <= "0101"; --mult
 					when others =>
-						operation <= "1111";
+						operation => "1111";
 				end case;
 			when "11" =>
 				case (funct(3 downto 0)) is
@@ -50,10 +50,10 @@ begin
 					when "1010" =>
 						operation <= "0111"; --set on less than
 					when others =>
-						operation <= "1111";
+						operation => "1111";
 				end case;
 			when others =>
-				operation <= "1111";
+				operation => "1111";
 		end case;
 end process;
 

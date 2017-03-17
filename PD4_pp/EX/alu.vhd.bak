@@ -31,7 +31,7 @@ begin
 		case(ALU_operation) is
 			when "0010" => --add
 				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) + to_integer(signed(read_data_2)), 32));
-				if func = "010000" then --mfhi
+				if funct = "010000" then --mfhi
 					ALU_result <= Hi;
 				end if;
 			when "0110" => --substract
@@ -47,7 +47,7 @@ begin
 			when "0001" => --OR
 				ALU_result <= read_data_1 or read_data_2;
 			when "0111" => --set on less than
-				if func = "011010" then --div
+				if funct = "011010" then --div
 					Lo <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) / to_integer(signed(read_data_2)), 32));
 					Hi <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) rem to_integer(signed(read_data_2)), 32));
 				elsif to_integer(signed(read_data_1)) < to_integer(signed(read_data_2)) then
