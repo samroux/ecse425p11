@@ -106,17 +106,17 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Do equality test on registers -> branch
 		-- TODO: Compute branch target address PC+4+Imm
 		-- 		 why is this not done in EX?
-		if (IR_IF(31 downto 26) = "000100") then	-- beq
-			if (A_temp = B_temp) then 	branchTaken <= '1';
-			else 						branchTaken <= '0';
-			end if;
-		elsif (IR_IF(31 downto 26) = "000101") then	-- bne
-			if (A_temp /= B_temp) then 	branchTaken <= '1';
-			else 						branchTaken <= '0';
-			end if;
-		else
-			branchTaken <= '0';
-		end if;
+		--if (IR_IF(31 downto 26) = "000100") then	-- beq
+		--	if (A_temp = B_temp) then 	branchTaken <= '1';
+		--	else 						branchTaken <= '0';
+		--	end if;
+		--elsif (IR_IF(31 downto 26) = "000101") then	-- bne
+		--	if (A_temp /= B_temp) then 	branchTaken <= '1';
+		--	else 						branchTaken <= '0';
+		--	end if;
+		--else
+		--	branchTaken <= '0';
+		--end if;
 
 	-- WB process runs concurrently but works on a previous instruction.
 	-- It only writes to reg file, which supports read/write in a single cycle.
