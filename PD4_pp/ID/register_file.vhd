@@ -30,7 +30,6 @@ architecture behavior of REGISTER_FILE is
 
 	type REGISTERS is array(number_of_registers-1 downto 0) of std_logic_vector(31 downto 0);
 	signal registers_inst : REGISTERS := ((others => (others => '0')));
-	--signal addr_int : integer := 0;
 
 	begin
 

@@ -3,6 +3,8 @@
 -- @timestamp:	2017-03-15
 -- @brief:		Test bench for the register controller, which wraps the register
 --				file and is responsible for both ID and WB interactions.
+--				Delays of instruction moving through the pipeline are ignored;
+--				results are assumed to be instantaneous.
 --				Used with test_decode.asm and its compiled program.txt
 
 library ieee;                                               
@@ -116,7 +118,7 @@ architecture register_controller_arch of register_controller_tb is
 			WB_return <= "00000000000000000000000000000110"; -- 6
 			wait for clock_period;
 
-			report "--- Instruction 3: add $2, $11, $12";
+			report "--- Instruction 3: add $2, $11, $12 ---";
 			report "Testing ID stage of inst 3";
 			IR_IF <= "00000001011011000001000000100000";
 			wait for clock_period/2; -- 1/2 cycle
@@ -133,7 +135,8 @@ architecture register_controller_arch of register_controller_tb is
 			WB_return <= "00000000000000000000000000001011"; -- 11
 			wait for clock_period;
 
-			report "--- Instruction 4: lw $3, 0($2)";
+			report "--- Instruction 4: lw $3, 0($2) ---";
+			report "Testing ID stage of inst 4";
 			IR_IF <= "10001100010000110000000000000000";
 			wait for clock_period/2;
 			-- WB
@@ -143,7 +146,22 @@ architecture register_controller_arch of register_controller_tb is
 			-- don't care about B
 			-- don't care about Imm
 			assert (branchTaken = '0') severity ERROR;
+			wait for clock_period;
+
+			report "Testing WB stage of inst 4";
+			WB_addr <= "00011"; -- $3
+			WB_return <= "00000000000000000000000000001011"; -- 11
+			wait for clock_period;
+
+			report "--- Instruction 5: addi $4, $3, $11 ---";
+			report "Testing ID stage of inst 5";
+			IR_IF <= "00100000011001000000000000001011";
 			wait for clock_period/2;
+			-- WB
+			wait for clock_period/2;
+			assert (IR_ID = "00100000011001000000000000001011") severity ERROR;
+			assert (A = "00000000000000000000000000001011") severity ERROR; -- $3 = 11
+			assert (B = "")
 
 			report "*** Some asserts seem to fail due to being evaluated right on the rising/falling edges. A waveform.png is included in this code's directory; it shows that registers are properly read and written from, as expected.";
 		wait;                                                        
