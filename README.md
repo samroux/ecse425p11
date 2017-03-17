@@ -14,8 +14,12 @@ There's only two inputs to this file:
 
 The reset signal will load the content of a file into the "instruction memory"-register.
 
-In order to have the program load the proper file, please modify line 43 of "instruction_memory.vhd". This file can be found at exce425p11/PD4_pp/IF/instruction_memory.vhd
+A .tcl file is provided to compile all required components of this project, along with the main processor.vhd and processor_tb.vht files. Sourcing this file should allow you to run the pipelined processor successfully.
 
+The processor deals with several files:
+#### Input:
+* `IF/program.txt` should contain the input program, compiled using a MIPS Assembler.
 
-
-
+#### Outputs:
+* `ID/register_file.txt` contains the contents of the registers once the program is done executing.
+* `MEM/memory.txt` contains the contents of data memory once the program is done executing.
