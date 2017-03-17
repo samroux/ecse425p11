@@ -20,7 +20,8 @@ SIGNAL s_reset : std_logic := '0';
 
 -- instruction fetch stage --
 signal s_branch_taken_EX_MEM : std_logic := '0';
-signal s_branch_address_EX_MEM : std_logic_vector(11 downto 0):= (others => '0');
+-- not needed: we pipe ALUOutput_EX_MEM straight into it
+--signal s_full_ALUOutput_bAddr : std_logic_vector(31 downto 0):= (others => '0');
 signal s_IR_Fetch : std_logic_vector(31 downto 0):= (others => '0');
 signal s_PC_Fetch : std_logic_vector(11 downto 0) := (others => '0');
 
@@ -30,7 +31,7 @@ component instruction_fetch
 		reset : in std_logic;
 		
 		branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
-		branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
+		full_ALUOutput_bAddr : in std_logic_vector (31 downto 0);	-- address to jump to when Branch is Taken
 		
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
 		PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
@@ -223,7 +224,7 @@ BEGIN
 			clock,
 			s_reset,
 			s_branch_taken_EX_MEM, --> this comes from ex_mem_reg
-			s_branch_address_EX_MEM, --> this comes from ex_mem_reg
+			s_ALUOutput_EX_MEM, --> this comes from ex_mem_reg
 			--out
 			s_IR_Fetch,
 			s_PC_Fetch
@@ -282,7 +283,7 @@ BEGIN
 --			clock,
 --			s_reset
 --		);
-	
+
 	EX_MEM: ex_mem_reg
 	port map (
 			--in
@@ -294,9 +295,9 @@ BEGIN
 			s_MemRead_EX,
 			s_MemWrite_EX,
 			--out
-			s_branch_taken_EX_MEM, -->this goes back to IF
-			s_ALUOutput_EX_MEM,
-			s_branch_address_EX_MEM, -->this goes back to IF
+			s_branch_taken_EX_MEM, 	--> this goes back to IF if branch
+			s_ALUOutput_EX_MEM, 	--> this goes back to IF if branch taken
+			s_B_EX_MEM, 
 			s_IR_EX_MEM,
 			s_MemRead_EX_MEM,
 			s_MemWrite_EX_MEM
