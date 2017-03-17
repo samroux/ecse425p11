@@ -79,6 +79,42 @@ begin
 	read_data_2 <= x"00000002";
 	WAIT FOR 1 * clk_period;
 	
+	ALU_operation <= "0101"; --mult
+	funct <= "011000"; --mult
+	read_data_1 <= x"00000003";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0010"; --mfhi
+	funct <= "010000"; --mfhi
+	read_data_1 <= x"00000003";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0110"; --mflo
+	funct <= "010010"; --mflo
+	read_data_1 <= x"00000003";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0111"; --div
+	funct <= "011010"; --div
+	read_data_1 <= x"00000007";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0010"; --mfhi
+	funct <= "010000"; --mfhi
+	read_data_1 <= x"00000003";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0110"; --mflo
+	funct <= "010010"; --mflo
+	read_data_1 <= x"00000003";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
 	ALU_operation <= "0110"; --sub
 	funct <= "100010"; --sub
 	read_data_1 <= x"00000003";
@@ -94,6 +130,18 @@ begin
 	ALU_operation <= "0110"; --srl
 	funct <= "000010"; --srl
 	read_data_1 <= x"00000010";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "1011"; --sra
+	funct <= "000011"; --sra
+	read_data_1 <= x"00000010";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "1011"; --sra
+	funct <= "000011"; --sra
+	read_data_1 <= x"f0000010";
 	read_data_2 <= x"00000002";
 	WAIT FOR 1 * clk_period;
 	
@@ -115,11 +163,25 @@ begin
 	read_data_2 <= x"00000002";
 	WAIT FOR 1 * clk_period;
 	
+	ALU_operation <= "0110"; --branch
+	funct <= "000101"; --bne
+	read_data_1 <= x"00000001";
+	read_data_2 <= x"00000001";
+	WAIT FOR 1 * clk_period;
+	
+	ALU_operation <= "0110"; --branch
+	funct <= "000100"; --beq
+	read_data_1 <= x"00000001";
+	read_data_2 <= x"00000002";
+	WAIT FOR 1 * clk_period;
+	
 	ALU_operation <= "1111"; --others
 	funct <= "100000"; --add
 	read_data_1 <= x"00000001";
 	read_data_2 <= x"00000002";
 	WAIT FOR 1 * clk_period;
+	
+	
 
 WAIT;
 	

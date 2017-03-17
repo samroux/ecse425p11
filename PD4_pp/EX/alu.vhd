@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+--use IEEE.MATH_REAL.ALL;
 
 entity alu is
   port(
@@ -18,6 +19,7 @@ architecture arch of alu is
 signal ALU_result_temp: std_logic_vector(31 downto 0);
 signal Hi: std_logic_vector(31 downto 0);
 signal Lo: std_logic_vector(31 downto 0);
+--signal power: real := 0.0;
 
 begin
 
@@ -26,10 +28,12 @@ alu: process(ALU_operation, funct, read_data_1, read_data_2)
 	variable HiLo: std_logic_vector(63 downto 0);
 
 begin
+zero <= '0';
 		case(ALU_operation) is
 			when "0010" => --add
 				if funct = "000000" then --sll
 					ALU_result <= std_logic_vector(shift_left(unsigned(read_data_1), to_integer(unsigned(read_data_2))));
+					--SHAMT signed or unsigned?
 -- MAKE SURE read_data_1 is rt register
 				elsif funct = "010000" then --mfhi
 					ALU_result <= Hi;
@@ -38,14 +42,14 @@ begin
 				end if;
 			when "0110" => --substract
 				if funct ="000010" then --srl
-					ALU_result <= std_logic_vector(to_signed(to_integer(unsigned(read_data_1)) / to_integer(signed(read_data_2)), 32));
+					ALU_result <= std_logic_vector(to_signed(to_integer(unsigned(read_data_1)) / 2**to_integer(unsigned(read_data_2)), 32));
 				elsif funct = "010010" then --mflo
 					ALU_result <= Lo;
 				else
 					ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) - to_integer(signed(read_data_2)), 32));
 					ALU_result_temp <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) - to_integer(signed(read_data_2)), 32));
 				end if;
-				if unsigned(ALU_result_temp) = to_unsigned(0, 32) then --branch
+				if read_data_1 = read_data_2 then --branch
 					zero <= '1';
 				end if;
 			when "0000" => --AND
@@ -72,10 +76,12 @@ begin
 			when "1010" => --lui
 				ALU_result <= read_data_2;
 			when "1011" => --sra
-				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) / to_integer(signed(read_data_2)), 32));
+				--power <= 2**to_integer(signed(read_data_2))
+				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) / 2**to_integer(signed(read_data_2)), 32));
 			when others =>
 				ALU_result <= (others => '0');
 		end case;
+
 end process;
 
 end arch;
