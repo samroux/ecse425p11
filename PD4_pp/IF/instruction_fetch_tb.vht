@@ -20,7 +20,7 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
     constant clock_period : time := 1 ns;
 	
 	signal s_branch_taken : std_logic := '0';	--initialy, assume no branch is taken
-	signal s_branch_address : std_logic_vector(11 downto 0):= (others => '0');  --set branch address to 0 for now, but won't be used
+	signal full_ALUOutput_bAddr : std_logic_vector(31 downto 0):= (others => '0');  --set branch address to 0 for now, but won't be used
 	
 	signal s_PC : std_logic_vector(11 downto 0) := (others => '0'); --initialize PC to 0
 	signal s_IR : std_logic_vector(31 downto 0) := (others => '0');
@@ -31,7 +31,7 @@ ARCHITECTURE behaviour OF instruction_fetch_tb IS
 			reset : in std_logic;
 			
 			branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
-			branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
+			full_ALUOutput_bAddr : in std_logic_vector (31 downto 0);	-- address to jump to when Branch is Taken
 			
 			IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
 			PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
@@ -45,7 +45,7 @@ BEGIN
 			clock,
 			s_reset,
 			s_branch_taken,
-			s_branch_address,
+			full_ALUOutput_bAddr,
 			s_IR,
 			s_PC
 		);
@@ -72,7 +72,7 @@ BEGIN
 		
 		s_reset <= '0';
 		
-		REPORT "System has been resetted";
+		REPORT "System has been reset";
 		
 		--------Start of Test---------
 		
@@ -104,7 +104,7 @@ BEGIN
 		--------Test Branching--------
 		
 		s_branch_taken <= '1';		--Branch taken is set 1 cycle before it takes effect.
-		s_branch_address <= (2=>'1', 3=>'1', 4=> '1', others=>'0');	--addr 28
+		full_ALUOutput_bAddr <= (2=>'1', 3=>'1', 4=> '1', others=>'0');	--addr 28
 		
 		pc_temp := (3=>'1', others=>'0');
 		
@@ -118,7 +118,7 @@ BEGIN
 	
 		----
 		
-		ASSERT (s_PC = s_branch_address ) REPORT "PC is not equal to branch_address" Severity ERROR; -- PC = 28
+		ASSERT (s_PC = "000000011100" ) REPORT "PC is not equal to branch_address" Severity ERROR; -- PC = 28
 		
 		s_branch_taken <= '0';
 		
