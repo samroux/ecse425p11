@@ -145,7 +145,7 @@ component ex_mem_reg
 		MemRead_EX : in std_logic;		-- comes from ALU control unit
 		MemWrite_EX : in std_logic;
 		
-		Cond_MEM : out std_logic;
+		Cond_MEM : out std_logic;		-- condition for branch taken or not.
 		ALUOutput_MEM : out std_logic_vector(31 downto 0);
 		B_MEM : out std_logic_vector(31 downto 0);
 		IR_MEM : out std_logic_vector(31 downto 0);
