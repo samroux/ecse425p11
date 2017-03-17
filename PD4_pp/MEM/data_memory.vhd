@@ -8,6 +8,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 
 entity DATA_MEMORY is
 generic(
@@ -21,10 +23,11 @@ port (
 	B_i: in std_logic_vector(31 downto 0);
 	MemRead : in std_logic;		-- comes from ALU control unit
 	MemWrite : in std_logic;	-- same as above
-	IR_i : in std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
+	IR_i : in std_logic_vector(31 downto 0);
+	write_to_file : in std_logic;
 
 	LMD : out std_logic_vector(31 downto 0);
-	IR_o : out std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
+	IR_o : out std_logic_vector(31 downto 0);
 	B_o: out std_logic_vector(31 downto 0)
 	);
 end DATA_MEMORY;
@@ -51,13 +54,33 @@ architecture behavior of DATA_MEMORY is
 			--		 are not significant (i.e. sign/zero extended)	 
 			LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0))));
 		elsif (MemWrite = '1') and (MemRead = '0') then
-			data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B;
+			data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B_i;
             LMD <= (others => '0');
        	else
        		LMD <= (others => '0');
 		end if;
-		B_o <= B_i;
-		IR_o <= IR_i;
+
+		-- delay signals by one clock cycle
+		if (rising_edge(clock)) then
+			B_o <= B_i;
+			IR_o <= IR_i;
+		end if;
 	end process;
+
+	final_write : process(write_to_file)
+	variable memory_address : integer := 0;
+	-- to change according to destination machine
+	file data_file : text is in "C:\Users\will\Documents\McGill\6 Winter 2017\ecse 425\ecse425p11\PD4_pp\memory.txt";
+	variable line_to_write : line;
+	variable bit_vector : bit_vector(0 to 31);
+	begin
+		if(write_to_file = '1') then
+			while (memory_address /= mem_size) loop
+				write(line_to_write, data_mem_inst(memory_address), right, 32);
+				writeline(data_file, line_to_write);
+				memory_address := memory_address + 1;
+			end loop;
+		end if;
+	end process final_write;
 
 end behavior;

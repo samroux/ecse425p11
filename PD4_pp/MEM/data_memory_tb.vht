@@ -17,11 +17,15 @@ architecture data_memory_arch of data_memory_tb is
     -- test signals                                     
 	signal clock : std_logic;
 	signal ALUOutput : std_logic_vector(31 downto 0);
-	signal B: std_logic_vector(31 downto 0);
+	signal B_i: std_logic_vector(31 downto 0);
 	signal MemRead : std_logic;
 	signal MemWrite : std_logic;
+	signal IR_i : std_logic_vector(31 downto 0);
+	signal write_to_file : std_logic;
 
 	signal LMD : std_logic_vector(31 downto 0);
+	signal IR_o : std_logic_vector(31 downto 0);
+	signal B_o: std_logic_vector(31 downto 0);
 
 	constant clock_period : time := 1 ns;
 
@@ -30,11 +34,15 @@ architecture data_memory_arch of data_memory_tb is
 		port (
 			clock : in std_logic;
 			ALUOutput : in std_logic_vector(31 downto 0);
-			B: in std_logic_vector(31 downto 0);
+			B_i: in std_logic_vector(31 downto 0);
 			MemRead : in std_logic;
 			MemWrite : in std_logic;
+			IR_i : in std_logic_vector(31 downto 0);
+			write_to_file : in std_logic;
 
-			LMD : out std_logic_vector(31 downto 0)
+			LMD : out std_logic_vector(31 downto 0);
+			IR_o : out std_logic_vector(31 downto 0);
+			B_o: out std_logic_vector(31 downto 0)
 		);
 	end component;
 
@@ -44,10 +52,15 @@ architecture data_memory_arch of data_memory_tb is
 		port map (
 			clock => clock,
 			ALUOutput => ALUOutput,
-			B => B,
+			B_i => B_i,
 			MemRead => MemRead,
 			MemWrite => MemWrite,
-			LMD => LMD
+			IR_i => IR_i,
+			write_to_file => write_to_file,
+
+			LMD => LMD,
+			IR_o => IR_o,
+			B_o => B_o
 		);
 
 		-- continuous clock process
@@ -61,7 +74,9 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			B <= "00000000000000000000000000001111"; -- rt register used for testing
+			IR_i <= "00000000000000000000000000000000"; 
+			write_to_file <= '0';
+			B_i <= "00000000000000000000000000001111"; -- rt register used for testing
 			ALUOutput <= "00000000000000000000000000001000"; -- address used for testing
 
 			report "Initial state; no read/write";
@@ -91,7 +106,7 @@ architecture data_memory_arch of data_memory_tb is
 			report "______";
 
 			report "Writing 1001 to a new address 1000";
-			B <= "00000000000000000000000000001001";
+			B_i <= "00000000000000000000000000001001";
 			ALUOutput <= "00000000000000000000000000000001";
 			MemWrite <= '1';
 			wait for clock_period;
@@ -115,6 +130,7 @@ architecture data_memory_arch of data_memory_tb is
 			wait for clock_period;
 			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
+			write_to_file <= '1';
 		wait;                                                        
 	end process generate_test;                                     
 end data_memory_arch;
