@@ -218,8 +218,8 @@ BEGIN
 			--in
 			clock,
 			s_reset,
-			s_branch_taken_EX_MEM,
-			s_branch_address_EX_MEM,
+			s_branch_taken_EX_MEM, --> this comes from ex_mem_reg
+			s_branch_address_EX_MEM, --> this comes from ex_mem_reg
 			--out
 			s_IR_Fetch,
 			s_PC_Fetch
@@ -242,8 +242,8 @@ BEGIN
 			clock,
 			s_PC_IF_ID,
 			s_IR_IF_ID,
-			s_WB_addr,
-			s_WB_return,
+			s_IR_WB,	--> this comes from output of WB
+			s_WB_output,	--> this comes from output of WB
 			--out
 			s_IR_decode,
 			s_A_decode,
@@ -288,9 +288,9 @@ BEGIN
 			s_MemRead_EX,
 			s_MemWrite_EX,
 			--out
-			s_cond_EX_MEM,
+			s_branch_taken_EX_MEM, -->this goes back to IF
 			s_ALUOutput_EX_MEM,
-			s_B_EX_MEM,
+			s_branch_address_EX_MEM, -->this goes back to IF
 			s_IR_EX_MEM,
 			s_MemRead_EX_MEM,
 			s_MemWrite_EX_MEM
@@ -332,8 +332,8 @@ BEGIN
 		s_LMD_MEM_WB,
 		s_ALUOutput_EX_MEM,
 		--out
-		s_IR_WB,
-		s_WB_output
+		s_IR_WB, --> This goes back to ID
+		s_WB_output --> This goes back to ID
 		);
 
 	process (clock, reset)
