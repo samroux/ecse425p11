@@ -66,6 +66,7 @@ signal s_B_decode : std_logic_vector(31 downto 0);
 signal s_imm_decode : std_logic_vector(31 downto 0);
 signal s_branch_taken_decode : std_logic;
 signal s_PC_decode : std_logic_vector(11 downto 0);
+signal s_write_reg_to_file : std_logic;
 
 component register_controller
 	port (
@@ -75,6 +76,7 @@ component register_controller
 		WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
 		WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 														-- or the ALU output (mux decided)
+		write_to_file : in std_logic;
 
 		IR_ID : out std_logic_vector(31 downto 0);	--TODO modify file itself
 		A : out std_logic_vector(31 downto 0);
@@ -158,6 +160,7 @@ end component;
 signal s_LMD_MEM : std_logic_vector(31 downto 0);
 signal s_IR_MEM : std_logic_vector(31 downto 0);
 signal s_B_MEM : std_logic_vector(31 downto 0);
+signal s_write_data_to_file : std_logic;
 
 component data_memory 
 	port (
@@ -167,6 +170,7 @@ component data_memory
 		MemRead : in std_logic;		-- comes from ALU control unit
 		MemWrite : in std_logic;	-- same as above
 		IR_i : in std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
+		write_to_file : in std_logic;
 
 		LMD : out std_logic_vector(31 downto 0);
 		IR_o : out std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
@@ -244,6 +248,8 @@ BEGIN
 			s_IR_IF_ID,
 			s_IR_WB,	--> this comes from output of WB
 			s_WB_output,	--> this comes from output of WB
+			s_write_reg_to_file,
+
 			--out
 			s_IR_decode,
 			s_A_decode,
@@ -305,6 +311,7 @@ BEGIN
 			s_MemRead_EX_MEM,
 			s_MemWrite_EX_MEM,
 			s_IR_EX_MEM,
+			s_write_data_to_file,
 			--out
 			s_LMD_MEM,
 			s_IR_MEM,
