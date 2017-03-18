@@ -59,20 +59,20 @@ opcode <= instruction(31 downto 26);
 funct <= instruction(5 downto 0);
 jump_addr <= instruction(25 downto 0);
 
-alu: ALU
+a: ALU
 	port map(
 		ALU_operation => ALU_operation,
 		funct => funct,
 		read_data_1 => read_data_1,
 		read_data_2 => read_data_2,
 		ALU_result => ALU_result,
-		zero => zero,
+		zero => zero
 	);
 	
 ac: alu_control
 	port map(
-		funct => funct;
-		ALUOp => ALUOp;
+		funct => funct,
+		ALUOp => ALUOp,
 		operation => ALU_operation
 	);
 
@@ -132,8 +132,8 @@ begin
 				Branch <= '0';
 				ALUOp <= "11";
         when "100011" => --lw
-            RegDst <= '0';
             Jump <= '0';
+				Branch <= '0';
 				ALUOp <= "00";
         when "101011" => --sw
             Jump <= '0';
