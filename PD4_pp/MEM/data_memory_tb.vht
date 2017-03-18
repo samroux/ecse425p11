@@ -23,13 +23,13 @@ architecture data_memory_arch of data_memory_tb is
 	signal MemWrite : std_logic;
 	signal IR_in : std_logic_vector(31 downto 0);
 	signal write_to_file : std_logic;
-	signal branchTaken_in : std_logic;
+	signal branch_taken_in : std_logic;
 
 	signal LMD : std_logic_vector(31 downto 0);
 	signal PC_out : std_logic_vector(11 downto 0);
 	signal IR_out : std_logic_vector(31 downto 0);
 	signal B_out: std_logic_vector(31 downto 0);
-	signal branchTaken_out : std_logic;
+	signal branch_taken_out : std_logic;
 
 	constant clock_period : time := 1 ns;
 
@@ -44,13 +44,13 @@ architecture data_memory_arch of data_memory_tb is
 			MemWrite : in std_logic;
 			IR_in : in std_logic_vector(31 downto 0);
 			write_to_file : in std_logic;
-			branchTaken_in : std_logic;
+			branch_taken_in : in std_logic;
 
 			LMD : out std_logic_vector(31 downto 0);
 			PC_out : out std_logic_vector(11 downto 0);
 			IR_out : out std_logic_vector(31 downto 0);
 			B_out: out std_logic_vector(31 downto 0);
-			branchTaken_out : std_logic
+			branch_taken_out : out std_logic
 		);
 	end component;
 
@@ -66,13 +66,13 @@ architecture data_memory_arch of data_memory_tb is
 			MemWrite => MemWrite,
 			IR_in => IR_in,
 			write_to_file => write_to_file,
-			branchTaken_in => branchTaken_in,
+			branch_taken_in => branch_taken_in,
 
 			LMD => LMD,
 			PC_out => PC_out,
 			IR_out => IR_out,
 			B_out => B_out,
-			branchTaken_out => branchTaken_out
+			branch_taken_out => branch_taken_out
 		);
 
 		-- continuous clock process
@@ -87,7 +87,7 @@ architecture data_memory_arch of data_memory_tb is
 		generate_test : process                                           
 		begin
 			write_to_file <= '0';
-			branchTaken_in <= '0';
+			branch_taken_in <= '0';
 			IR_in <= "00000000000000000000000000000000"; 
 			PC_in <= "000000000100"; -- artificial constant PC of 4
 			B_in <= "00000000000000000000000000001111"; -- rt register used for testing
@@ -144,14 +144,14 @@ architecture data_memory_arch of data_memory_tb is
 			wait for clock_period;
 			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
-			report "Test whether PC is updated properly";
-			branchTaken_in <= '1';
+			report "Test whether PC is updated properly after branch";
+			branch_taken_in <= '1';
 			ALUOutput <= "00000000000000000000100000011000"; -- jump to PC = 2072
 			MemRead <= '0';
 			MemWrite <= '0';
 			wait for clock_period;
 			assert (PC_out = "100000011000") report "Did not branch properly" severity ERROR;
-			assert (branchTaken_out = '0') severity ERROR;
+			assert (branch_taken_out = '1') severity ERROR;
 
 			wait for clock_period;
 			write_to_file <= '1';
