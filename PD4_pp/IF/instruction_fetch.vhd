@@ -16,8 +16,8 @@ ENTITY instruction_fetch is
 		branch_address : in std_logic_vector (11 downto 0);
 
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
-		PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
-
+		PC : out std_logic_vector (11 downto 0);	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
+		write_to_files : out std_logic
 	);
 END instruction_fetch;
 
@@ -48,31 +48,38 @@ BEGIN
 			s_IR
 		);
 
+-- performing instruction fetch
 fetch :	process (clock, reset)
-			-- performing instruction fetch
-			begin
-				if reset = '1' then
-					-- This should bring to fill Instruction Memory Register
-					--since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
-					s_reset <= reset;
-					s_PC <= (others => '0');
-				elsif (rising_edge(clock)) then
-					-- can fetch instruction on rising edge
-					-- Get instruction from instruction memory
-					-- Here, s_IR should contain instruction
+variable should_write : std_logic;
+begin
+	if reset = '1' then
+		-- This should bring to fill Instruction Memory Register
+		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
+		s_reset <= reset;
+		s_PC <= (others => '0');
+		should_write := '0';
+	elsif (rising_edge(clock)) then
+		-- can fetch instruction on rising edge
+		-- Get instruction from instruction memory
+		-- Here, s_IR should contain instruction
+					
+		-- Check MUX and output
+		if(branch_taken = '1') then
+			-- check for infinite loop as a trigger to write reg_file and data_mem
+			-- an infinite loop is a taken branch that changes the PC to its own PC
+			if (s_PC = branch_address) and (should_write = '0') then
+				should_write := '1';
+			end if;
 
-					-- Perform add = PC + 4
-					
-					s_PC <= std_logic_vector(unsigned(s_PC) + unsigned(s_FOUR));
-					
-					-- Check MUX and output
-					if(branch_taken = '1') then
-						s_PC <= branch_address; --set PC to branch_address
-					else
-						-- do nothing, keep the added PC
-					end if;
-				end if;
-	end process;
+			-- move to instruction pointed to by branch address
+			s_PC <= branch_address;
+		else
+			-- normal case: move to next instruction			
+			s_PC <= std_logic_vector(unsigned(s_PC) + unsigned(s_FOUR));
+		end if;
+		write_to_files <= should_write;
+	end if;
+end process;
 	
 PC <= s_PC;	--set output to signal value
 IR <= s_IR;

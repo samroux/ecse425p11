@@ -21,6 +21,7 @@ SIGNAL s_reset : std_logic := '0';
 -- instruction fetch stage --
 signal s_IR_Fetch : std_logic_vector(31 downto 0):= (others => '0');
 signal s_PC_Fetch : std_logic_vector(11 downto 0) := (others => '0');
+signal s_write_to_files : std_logic;
 
 component instruction_fetch
 	PORT (
@@ -31,8 +32,8 @@ component instruction_fetch
 		branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
 		
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
-		PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
-
+		PC : out std_logic_vector (11 downto 0);	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
+		write_to_files : out std_logic
 	);
 end component;
 
@@ -64,7 +65,6 @@ signal s_B_decode : std_logic_vector(31 downto 0);
 signal s_imm_decode : std_logic_vector(31 downto 0);
 signal s_branch_taken_decode : std_logic;
 signal s_PC_decode : std_logic_vector(11 downto 0);
-signal s_write_reg_to_file : std_logic;
 
 component register_controller
 	port (
@@ -164,7 +164,6 @@ signal s_PC_MEM : std_logic_vector(11 downto 0);
 signal s_IR_MEM : std_logic_vector(31 downto 0);
 signal s_B_MEM : std_logic_vector(31 downto 0);
 signal s_branch_taken_MEM : std_logic;
-signal s_write_data_to_file : std_logic;
 
 component data_memory 
 	port (
@@ -256,7 +255,7 @@ BEGIN
 			s_IR_IF_ID,
 			s_IR_WB,	--> this comes from output of WB
 			s_WB_output,	--> this comes from output of WB
-			s_write_reg_to_file,
+			s_write_to_files,
 
 			--out
 			s_IR_decode,
@@ -323,7 +322,7 @@ BEGIN
 			s_MemWrite_EX_MEM,
 			s_IR_EX_MEM,
 			s_branch_taken_EX_MEM,
-			s_write_data_to_file,
+			s_write_to_files,
 			--out
 			s_LMD_MEM,
 			s_PC_MEM, --> this goes back to IF
