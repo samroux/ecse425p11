@@ -19,9 +19,6 @@ SIGNAL s_reset : std_logic := '0';
 
 
 -- instruction fetch stage --
-signal s_branch_taken_EX_MEM : std_logic := '0';
--- not needed: we pipe ALUOutput_EX_MEM straight into it
---signal s_full_ALUOutput_bAddr : std_logic_vector(31 downto 0):= (others => '0');
 signal s_IR_Fetch : std_logic_vector(31 downto 0):= (others => '0');
 signal s_PC_Fetch : std_logic_vector(11 downto 0) := (others => '0');
 
@@ -31,7 +28,7 @@ component instruction_fetch
 		reset : in std_logic;
 		
 		branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
-		full_ALUOutput_bAddr : in std_logic_vector (31 downto 0);	-- address to jump to when Branch is Taken
+		branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
 		
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
 		PC : out std_logic_vector (11 downto 0)	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
@@ -83,7 +80,7 @@ component register_controller
 		A : out std_logic_vector(31 downto 0);
 		B : out std_logic_vector(31 downto 0);
 		Imm : out std_logic_vector(31 downto 0);
-		branchTaken : out std_logic;	-- returns 1 if rs == rt and instruction is beq
+		branch_taken : out std_logic;	-- returns 1 if rs == rt and instruction is beq
 									-- or if rs /= rt and instruction is bne.
 									-- to be used in EX stage
 		PC_ID : out std_logic_vector(11 downto 0) --TODO modify file itself
@@ -104,7 +101,7 @@ component id_ex_reg
 		A_ID : in std_logic_vector(31 downto 0); 	-- regs have length 8
 		B_ID : in std_logic_vector(31 downto 0); 	
 		IMM_ID : in std_logic_vector(31 downto 0); 	-- last 16 bits of instruction (sign-extended)
-		NPC_ID : in std_logic_vector(11 downto 0);-- should come from if/id directly
+		NPC_ID : in std_logic_vector(11 downto 0);  -- should come from if/id directly
 		IR_ID : in std_logic_vector(31 downto 0);	-- same as above
 
 		A_EX : out std_logic_vector(31 downto 0);
@@ -116,7 +113,8 @@ component id_ex_reg
 end component;
 
 -- execute stage --
-signal s_cond_EX : std_logic;
+signal s_branch_taken_EX : std_logic;
+signal s_PC_EX : std_logic_vector(11 downto 0);
 signal s_ALUOutput_EX : std_logic_vector(31 downto 0);
 signal s_B_EX : std_logic_vector(31 downto 0);
 signal s_IR_EX : std_logic_vector(31 downto 0);
@@ -128,7 +126,8 @@ component execute
 end component;
 
 -- EX/MEM register --
-signal s_cond_EX_MEM : std_logic;
+signal s_branch_taken_EX_MEM : std_logic;
+signal s_PC_EX_MEM : std_logic_vector(11 downto 0);
 signal s_ALUOutput_EX_MEM : std_logic_vector(31 downto 0);
 signal s_B_EX_MEM : std_logic_vector(31 downto 0);
 signal s_IR_EX_MEM : std_logic_vector(31 downto 0);
@@ -138,7 +137,8 @@ signal s_MemWrite_EX_MEM : std_logic;
 component ex_mem_reg
 	PORT (
 		clock : in std_logic;
-		Cond_EX : in std_logic; -- whether branch should be taken (BEQZ)
+		branch_taken_EX : in std_logic; -- whether branch should be taken (BEQZ)
+		PC_EX : in std_logic_vector(11 downto 0);
 		ALUOutput_EX : in std_logic_vector(31 downto 0); -- need to make sure that only 12 bits
 														 -- are used when this is used as index
 		B_EX : in std_logic_vector(31 downto 0);	-- rt, used for reg-reg store
@@ -148,7 +148,8 @@ component ex_mem_reg
 		MemRead_EX : in std_logic;		-- comes from ALU control unit
 		MemWrite_EX : in std_logic;
 		
-		Cond_MEM : out std_logic;		-- condition for branch taken or not.
+		branch_taken_MEM : out std_logic;		-- condition for branch taken or not.
+		PC_MEM : out std_logic_vector(11 downto 0);
 		ALUOutput_MEM : out std_logic_vector(31 downto 0);
 		B_MEM : out std_logic_vector(31 downto 0);
 		IR_MEM : out std_logic_vector(31 downto 0);
@@ -159,23 +160,29 @@ end component;
 
 -- memory stage --
 signal s_LMD_MEM : std_logic_vector(31 downto 0);
+signal s_PC_MEM : std_logic_vector(11 downto 0);
 signal s_IR_MEM : std_logic_vector(31 downto 0);
 signal s_B_MEM : std_logic_vector(31 downto 0);
+signal s_branch_taken_MEM : std_logic;
 signal s_write_data_to_file : std_logic;
 
 component data_memory 
 	port (
 		clock : in std_logic;
+		PC_in : in std_logic_vector(11 downto 0);
 		ALUOutput : in std_logic_vector(31 downto 0);
-		B_i: in std_logic_vector(31 downto 0);
+		B_in: in std_logic_vector(31 downto 0);
 		MemRead : in std_logic;		-- comes from ALU control unit
 		MemWrite : in std_logic;	-- same as above
-		IR_i : in std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
+		IR_in : in std_logic_vector(31 downto 0);
+		branch_taken_in : in std_logic;
 		write_to_file : in std_logic;
 
 		LMD : out std_logic_vector(31 downto 0);
-		IR_o : out std_logic_vector(31 downto 0); --TODO need to implement delay on this signal
-		B_o: out std_logic_vector(31 downto 0)
+		PC_out : out std_logic_vector(11 downto 0);
+		IR_out : out std_logic_vector(31 downto 0);
+		B_out: out std_logic_vector(31 downto 0);
+		branch_taken_out : out std_logic
 	);
 end component;
 
@@ -223,8 +230,8 @@ BEGIN
 			--in
 			clock,
 			s_reset,
-			s_branch_taken_EX_MEM, --> this comes from ex_mem_reg
-			s_ALUOutput_EX_MEM, --> this comes from ex_mem_reg
+			s_branch_taken_MEM, --> this comes from MEM stage
+			s_PC_MEM, --> this comes from MEM stage
 			--out
 			s_IR_Fetch,
 			s_PC_Fetch
@@ -288,15 +295,17 @@ BEGIN
 	port map (
 			--in
 			clock,
-			s_cond_EX,
+			s_branch_taken_EX,
+			s_PC_EX,
 			s_ALUOutput_EX,
 			s_B_EX,
 			s_IR_EX,
 			s_MemRead_EX,
 			s_MemWrite_EX,
 			--out
-			s_branch_taken_EX_MEM, 	--> this goes back to IF if branch
-			s_ALUOutput_EX_MEM, 	--> this goes back to IF if branch taken
+			s_branch_taken_EX_MEM,
+			s_PC_EX_MEM,
+			s_ALUOutput_EX_MEM, 	
 			s_B_EX_MEM, 
 			s_IR_EX_MEM,
 			s_MemRead_EX_MEM,
@@ -307,16 +316,20 @@ BEGIN
 	port map (
 			--in
 			clock,
+			s_PC_EX_MEM,
 			s_ALUOutput_EX_MEM,
 			s_B_EX_MEM,
 			s_MemRead_EX_MEM,
 			s_MemWrite_EX_MEM,
 			s_IR_EX_MEM,
+			s_branch_taken_EX_MEM,
 			s_write_data_to_file,
 			--out
 			s_LMD_MEM,
+			s_PC_MEM, --> this goes back to IF
 			s_IR_MEM,
-			s_B_MEM
+			s_B_MEM,
+			s_branch_taken_MEM --> this goes back to IF
 		);
 		
 	MEM_WB: mem_wb_reg

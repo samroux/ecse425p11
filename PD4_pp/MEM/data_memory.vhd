@@ -19,16 +19,20 @@ generic(
 	);
 port (
 	clock : in std_logic;
+	PC_in : in std_logic_vector(11 downto 0);
 	ALUOutput : in std_logic_vector(31 downto 0);
-	B_i: in std_logic_vector(31 downto 0);
+	B_in: in std_logic_vector(31 downto 0);
 	MemRead : in std_logic;		-- comes from ALU control unit
 	MemWrite : in std_logic;	-- same as above
-	IR_i : in std_logic_vector(31 downto 0);
+	IR_in : in std_logic_vector(31 downto 0);
+	branch_taken_in : in std_logic;
 	write_to_file : in std_logic;
 
 	LMD : out std_logic_vector(31 downto 0);
-	IR_o : out std_logic_vector(31 downto 0);
-	B_o: out std_logic_vector(31 downto 0)
+	PC_out : out std_logic_vector(11 downto 0);
+	IR_out : out std_logic_vector(31 downto 0);
+	B_out: out std_logic_vector(31 downto 0);
+	branch_taken_out : out std_logic
 	);
 end DATA_MEMORY;
 
@@ -43,28 +47,38 @@ architecture behavior of DATA_MEMORY is
 	begin
 
 	-- TODO:	where does memdelay come in?
-	--			should this be edge triggered?
 	process(clock)
 	begin
-		if (MemWrite = '0') and (MemRead = '1') then
-			-- ALUOutput is a 32-bit vector, so it has a range of 2^32 - 1
-			-- Memory only has a range of 8192 = 2^13, so we take as address
-			-- the bottom 13 bits of the ALUOutput.
-			
-			-- TODO: Ensure that the other bits returned by the EX stage
-			--		 are not significant (i.e. sign/zero extended)	 
-			LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0))));
-		elsif (MemWrite = '1') and (MemRead = '0') then
-			data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B_i;
-            LMD <= (others => '0');
-       	else
-       		LMD <= (others => '0');
-		end if;
-
-		-- delay signals by one clock cycle
 		if (rising_edge(clock)) then
-			B_o <= B_i;
-			IR_o <= IR_i;
+			-- branching logic
+			if (branch_taken_in = '1') then
+				-- assume address was correctly calculated by EX
+				-- and has only 12 significant bits
+				PC_out <= ALUOutput(11 downto 0);
+			else
+				PC_out <= PC_in;
+			end if;
+			branch_taken_out <= branch_taken_in;
+
+			-- read/write from memory
+			if (MemWrite = '0') and (MemRead = '1') then
+				-- ALUOutput is a 32-bit vector, so it has a range of 2^32 - 1
+				-- Memory only has a range of 8192 = 2^13, so we take as address
+				-- the bottom 13 bits of the ALUOutput.
+			
+				-- TODO: Ensure that the other bits returned by the EX stage
+				--		 are not significant (i.e. sign/zero extended)	 
+				LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0))));
+			elsif (MemWrite = '1') and (MemRead = '0') then
+				data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B_in;
+            	LMD <= (others => '0');
+       		else
+       			LMD <= (others => '0');
+			end if;
+
+			-- delay signals by one clock cycle
+			B_out <= B_in;
+			IR_out <= IR_in;
 		end if;
 	end process;
 

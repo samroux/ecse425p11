@@ -16,16 +16,20 @@ architecture data_memory_arch of data_memory_tb is
            
     -- test signals                                     
 	signal clock : std_logic;
+	signal PC_in : std_logic_vector(11 downto 0);
 	signal ALUOutput : std_logic_vector(31 downto 0);
-	signal B_i: std_logic_vector(31 downto 0);
+	signal B_in: std_logic_vector(31 downto 0);
 	signal MemRead : std_logic;
 	signal MemWrite : std_logic;
-	signal IR_i : std_logic_vector(31 downto 0);
+	signal IR_in : std_logic_vector(31 downto 0);
 	signal write_to_file : std_logic;
+	signal branchTaken_in : std_logic;
 
 	signal LMD : std_logic_vector(31 downto 0);
-	signal IR_o : std_logic_vector(31 downto 0);
-	signal B_o: std_logic_vector(31 downto 0);
+	signal PC_out : std_logic_vector(11 downto 0);
+	signal IR_out : std_logic_vector(31 downto 0);
+	signal B_out: std_logic_vector(31 downto 0);
+	signal branchTaken_out : std_logic;
 
 	constant clock_period : time := 1 ns;
 
@@ -33,34 +37,42 @@ architecture data_memory_arch of data_memory_tb is
 	component data_memory
 		port (
 			clock : in std_logic;
+			PC_in : in std_logic_vector(11 downto 0);
 			ALUOutput : in std_logic_vector(31 downto 0);
-			B_i: in std_logic_vector(31 downto 0);
+			B_in: in std_logic_vector(31 downto 0);
 			MemRead : in std_logic;
 			MemWrite : in std_logic;
-			IR_i : in std_logic_vector(31 downto 0);
+			IR_in : in std_logic_vector(31 downto 0);
 			write_to_file : in std_logic;
+			branchTaken_in : std_logic;
 
 			LMD : out std_logic_vector(31 downto 0);
-			IR_o : out std_logic_vector(31 downto 0);
-			B_o: out std_logic_vector(31 downto 0)
+			PC_out : out std_logic_vector(11 downto 0);
+			IR_out : out std_logic_vector(31 downto 0);
+			B_out: out std_logic_vector(31 downto 0);
+			branchTaken_out : std_logic
 		);
 	end component;
 
 	begin
 		-- map test signals to component in/out
-		i : data_memory
+		dm : data_memory
 		port map (
 			clock => clock,
+			PC_in => PC_in,
 			ALUOutput => ALUOutput,
-			B_i => B_i,
+			B_in => B_in,
 			MemRead => MemRead,
 			MemWrite => MemWrite,
-			IR_i => IR_i,
+			IR_in => IR_in,
 			write_to_file => write_to_file,
+			branchTaken_in => branchTaken_in,
 
 			LMD => LMD,
-			IR_o => IR_o,
-			B_o => B_o
+			PC_out => PC_out,
+			IR_out => IR_out,
+			B_out => B_out,
+			branchTaken_out => branchTaken_out
 		);
 
 		-- continuous clock process
@@ -74,9 +86,11 @@ architecture data_memory_arch of data_memory_tb is
 
 		generate_test : process                                           
 		begin
-			IR_i <= "00000000000000000000000000000000"; 
 			write_to_file <= '0';
-			B_i <= "00000000000000000000000000001111"; -- rt register used for testing
+			branchTaken_in <= '0';
+			IR_in <= "00000000000000000000000000000000"; 
+			PC_in <= "000000000100"; -- artificial constant PC of 4
+			B_in <= "00000000000000000000000000001111"; -- rt register used for testing
 			ALUOutput <= "00000000000000000000000000001000"; -- address used for testing
 
 			report "Initial state; no read/write";
@@ -106,7 +120,7 @@ architecture data_memory_arch of data_memory_tb is
 			report "______";
 
 			report "Writing 1001 to a new address 1000";
-			B_i <= "00000000000000000000000000001001";
+			B_in <= "00000000000000000000000000001001";
 			ALUOutput <= "00000000000000000000000000000001";
 			MemWrite <= '1';
 			wait for clock_period;
@@ -130,6 +144,16 @@ architecture data_memory_arch of data_memory_tb is
 			wait for clock_period;
 			assert (LMD = "00000000000000000000000000000000") severity ERROR;
 
+			report "Test whether PC is updated properly";
+			branchTaken_in <= '1';
+			ALUOutput <= "00000000000000000000100000011000"; -- jump to PC = 2072
+			MemRead <= '0';
+			MemWrite <= '0';
+			wait for clock_period;
+			assert (PC_out = "100000011000") report "Did not branch properly" severity ERROR;
+			assert (branchTaken_out = '0') severity ERROR;
+
+			wait for clock_period;
 			write_to_file <= '1';
 		wait;                                                        
 	end process generate_test;                                     

@@ -11,7 +11,8 @@ use ieee.numeric_std.all;
 entity EX_MEM_REG is
 port (
 	clock : in std_logic;
-	Cond_EX : in std_logic; -- whether branch should be taken (BEQZ)
+	branch_taken_EX : in std_logic; -- whether branch should be taken (BEQZ)
+	PC_EX : in std_logic_vector(11 downto 0);
 	ALUOutput_EX : in std_logic_vector(31 downto 0); -- need to make sure that only 12 bits
 													 -- are used when this is used as index
 	B_EX : in std_logic_vector(31 downto 0);	-- rt, used for reg-reg store
@@ -20,7 +21,8 @@ port (
 	MemRead_EX : in std_logic;
 	MemWrite_EX : in std_logic;
 	
-	Cond_MEM : out std_logic;
+	branch_taken_MEM : out std_logic;
+	PC_MEM : out std_logic_vector(11 downto 0);
 	ALUOutput_MEM : out std_logic_vector(31 downto 0);
 	B_MEM : out std_logic_vector(31 downto 0);
 	IR_MEM : out std_logic_vector(31 downto 0);
@@ -31,7 +33,8 @@ end EX_MEM_REG;
 
 architecture behavior of EX_MEM_REG is
 
-	signal Cond_EX_STORED : std_logic;
+	signal branch_taken_EX_STORED : std_logic;
+	signal PC_EX_STORED : std_logic_vector(11 downto 0);
 	signal ALUOutput_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal B_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
 	signal IR_EX_STORED : std_logic_vector(31 downto 0) := (others=>'0');
@@ -48,9 +51,14 @@ architecture behavior of EX_MEM_REG is
 	process (clock)
 	begin
 		if rising_edge(clock) then
-			if (Cond_EX_STORED /= Cond_EX) then
-				Cond_MEM <= Cond_EX_STORED;
-				Cond_EX_STORED <= Cond_EX;
+			if (branch_taken_EX_STORED /= branch_taken_EX) then
+				branch_taken_MEM <= branch_taken_EX_STORED;
+				branch_taken_EX_STORED <= branch_taken_EX;
+			end if;
+
+			if (PC_EX_STORED /= PC_EX) then
+				PC_MEM <= PC_EX_STORED;
+				PC_EX_STORED <= PX_EX;
 			end if;
 
 			if (ALUOutput_EX_STORED /= ALUOutput_EX) then
