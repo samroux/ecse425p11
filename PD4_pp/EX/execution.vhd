@@ -20,6 +20,7 @@ architecture arch of execution is
 
 signal opcode: std_logic_vector(5 downto 0);
 signal funct: std_logic_vector(5 downto 0);
+signal shamt: std_logic_vector(4 downto 0);
 signal jump_addr: std_logic_vector(25 downto 0);
 signal shift_j_addr: std_logic_vector(25 downto 0);
 signal branch_addr: std_logic_vector(31 downto 0);
@@ -42,6 +43,8 @@ component ALU
 	port(
 		ALU_operation: in std_logic_vector(3 downto 0);
 		funct: in std_logic_vector(5 downto 0);
+		shamt: in std_logic_vector(4 downto 0);
+		imm: in std_logic_vector(31 downto 0);
 		read_data_1: in std_logic_vector(31 downto 0);
 		read_data_2: in std_logic_vector(31 downto 0);
 		ALU_result: out std_logic_vector(31 downto 0) := (others => '0');
@@ -62,11 +65,14 @@ begin
 opcode <= instruction(31 downto 26);
 funct <= instruction(5 downto 0);
 jump_addr <= instruction(25 downto 0);
+shamt <= instruction(10 downto 6);
 
 a: ALU
 	port map(
 		ALU_operation => ALU_operation,
 		funct => funct,
+		shamt => shamt,
+		imm => imm,
 		read_data_1 => read_data_1,
 		read_data_2 => read_data_2,
 		ALU_result => ALU_result,

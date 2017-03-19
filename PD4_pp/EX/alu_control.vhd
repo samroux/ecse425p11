@@ -59,6 +59,8 @@ begin
 						operation <= "1001"; --xori
 					when "1111" =>
 						operation <= "1010"; --lui
+					when "1101" =>
+						operation <= "1100"; --ori
 					when others =>
 						operation <= "1111";
 				end case;
