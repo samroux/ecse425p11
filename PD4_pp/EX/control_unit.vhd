@@ -78,7 +78,7 @@ begin
 				Branch <= '0';
 				MemRead <= '0';
 				MemtoReg <= '0';
-				ALUOp <= "10";
+				ALUOp <= "11";
 				MemWrite <= '0';
 				ALUSrc <= '0';
 				RegWrite <= '1';
@@ -88,7 +88,7 @@ begin
 				Branch <= '0';
 				MemRead <= '0';
 				MemtoReg <= '0';
-				ALUOp <= "10";
+				ALUOp <= "11";
 				MemWrite <= '0';
 				ALUSrc <= '0';
 				RegWrite <= '1';
@@ -98,7 +98,7 @@ begin
 				Branch <= '0';
 				MemRead <= '0';
 				MemtoReg <= '0';
-				ALUOp <= "10";
+				ALUOp <= "11";
 				MemWrite <= '0';
 				ALUSrc <= '0';
 				RegWrite <= '1';
@@ -108,7 +108,7 @@ begin
 				Branch <= '0';
 				MemRead <= '0';
 				MemtoReg <= '0';
-				ALUOp <= "10";
+				ALUOp <= "11";
 				MemWrite <= '0';
 				ALUSrc <= '0';
 				RegWrite <= '1';
@@ -118,12 +118,20 @@ begin
 				Branch <= '0';
 				MemRead <= '0';
 				MemtoReg <= '0';
-				ALUOp <= "10";
+				ALUOp <= "11";
 				MemWrite <= '0';
 				ALUSrc <= '0';
 				RegWrite <= '1';
 		  when "001111" => --lui
-
+				RegDst <= '0';
+            Jump <= '0';
+				Branch <= '0';
+				MemRead <= '0';
+				MemtoReg <= '0';
+				ALUOp <= "11";
+				MemWrite <= '0';
+				ALUSrc <= '0';
+				RegWrite <= '1';
         when "100011" => --lw
             RegDst <= '0';
             Jump <= '0';
