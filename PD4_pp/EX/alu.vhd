@@ -39,11 +39,11 @@ zero <= '0';
 -- MAKE SURE read_data_1 is rt register
 				elsif funct = "010000" then --mfhi
 					ALU_result <= Hi;
-				elsif funct = "001000" then --addi
-					ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) + to_integer(signed(imm)), 32));
 				else
 					ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) + to_integer(signed(read_data_2)), 32));
 				end if;
+			when "1101" => --addi
+				ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) + to_integer(signed(imm)), 32));
 			when "0110" => --substract
 				if funct ="000010" then --srl
 					ALU_result <= std_logic_vector(to_signed(to_integer(unsigned(read_data_1)) / 2**to_integer(unsigned(shamt)), 32));
@@ -68,13 +68,13 @@ zero <= '0';
 				if funct = "011010" then --div
 					Lo <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) / to_integer(signed(read_data_2)), 32));
 					Hi <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) rem to_integer(signed(read_data_2)), 32));
-				elsif funct = "001010" then --slti
-					if to_integer(signed(read_data_1)) < to_integer(signed(imm)) then
-						ALU_result <= std_logic_vector(to_unsigned(1, 32));
-					else
-						ALU_result <= std_logic_vector(to_unsigned(0, 32));
-					end if;
 				elsif to_integer(signed(read_data_1)) < to_integer(signed(read_data_2)) then
+					ALU_result <= std_logic_vector(to_unsigned(1, 32));
+				else
+					ALU_result <= std_logic_vector(to_unsigned(0, 32));
+				end if;
+			when "1110" => --slti
+				if to_integer(signed(read_data_1)) < to_integer(signed(imm)) then
 					ALU_result <= std_logic_vector(to_unsigned(1, 32));
 				else
 					ALU_result <= std_logic_vector(to_unsigned(0, 32));

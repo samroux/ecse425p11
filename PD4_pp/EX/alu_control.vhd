@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 entity alu_control is
   port(
+   opcode: in std_logic_vector(5 downto 0);
 	funct: in std_logic_vector(5 downto 0);
 	ALUOp: in std_logic_vector(1 downto 0);
 	operation: out std_logic_vector(3 downto 0):= "0000"
@@ -14,12 +15,12 @@ architecture arch of alu_control is
 
 begin
 
-alu_control: process(funct, ALUOp)
+alu_control: process(opcode, funct, ALUOp)
 
 begin
 		case (ALUOp) is
 			when "00" =>
-				operation <= "0010"; --add
+				operation <= "1101"; --addi
 			when "01" =>
 				operation <= "0110"; --substract
 			when "10" =>
@@ -46,13 +47,13 @@ begin
 						operation <= "1111";
 				end case;
 			when "11" =>
-				case (funct(3 downto 0)) is
+				case (opcode(3 downto 0)) is
 					when "1000" =>
-						operation <= "0010"; --addi
+						operation <= "1101"; --addi
 					when "0010" =>
 						operation <= "0110"; --substract
 					when "1010" =>
-						operation <= "0111"; --slti
+						operation <= "1110"; --slti
 					when "1100" =>
 						operation <= "1000"; --andi
 					when "1110" =>
