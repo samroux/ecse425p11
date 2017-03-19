@@ -1,0 +1,340 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/zhouy/OneDrive/class/ECSE 425/ECSE_425_pd4/vhd
+Eid_ex_reg
+Z1 w1489933295
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8id_ex_reg.vhd
+Z6 Fid_ex_reg.vhd
+l0
+L11
+VV;`Jn?KCBmgALBALJe;M]0
+!s100 adfe7PRlAlO79<DLXKmli3
+Z7 OP;C;10.4a;61
+32
+Z8 !s110 1489933448
+!i10b 1
+Z9 !s108 1489933448.000000
+Z10 !s90 -reportprogress|300|id_ex_reg.vhd|
+Z11 !s107 id_ex_reg.vhd|
+!i113 1
+o-O0
+Z12 tExplicit 1
+Abehavior
+R2
+R3
+R4
+DEx4 work 9 id_ex_reg 0 22 V;`Jn?KCBmgALBALJe;M]0
+l37
+L28
+VZ<8=h0kkUimz?D2CdEkH43
+!s100 n;Z[2HW@fneS:Ihc2A6iD1
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+o-O0
+R12
+Eif_id_reg
+R1
+R2
+R3
+R4
+R0
+Z13 8if_id_reg.vhd
+Z14 Fif_id_reg.vhd
+l0
+L11
+VZ50;TI6RMlXSDaH;]E@ja2
+!s100 `bkDA^@o:;f=c04YQZ7hb2
+R7
+32
+R8
+!i10b 1
+R9
+Z15 !s90 -reportprogress|300|if_id_reg.vhd|
+Z16 !s107 if_id_reg.vhd|
+!i113 1
+o-O0
+R12
+Abehavior
+R2
+R3
+R4
+DEx4 work 9 if_id_reg 0 22 Z50;TI6RMlXSDaH;]E@ja2
+l30
+L25
+V[lLeXRXHd3@N8<:6[?50I0
+!s100 <NT1zni3J<?EgjJl<;?<Y1
+R7
+32
+R8
+!i10b 1
+R9
+R15
+R16
+!i113 1
+o-O0
+R12
+Einstruction_fetch
+R1
+R2
+R3
+R4
+R0
+Z17 8instruction_fetch.vhd
+Z18 Finstruction_fetch.vhd
+l0
+L10
+V`@D=MMCPlbkn<QWHfG=IC2
+!s100 [l]XcfVSCejOm3:izG3E93
+R7
+32
+R8
+!i10b 1
+R9
+Z19 !s90 -reportprogress|300|instruction_fetch.vhd|
+Z20 !s107 instruction_fetch.vhd|
+!i113 1
+o-O0
+R12
+Abehaviour
+R2
+R3
+R4
+DEx4 work 17 instruction_fetch 0 22 `@D=MMCPlbkn<QWHfG=IC2
+l41
+L24
+V0jVfE?c29H[c@J=Q1kefE0
+!s100 CPYRzeA^CBNmh99TzzJEH0
+R7
+32
+R8
+!i10b 1
+R9
+R19
+R20
+!i113 1
+o-O0
+R12
+Einstruction_memory
+R1
+R2
+R3
+R4
+R0
+Z21 8instruction_memory.vhd
+Z22 Finstruction_memory.vhd
+l0
+L11
+VSjbN0n6E02dXNjWXDiiSD0
+!s100 oO;n7?i@N2]emF3_^G[2E2
+R7
+32
+R8
+!i10b 1
+R9
+Z23 !s90 -reportprogress|300|instruction_memory.vhd|
+Z24 !s107 instruction_memory.vhd|
+!i113 1
+o-O0
+R12
+Abehaviour
+R2
+R3
+R4
+DEx4 work 18 instruction_memory 0 22 SjbN0n6E02dXNjWXDiiSD0
+l36
+L25
+VKM_a`7JldXBNmXC>cNjoo2
+!s100 z9T9jkn6TVLMBFVa[1d5T1
+R7
+32
+R8
+!i10b 1
+R9
+R23
+R24
+!i113 1
+o-O0
+R12
+Eprocessor
+Z25 w1489933185
+R2
+R3
+R4
+R0
+Z26 8processor.vhd
+Z27 Fprocessor.vhd
+l0
+L10
+VB:GWO`4=039fSb6b<X]1;0
+!s100 MOz[:[=]F`Z6Xc];7?Fc40
+R7
+32
+R8
+!i10b 1
+R9
+Z28 !s90 -reportprogress|300|processor.vhd|
+Z29 !s107 processor.vhd|
+!i113 1
+o-O0
+R12
+Abehaviour
+R2
+R3
+R4
+DEx4 work 9 processor 0 22 B:GWO`4=039fSb6b<X]1;0
+l225
+L17
+Vcmm8LcAziOk[MH9?OQFOQ2
+!s100 Vj^Wm[j;UAbHP9JPSF:@:2
+R7
+32
+R8
+!i10b 1
+R9
+R28
+R29
+!i113 1
+o-O0
+R12
+Eprocessor_tb
+Z30 w1489933106
+R2
+R3
+R4
+R0
+Z31 8processor_tb.vht
+Z32 Fprocessor_tb.vht
+l0
+L7
+VVTk5]LZ74az46`SOmnJEY3
+!s100 zk<lSo`DmCEeA0_OdT]HK0
+R7
+32
+Z33 !s110 1489933447
+!i10b 1
+Z34 !s108 1489933447.000000
+Z35 !s90 -reportprogress|300|processor_tb.vht|
+Z36 !s107 processor_tb.vht|
+!i113 1
+o-O0
+R12
+Abehaviour
+R2
+R3
+R4
+DEx4 work 12 processor_tb 0 22 VTk5]LZ74az46`SOmnJEY3
+l30
+L10
+V2?imHToO[?SbZ:1X=aRih3
+!s100 PMS]^9l68fSi]@@0n37GO3
+R7
+32
+R33
+!i10b 1
+R34
+R35
+R36
+!i113 1
+o-O0
+R12
+Eregister_controller
+R1
+R2
+R3
+R4
+R0
+Z37 8register_controller.vhd
+Z38 Fregister_controller.vhd
+l0
+L10
+Va9PXBgNXBM<`cCPW[O`3V2
+!s100 B;RBoloOfb1O[Elk63clk2
+R7
+32
+R8
+!i10b 1
+R9
+Z39 !s90 -reportprogress|300|register_controller.vhd|
+Z40 !s107 register_controller.vhd|
+!i113 1
+o-O0
+R12
+Abehavior
+R2
+R3
+R4
+DEx4 work 19 register_controller 0 22 a9PXBgNXBM<`cCPW[O`3V2
+l65
+L34
+VEX7]Gc3lD[H>G<XCYiVOI1
+!s100 17P^;:NVFJJg@ZF?nd3<g2
+R7
+32
+R8
+!i10b 1
+R9
+R39
+R40
+!i113 1
+o-O0
+R12
+Eregister_file
+R1
+Z41 DPx4 ieee 16 std_logic_textio 0 22 V5TSK`;aJKC<l]CEg1>mz1
+R2
+R3
+R4
+R0
+Z42 8register_file.vhd
+Z43 Fregister_file.vhd
+l0
+L13
+V^SWGl]fad3o_dOZn98VG`1
+!s100 dk5TC^jUi?lhaZ_h`]6i52
+R7
+32
+R8
+!i10b 1
+R9
+Z44 !s90 -reportprogress|300|register_file.vhd|
+Z45 !s107 register_file.vhd|
+!i113 1
+o-O0
+R12
+Abehavior
+R41
+R2
+R3
+R4
+DEx4 work 13 register_file 0 22 ^SWGl]fad3o_dOZn98VG`1
+l39
+L33
+V`83JL<W3h05YF3f95@O0D0
+!s100 Z[9UTfkGW`@>inIfU6T;G0
+R7
+32
+R8
+!i10b 1
+R9
+R44
+R45
+!i113 1
+o-O0
+R12
