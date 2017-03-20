@@ -58,7 +58,7 @@ architecture behavior of EX_MEM_REG is
 
 			if (PC_EX_STORED /= PC_EX) then
 				PC_MEM <= PC_EX_STORED;
-				PC_EX_STORED <= PX_EX;
+				PC_EX_STORED <= PC_EX;
 			end if;
 
 			if (ALUOutput_EX_STORED /= ALUOutput_EX) then

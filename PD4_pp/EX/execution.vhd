@@ -3,18 +3,22 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity execution is
-  port(
-   clock: in std_logic;
-   instruction: in std_logic_vector(31 downto 0);
-	PC_plus_4: in std_logic_vector(11 downto 0);
-	read_data_1: in std_logic_vector(31 downto 0);
-	read_data_2: in std_logic_vector(31 downto 0);
-	imm: in std_logic_vector(31 downto 0);
-	
-	NEXT_PC: out std_logic_vector(11 downto 0);
-	EXE_result: out std_logic_vector(31 downto 0) := (others => '0')
---	test_b_addr: out std_logic_vector(31 downto 0)
-  );
+	port(
+		clock: in std_logic;
+		instruction: in std_logic_vector(31 downto 0);
+		PC_plus_4: in std_logic_vector(11 downto 0);
+		read_data_1: in std_logic_vector(31 downto 0);
+		read_data_2: in std_logic_vector(31 downto 0);
+		imm: in std_logic_vector(31 downto 0);
+
+		branchTaken_EX : out std_logic;
+		NEXT_PC: out std_logic_vector(11 downto 0);
+		EXE_result: out std_logic_vector(31 downto 0) := (others => '0');
+		B_EX : out std_logic_vector(31 downto 0);
+		IR_EX : out std_logic_vector(31 downto 0);
+		MemRead : out std_logic;
+		MemWrite : out std_logic
+	);
 end execution;
 
 architecture arch of execution is
@@ -28,8 +32,7 @@ signal branch_addr: std_logic_vector(31 downto 0);
 signal branch_mux: std_logic_vector(31 downto 0);
 signal shifted_imm: std_logic_vector(31 downto 0);
 
-signal Jump: std_logic := '0';
-signal Branch: std_logic := '0';
+
 signal ALUOp: std_logic_vector(1 downto 0) := "00";
 
 signal ALU_operation: std_logic_vector(3 downto 0);
@@ -38,7 +41,7 @@ signal zero: std_logic;
 signal branch_select: std_logic := '0';
 signal ALU_result: std_logic_vector(31 downto 0);
 signal ALU_result_temp: std_logic_vector(31 downto 0);
-signal BorJ: std_logic;
+
 
 component ALU
 	port(
@@ -91,129 +94,143 @@ ac: alu_control
 	);
 
 process(clock)
+variable Jump: std_logic := '0';
+variable Branch: std_logic := '0';
+variable BorJ: std_logic;
+
 begin
 
-if falling_edge(clock) then
---    case(opcode) is
---        when "000000" => --R type
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "10";
---        when "000010" => --j
---            Jump <= '1';
---				Branch <= '0';
---				ALUOp <= "00";
---		  when "000011" => --jal
---            Jump <= '1';
---				Branch <= '0';
---				ALUOp <= "00";
---        when "000100" => --beq
---            Jump <= '0';
---				if zero = '1' then
---					Branch <= '1';
---				else
---					Branch <= '0';
---				end if;
---				ALUOp <= "01";
---        when "000101" => --bne
---            Jump <= '0';
---				if zero = '0' then
---					Branch <= '1';
---				else
---					Branch <= '0';
---				end if;
---				ALUOp <= "01";
---        when "001000" => --addi
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---        when "001010" => --slti
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---        when "001100" => --andi
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---        when "001101" => --ori
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---        when "001110" => --xori
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---		  when "001111" => --lui
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "11";
---        when "100011" => --lw
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "00";
---        when "101011" => --sw
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "00";
---        when others =>
---            Jump <= '0';
---				Branch <= '0';
---				ALUOp <= "00";
---    end case;
-	 
---	 if Branch = '1' then
---		branch_mux <= branch_addr;
---	 elsif Branch = '0' then
---		branch_mux <= std_logic_vector(resize(unsigned(PC_plus_4), 32));
---	 end if;
---	 
---	 if Jump = '1' then
---		ALU_result_temp <= std_logic_vector(resize(unsigned(shift_j_addr), 32));
---	 elsif Jump = '0' then
---		ALU_result_temp <= branch_mux;
---	 end if;
-	 
-	 NEXT_PC <= PC_plus_4;
+if rising_edge(clock) then
+
+	shift_j_addr <= std_logic_vector(shift_left(unsigned(jump_addr), 2));
+	
+	branch_addr <= std_logic_vector(to_signed(to_integer(signed(PC_plus_4)) + to_integer(signed(shifted_imm)), 32));
+	
+	
+	if ((opcode = "000100") and (zero = '1')) then
+		Branch := '1';
+	else
+		Branch := '0';
+	end if;
+	
+	-- Branch <= '1' when (opcode = "000100") and (zero = '1') else --beq
+	-- '1' when (opcode = "000101") and (zero = '0') else --bne
+	-- '0';
+
+	if (opcode = "000010") and (opcode = "000011") then
+		Jump := '1';
+	else
+		Jump := '0';
+	end if;
+	
+	-- Jump <= '1' when (opcode = "000010") or (opcode = "000011") else
+		-- '0';
+		
+	if(Branch = '1') then
+		branch_mux <= branch_addr;
+	elsif (Branch = '0') then
+		branch_mux <= std_logic_vector(resize(unsigned(PC_plus_4), 32));
+	else
+		branch_mux <= (others => '0');
+	end if;
+	
+	-- branch_mux <= branch_addr when Branch = '1' else
+	-- std_logic_vector(resize(unsigned(PC_plus_4), 32)) when Branch = '0' else
+	-- (others => '0');
+
+	
+
+	if (Jump = '1') then
+		ALU_result_temp <= std_logic_vector(resize(unsigned(shift_j_addr), 32));
+	elsif (Jump = '0') then
+		ALU_result_temp <= branch_mux;
+	else
+		ALU_result_temp <= (others => '0');
+	end if;
+	
+	-- ALU_result_temp <= std_logic_vector(resize(unsigned(shift_j_addr), 32)) when Jump = '1' else
+	-- branch_mux when Jump = '0' else
+	-- (others => '0');
+
+	BorJ := Branch or Jump;
+	shifted_imm <= std_logic_vector(shift_left(unsigned(imm), 2));
+
+--test_b_addr <= branch_addr;
+
+	
+	if (BorJ = '1') then
+		EXE_result <= ALU_result_temp;
+	elsif (BorJ = '0') then
+		EXE_result <= ALU_result;
+	else
+		EXE_result <= (others => '0');
+	end if;
+	
+	--EXE_result <= ALU_result_temp when BorJ = '1' else
+	-- ALU_result when BorJ = '0' else
+	-- (others => '0');
+	
+	if (opcode = "001000") then
+		ALUOp <= "11"; --addi
+	elsif (opcode = "001010") then
+		ALUOp <= "11"; --slti
+	elsif (opcode = "001100") then
+		ALUOp <= "11"; --andi
+	elsif (opcode = "001101") then
+		ALUOp <= "11"; --ori
+	elsif (opcode = "001110") then
+		ALUOp <= "11"; --xori
+	elsif (opcode = "001111") then
+		ALUOp <= "11"; --lui
+	elsif (opcode = "100011") then
+		ALUOp <= "00"; --lw
+	elsif (opcode = "101011") then
+		ALUOp <= "00"; --sw
+	elsif (opcode = "000101") then
+		ALUOp <= "01";  --bne
+	elsif (opcode = "000100") then
+		ALUOp <= "01"; --beq
+	elsif (opcode = "000000") then
+		ALUOp <= "10"; --R
+	else
+		ALUOp <= "00";
+	end if;
+	
+
+--ALUOp <= "11" when opcode = "001000" else --addi
+--			"11" when opcode = "001010" else --slti
+--			"11" when opcode = "001100" else --andi
+--			"11" when opcode = "001101" else --ori
+--			"11" when opcode = "001110" else --xori
+--			"11" when opcode = "001111" else --lui
+--			"00" when opcode = "100011" else --lw
+--			"00" when opcode = "101011" else --sw
+--			"01" when opcode = "000101" else --bne
+--			"01" when opcode = "000100" else --beq
+--			"10" when opcode = "000000" else --R
+--			"00";
+
+	if (opcode = "100011") then-- lw
+		MemRead <= '1';
+	else
+		MemRead <= '0';
+	end if;
+	
+	if (opcode = "101011") then-- sw
+		MemWrite <= '1';
+	else
+		MemWrite <= '0';
+	end if;
+
+	--signals are only following through at rising edge.
+	NEXT_PC <= PC_plus_4;
+	B_EX <= read_data_2;
+	IR_EX <= instruction;
+	
+	branchTaken_EX <= BorJ;
 	 
 end if;
 end process;
 
-shift_j_addr <= std_logic_vector(shift_left(unsigned(jump_addr), 2));
 
-ALU_result_temp <= std_logic_vector(resize(unsigned(shift_j_addr), 32)) when Jump = '1' else
-	branch_mux when Jump = '0' else
-	(others => '0');
-
-shifted_imm <= std_logic_vector(shift_left(unsigned(imm), 2));
-branch_addr <= std_logic_vector(to_signed(to_integer(signed(PC_plus_4)) + to_integer(signed(shifted_imm)), 32));
---test_b_addr <= branch_addr;
-
-branch_mux <= branch_addr when Branch = '1' else
-	std_logic_vector(resize(unsigned(PC_plus_4), 32)) when Branch = '0' else
-	(others => '0');
-
-BorJ <= Branch or Jump;
-EXE_result <= ALU_result_temp when BorJ = '1' else
-	ALU_result when BorJ = '0' else
-	(others => '0');
-
-ALUOp <= "11" when opcode = "001000" else --addi
-			"11" when opcode = "001010" else --slti
-			"11" when opcode = "001100" else --andi
-			"11" when opcode = "001101" else --ori
-			"11" when opcode = "001110" else --xori
-			"11" when opcode = "001111" else --lui
-			"00" when opcode = "100011" else --lw
-			"00" when opcode = "101011" else --sw
-			"01" when opcode = "000101" else --bne
-			"01" when opcode = "000100" else --beq
-			"10" when opcode = "000000" else --R
-			"00";
-
-Branch <= '1' when (opcode = "000100") and (zero = '1') else --beq
-	'1' when (opcode = "000101") and (zero = '0') else --bne
-	'0';
-
-Jump <= '1' when (opcode = "000010") or (opcode = "000011") else
-	'0';
 end arch;

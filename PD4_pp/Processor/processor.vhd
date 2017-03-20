@@ -55,7 +55,7 @@ component if_id_reg
 end component;
 
 
---instruction decode stage --
+--instruction decode stage (register_controller.vhd) --
 
 signal s_WB_addr : std_logic_vector(4 downto 0);
 signal s_WB_return : std_logic_vector(31 downto 0); 
@@ -112,7 +112,7 @@ component id_ex_reg
 	);
 end component;
 
--- execute stage --
+-- execute stage (execution.vhd)--
 signal s_branch_taken_EX : std_logic;
 signal s_PC_EX : std_logic_vector(11 downto 0);
 signal s_ALUOutput_EX : std_logic_vector(31 downto 0);
@@ -121,8 +121,23 @@ signal s_IR_EX : std_logic_vector(31 downto 0);
 signal s_MemRead_EX : std_logic;
 signal s_MemWrite_EX : std_logic;
 
-component execute
---TODO
+component execution
+	port(
+		clock: in std_logic;
+		instruction: in std_logic_vector(31 downto 0);
+		PC_plus_4: in std_logic_vector(11 downto 0);
+		read_data_1: in std_logic_vector(31 downto 0);
+		read_data_2: in std_logic_vector(31 downto 0);
+		imm: in std_logic_vector(31 downto 0);
+
+		branchTaken_EX : out std_logic;
+		NEXT_PC: out std_logic_vector(11 downto 0);
+		EXE_result: out std_logic_vector(31 downto 0) := (others => '0');
+		B_EX : out std_logic_vector(31 downto 0);
+		IR_EX : out std_logic_vector(31 downto 0);
+		MemRead : out std_logic;
+		MemWrite : out std_logic
+	);
 end component;
 
 -- EX/MEM register --
@@ -283,12 +298,24 @@ BEGIN
 			s_IR_ID_EX
 		);
 		
---	EX: execute
---TODO
---	port map (
---			clock,
---			s_reset
---		);
+	EX: execution
+	port map (
+			--in
+			clock,
+			s_IR_ID_EX,
+			s_PC_ID_EX,
+			s_A_ID_EX,
+			s_B_ID_EX,
+			s_IMM_ID_EX,
+			--out
+			s_branch_taken_EX,
+			s_PC_EX,
+			s_ALUOutput_EX,
+			s_B_EX,
+			s_IR_EX,
+			s_MemRead_EX,
+			s_MemWrite_EX
+		);
 
 	EX_MEM: ex_mem_reg
 	port map (
@@ -356,9 +383,5 @@ BEGIN
 		s_WB_output --> This goes back to ID
 		);
 
-	process (clock, reset)
-		begin
-			
-		end process;
 
 END behaviour;

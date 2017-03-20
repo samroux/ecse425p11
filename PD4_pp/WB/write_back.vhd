@@ -86,20 +86,6 @@ begin
 		
 		instruction_type <= opcode_to_instruction_type(op);	--get type of instruction to defin register
 		
-		-- if (op = "001000" or	--addi
-			-- op = "001010" or 	--slti
-			-- op = "001100" or 	--andi
-			-- op = "001101" or 	--ori
-			-- op = "001110" or 	--xori
-			-- op = "001111" or	--lui
-			-- op = "100011"		--lw
-			-- )then
-			-- instruction_type <= '1'; --instruction of type ALU immediate or load
-			-- --REPORT "Instruction Type should be set now";
-		-- else
-			-- instruction_type <= '0';
-			-- --REPORT "Instruction Type NOT set";
-		-- end if;
 		
 		--select register
 		if(instruction_type = '1') then
