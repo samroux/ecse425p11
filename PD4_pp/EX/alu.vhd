@@ -53,8 +53,13 @@ zero <= '0';
 					ALU_result <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) - to_integer(signed(read_data_2)), 32));
 					ALU_result_temp <= std_logic_vector(to_signed(to_integer(signed(read_data_1)) - to_integer(signed(read_data_2)), 32));
 				end if;
-				if read_data_1 = read_data_2 then --branch
-					zero <= '1';
+
+				if funct = "000100" then -- beq
+					if read_data_1 = read_data_2 then zero <= '1';
+					end if;
+				elsif funct = "000101" then -- bne
+					if read_data_1 /= read_data_2 then zero <= '1';
+					end if;
 				end if;
 			when "0000" => --AND
 				ALU_result <= read_data_1 and read_data_2;

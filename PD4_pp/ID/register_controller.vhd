@@ -82,7 +82,7 @@ architecture behavior of REGISTER_CONTROLLER is
 	begin
 
 	-- ID process's only interaction with reg file should be reads.
-	if falling_edge(clock) then
+	if rising_edge(clock) then
 		-- Read registers
 		MemRead <= '1';
 		MemWrite <= '0';
@@ -120,7 +120,7 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	-- WB process runs concurrently but works on a previous instruction.
 	-- It only writes to reg file, which supports read/write in a single cycle.
-	elsif rising_edge(clock) then
+	elsif falling_edge(clock) then
 		-- Write to appropriate register
 		MemRead <= '0';
 		MemWrite <= '1';

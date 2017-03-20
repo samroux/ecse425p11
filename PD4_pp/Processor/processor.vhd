@@ -67,24 +67,26 @@ signal s_branch_taken_decode : std_logic;
 signal s_PC_decode : std_logic_vector(11 downto 0);
 
 component register_controller
-	port (
-		clock : in std_logic;
-		PC_IF : in std_logic_vector (11 downto 0);
-		IR_IF : in std_logic_vector(31 downto 0);
-		WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
-		WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
-														-- or the ALU output (mux decided)
-		write_to_file : in std_logic;
+port (
+	clock : in std_logic;
 
-		IR_ID : out std_logic_vector(31 downto 0);	--TODO modify file itself
-		A : out std_logic_vector(31 downto 0);
-		B : out std_logic_vector(31 downto 0);
-		Imm : out std_logic_vector(31 downto 0);
-		branch_taken : out std_logic;	-- returns 1 if rs == rt and instruction is beq
-									-- or if rs /= rt and instruction is bne.
-									-- to be used in EX stage
-		PC_ID : out std_logic_vector(11 downto 0) --TODO modify file itself
-		);
+	PC_IF : in std_logic_vector (11 downto 0);
+	IR_IF : in std_logic_vector(31 downto 0);
+	WB_addr : in std_logic_vector(4 downto 0); 		-- address to write to (rs or rt)
+	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
+												  	-- or the ALU output (mux decided)
+	write_to_file : in std_logic;
+
+	PC_ID : out std_logic_vector (11 downto 0);
+	IR_ID : out std_logic_vector(31 downto 0);
+	A : out std_logic_vector(31 downto 0);
+	B : out std_logic_vector(31 downto 0);
+	Imm : out std_logic_vector(31 downto 0);
+	branchTaken : out std_logic	-- returns 1 if rs == rt and instruction is beq
+								-- or if rs /= rt and instruction is bne.
+								-- to be used in EX stage 
+								
+	);
 end component;
 
 -- ID/EX register
@@ -273,12 +275,12 @@ BEGIN
 			s_write_to_files,
 
 			--out
+			s_PC_decode,
 			s_IR_decode,
 			s_A_decode,
 			s_B_decode,
 			s_imm_decode,
-			s_branch_taken_decode,
-			s_PC_decode
+			s_branch_taken_decode
 		);
 		
 	ID_EX: id_ex_reg
