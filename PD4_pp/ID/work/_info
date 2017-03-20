@@ -1,0 +1,176 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID
+Eregister_controller
+Z1 w1489783205
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller.vhd
+Z6 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller.vhd
+l0
+L10
+VXlJQoz7<0_@I:hk1MdFT20
+!s100 B;RBoloOfb1O[Elk63clk2
+Z7 OV;C;10.5b;63
+32
+Z8 !s110 1489783210
+!i10b 1
+Z9 !s108 1489783210.000000
+Z10 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller.vhd|
+Z11 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller.vhd|
+!i113 1
+Z12 o-work work
+Z13 tExplicit 1 CvgOpt 0
+Abehavior
+R2
+R3
+R4
+DEx4 work 19 register_controller 0 22 XlJQoz7<0_@I:hk1MdFT20
+l65
+L34
+V21I?5md^:Fn1T_U:lG7U>3
+!s100 <:5l@LGl;P[>BD>=P7E>f0
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Eregister_controller_tb
+Z14 w1489783203
+R2
+R3
+R4
+R0
+Z15 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller_tb.vht
+Z16 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller_tb.vht
+l0
+L12
+VaK=JcXmzEm?>TR5e0zGjI3
+!s100 OB=EKcfHaZn6B^@6X9H4A3
+R7
+32
+R8
+!i10b 1
+R9
+Z17 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller_tb.vht|
+Z18 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_controller_tb.vht|
+!i113 1
+R12
+R13
+Aregister_controller_arch
+R2
+R3
+R4
+DEx4 work 22 register_controller_tb 0 22 aK=JcXmzEm?>TR5e0zGjI3
+l54
+L15
+VKATT;E^c=h6=;PZDY;HNC1
+!s100 3BK:j44aS;Hj`zP4l3`eA1
+R7
+32
+R8
+!i10b 1
+R9
+R17
+R18
+!i113 1
+R12
+R13
+Eregister_file
+Z19 w1489765694
+Z20 DPx4 ieee 16 std_logic_textio 0 22 V5TSK`;aJKC<l]CEg1>mz1
+R2
+R3
+R4
+R0
+Z21 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file.vhd
+Z22 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file.vhd
+l0
+L13
+VilSKO1hLLe@hoa2BRkige0
+!s100 dk5TC^jUi?lhaZ_h`]6i52
+R7
+32
+R8
+!i10b 1
+R9
+Z23 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file.vhd|
+Z24 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file.vhd|
+!i113 1
+R12
+R13
+Abehavior
+R20
+R2
+R3
+R4
+DEx4 work 13 register_file 0 22 ilSKO1hLLe@hoa2BRkige0
+l39
+L33
+VWAVYmN3kKchgK@hdVJC`f3
+!s100 Z[9UTfkGW`@>inIfU6T;G0
+R7
+32
+R8
+!i10b 1
+R9
+R23
+R24
+!i113 1
+R12
+R13
+Eregister_file_tb
+Z25 w1489765407
+R2
+R3
+R4
+R0
+Z26 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file_tb.vht
+Z27 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file_tb.vht
+l0
+L12
+V_SH7I:57;f5:47XW2XabN1
+!s100 9lo>=ShJfHF<kjGHBWPDD0
+R7
+32
+R8
+!i10b 1
+R9
+Z28 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file_tb.vht|
+Z29 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/ID/register_file_tb.vht|
+!i113 1
+R12
+R13
+Aregister_file_arch
+R2
+R3
+R4
+Z30 DEx4 work 16 register_file_tb 0 22 _SH7I:57;f5:47XW2XabN1
+l49
+L15
+Z31 Vb2mP78RhgWXCf`2:V8`?o1
+Z32 !s100 >>[;:Nb5[jcLOe6<@C2LK0
+R7
+32
+R8
+!i10b 1
+R9
+R28
+R29
+!i113 1
+R12
+R13

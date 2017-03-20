@@ -1,0 +1,211 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX
+Ealu
+Z1 w1489972784
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vhd
+Z6 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vhd
+l0
+L6
+V=7^KC2nMWj@EUa9GCndgD2
+!s100 zKP[h?cg2V>F<^HW@`:n52
+Z7 OV;C;10.5b;63
+32
+Z8 !s110 1489972787
+!i10b 1
+Z9 !s108 1489972787.000000
+Z10 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vhd|
+Z11 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vhd|
+!i113 1
+Z12 o-work work
+Z13 tExplicit 1 CvgOpt 0
+Aarch
+R2
+R3
+R4
+DEx4 work 3 alu 0 22 =7^KC2nMWj@EUa9GCndgD2
+l26
+L19
+Vaf=:_1KDRYbCaN1h9cOA]1
+!s100 l2Bi[W<VC>7G0`n4_Qz8`0
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Ealu_control
+Z14 w1489968843
+R2
+R3
+R4
+R0
+Z15 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu_control.vhd
+Z16 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu_control.vhd
+l0
+L5
+VWfRfg:Ih>Yc5K5Fn[48hg1
+!s100 HgALI21iiaSB@AZ?`Z6Pg1
+R7
+32
+R8
+!i10b 1
+R9
+Z17 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu_control.vhd|
+Z18 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu_control.vhd|
+!i113 1
+R12
+R13
+Aarch
+R2
+R3
+R4
+DEx4 work 11 alu_control 0 22 WfRfg:Ih>Yc5K5Fn[48hg1
+l16
+L14
+V?ciQo<<[J[XGQo]iBhWf11
+!s100 ;A0Q^5Ugm3aeXgzl@7kQz0
+R7
+32
+R8
+!i10b 1
+R9
+R17
+R18
+!i113 1
+R12
+R13
+Ealu_vhd_tst
+R14
+R3
+R4
+R0
+Z19 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vht
+Z20 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vht
+l0
+L30
+V3iC]`7Y44HZMN^SoOZeFE2
+!s100 1372_DIFjQ<e<fnW>8^Cm2
+R7
+32
+R8
+!i10b 1
+R9
+Z21 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vht|
+Z22 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/alu.vht|
+!i113 1
+R12
+R13
+Aalu_arch
+R3
+R4
+DEx4 work 11 alu_vhd_tst 0 22 3iC]`7Y44HZMN^SoOZeFE2
+l53
+L32
+VV8DHW6?K0:`9WQRn:^RKR2
+!s100 92a`b99?bM0<imDJj[;:K0
+R7
+32
+R8
+!i10b 1
+R9
+R21
+R22
+!i113 1
+R12
+R13
+Eexecution
+Z23 w1489972741
+R2
+R3
+R4
+R0
+Z24 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vhd
+Z25 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vhd
+l0
+L5
+Vl6aD3I7WSo=]T2VagzmfU2
+!s100 b6A<n84f@>l_=X`HmFnjQ0
+R7
+32
+R8
+!i10b 1
+R9
+Z26 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vhd|
+Z27 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vhd|
+!i113 1
+R12
+R13
+Aarch
+R2
+R3
+R4
+DEx4 work 9 execution 0 22 l6aD3I7WSo=]T2VagzmfU2
+l60
+L24
+Vh[YUOR6M@YT;iNXkfAP=]0
+!s100 >oV^KHk4^UPF;E=fFdK5l1
+R7
+32
+R8
+!i10b 1
+R9
+R26
+R27
+!i113 1
+R12
+R13
+Eexecution_vhd_tst
+Z28 w1489970896
+R3
+R4
+R0
+Z29 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vht
+Z30 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vht
+l0
+L30
+V7n3Im[mMb1B[ZC_YC5kZY0
+!s100 Do;W7NY7MG6<CPPHVh<Dc3
+R7
+32
+Z31 !s110 1489972788
+!i10b 1
+Z32 !s108 1489972788.000000
+Z33 !s90 -reportprogress|300|-work|work|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vht|
+Z34 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/EX/execution.vht|
+!i113 1
+R12
+R13
+Aexecution_arch
+R3
+R4
+Z35 DEx4 work 17 execution_vhd_tst 0 22 7n3Im[mMb1B[ZC_YC5kZY0
+l73
+L32
+Z36 V;VRlj31aAl8;YlieVhg]L0
+Z37 !s100 ANN7EYn7TUcW<>7nG@B:f0
+R7
+32
+R31
+!i10b 1
+R32
+R33
+R34
+!i113 1
+R12
+R13
