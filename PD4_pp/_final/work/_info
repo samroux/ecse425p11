@@ -22,9 +22,9 @@ V1c7ic9R0C@N^QOT:`3]2[0
 !s100 zKP[h?cg2V>F<^HW@`:n52
 Z7 OV;C;10.5b;63
 32
-Z8 !s110 1489980401
+Z8 !s110 1489981867
 !i10b 1
-Z9 !s108 1489980401.000000
+Z9 !s108 1489981867.000000
 Z10 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/alu.vhd|
 Z11 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/alu.vhd|
 !i113 1
@@ -141,11 +141,11 @@ Vm>E820UF9f?bG1geghE0J1
 !s100 YLgd_G;DZ9D`annjzdcI62
 R7
 32
-R8
+Z27 !s110 1489981868
 !i10b 1
-R9
-Z27 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/ex_mem_reg.vhd|
-Z28 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/ex_mem_reg.vhd|
+Z28 !s108 1489981868.000000
+Z29 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/ex_mem_reg.vhd|
+Z30 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/ex_mem_reg.vhd|
 !i113 1
 R12
 Abehavior
@@ -159,30 +159,30 @@ VPH5U3_]Wk;_K4hG07:_Q;3
 !s100 o39BM@mR;_HVY]KU1F`3A1
 R7
 32
-R8
-!i10b 1
-R9
 R27
+!i10b 1
 R28
+R29
+R30
 !i113 1
 R12
 Eexecution
-Z29 w1489976291
+Z31 w1489976291
 R2
 R3
 R4
 R0
-Z30 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd
-Z31 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd
+Z32 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd
+Z33 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd
 l0
 L5
 V9G[`PWWE@lgVHH2>fR_j41
 !s100 nbL8AD`M2<XYbA@hIzgcR3
 R7
 32
-Z32 !s110 1489980402
+R27
 !i10b 1
-Z33 !s108 1489980402.000000
+R28
 Z34 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd|
 Z35 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/execution.vhd|
 !i113 1
@@ -198,9 +198,9 @@ VcE1?kYL7BZcC^FH488n<U2
 !s100 dY<j`g4Xf5^h1zABlHng_3
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 R34
 R35
 !i113 1
@@ -219,9 +219,9 @@ VKOi?==]:iDk6Q0_J@KA8_1
 !s100 bLo3XWQe`VAZeH43C?NX^3
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 Z39 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/id_ex_reg.vhd|
 Z40 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/id_ex_reg.vhd|
 !i113 1
@@ -237,9 +237,9 @@ VCdoKaIZIXm8;i=Ck2LbIb3
 !s100 L6BOPEVXQ0f5bJie2AzQ;0
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 R39
 R40
 !i113 1
@@ -258,9 +258,9 @@ VY_W0zcUVKaC=661N1fo4U1
 !s100 `bkDA^@o:;f=c04YQZ7hb2
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 Z44 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/if_id_reg.vhd|
 Z45 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/if_id_reg.vhd|
 !i113 1
@@ -276,15 +276,15 @@ VogaOi:lNOho2G:PLJJ]:]1
 !s100 F;L:86PMn]C3S`X1fHTc30
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 R44
 R45
 !i113 1
 R12
 Einstruction_fetch
-Z46 w1489978671
+Z46 w1489981720
 R2
 R3
 R4
@@ -297,9 +297,9 @@ V8QoJPgOZk;9ZdgLZ1CEL90
 !s100 [l]XcfVSCejOm3:izG3E93
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 Z49 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/instruction_fetch.vhd|
 Z50 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/instruction_fetch.vhd|
 !i113 1
@@ -311,13 +311,13 @@ R4
 DEx4 work 17 instruction_fetch 0 22 8QoJPgOZk;9ZdgLZ1CEL90
 l41
 L24
-V23m<B0`UODjScD5iAdN0F1
-!s100 S3V2Y789A01C[a5BO=ICZ3
+VnY]il2YF83S]>8;zMT?oX3
+!s100 KCY9G7z>WK7Q=`GTA9@8V0
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 R49
 R50
 !i113 1
@@ -336,9 +336,9 @@ VCL]JjlVo6o0NRX=@_i;KD1
 !s100 oO;n7?i@N2]emF3_^G[2E2
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 Z54 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/instruction_memory.vhd|
 Z55 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/instruction_memory.vhd|
 !i113 1
@@ -354,9 +354,9 @@ VlM4?_hYQWTKJ7H]Qc2^CH1
 !s100 z9T9jkn6TVLMBFVa[1d5T1
 R7
 32
-R32
+R27
 !i10b 1
-R33
+R28
 R54
 R55
 !i113 1
@@ -375,9 +375,9 @@ V1cBSVVnf<GES>:]Ygn:C52
 !s100 zCjj1ccX32DYBbQg6dHz00
 R7
 32
-Z59 !s110 1489980403
+Z59 !s110 1489981869
 !i10b 1
-R33
+R28
 Z60 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/mem_wb_reg.vhd|
 Z61 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/mem_wb_reg.vhd|
 !i113 1
@@ -395,13 +395,13 @@ R7
 32
 R59
 !i10b 1
-R33
+R28
 R60
 R61
 !i113 1
 R12
 Eprocessor
-Z62 w1489978360
+Z62 w1489981863
 R2
 R3
 R4
@@ -416,7 +416,7 @@ R7
 32
 R59
 !i10b 1
-Z65 !s108 1489980403.000000
+Z65 !s108 1489981869.000000
 Z66 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/processor.vhd|
 Z67 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/processor.vhd|
 !i113 1
@@ -428,8 +428,8 @@ R4
 DEx4 work 9 processor 0 22 @D5`5jLCCcA?g:oa>L:Ih3
 l240
 L17
-V^RbM4I9E_Qm:gok5WA1gP1
-!s100 4cWjDnFaV]6QfPfF6:QLD0
+VhbXW^jg1EN7oloFBgGF0m3
+!s100 da:bj]EnlKlnSBfhGAO1P1
 R7
 32
 R59
@@ -510,7 +510,7 @@ VJon;gIi=6>AnGYIR6CgBP3
 !s100 17P^;:NVFJJg@ZF?nd3<g2
 R7
 32
-Z78 !s110 1489980404
+R59
 !i10b 1
 R65
 R76
@@ -518,25 +518,25 @@ R77
 !i113 1
 R12
 Eregister_file
-Z79 w1489785203
+Z78 w1489785203
 R19
 R2
 R3
 R4
 R0
-Z80 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd
-Z81 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd
+Z79 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd
+Z80 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd
 l0
 L13
 V1E^zVM<5nd?DZ:m_8lG6O3
 !s100 dk5TC^jUi?lhaZ_h`]6i52
 R7
 32
-R78
+R59
 !i10b 1
-Z82 !s108 1489980404.000000
-Z83 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd|
-Z84 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd|
+R65
+Z81 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd|
+Z82 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/register_file.vhd|
 !i113 1
 R12
 Abehavior
@@ -551,11 +551,11 @@ VhDhZJ;Q;l^;eAoeQk>AfT3
 !s100 Z[9UTfkGW`@>inIfU6T;G0
 R7
 32
-R78
+R59
 !i10b 1
+R65
+R81
 R82
-R83
-R84
 !i113 1
 R12
 Ewrite_back
@@ -564,36 +564,36 @@ R2
 R3
 R4
 R0
-Z85 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd
-Z86 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd
+Z83 8C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd
+Z84 FC:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd
 l0
 L10
 VPSK@b<eoiCW?`M6Ya>Lg`1
 !s100 >f<X<a0PE8?;SdhlK8LA>3
 R7
 32
-R78
+R59
 !i10b 1
-R82
-Z87 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd|
-Z88 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd|
+R65
+Z85 !s90 -reportprogress|300|C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd|
+Z86 !s107 C:/Users/will/Documents/McGill/6 Winter 2017/ecse 425/ecse425p11/PD4_pp/_final/write_back.vhd|
 !i113 1
 R12
 Abehaviour
 R2
 R3
 R4
-Z89 DEx4 work 10 write_back 0 22 PSK@b<eoiCW?`M6Ya>Lg`1
+Z87 DEx4 work 10 write_back 0 22 PSK@b<eoiCW?`M6Ya>Lg`1
 l68
 L24
-Z90 VY>nk8X[TdSP:j7DhlNALG2
-Z91 !s100 FlKh7hCG0;1O39hb`fA?n1
+Z88 VY>nk8X[TdSP:j7DhlNALG2
+Z89 !s100 FlKh7hCG0;1O39hb`fA?n1
 R7
 32
-R78
+R59
 !i10b 1
-R82
-R87
-R88
+R65
+R85
+R86
 !i113 1
 R12

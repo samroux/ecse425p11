@@ -248,7 +248,8 @@ BEGIN
 			s_PC_MEM, --> this comes from MEM stage
 			--out
 			s_IR_Fetch,
-			s_PC_Fetch
+			s_PC_Fetch,
+			s_write_to_files
 		);
 		
 	IF_ID: if_id_reg

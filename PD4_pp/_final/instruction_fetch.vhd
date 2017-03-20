@@ -67,15 +67,20 @@ begin
 		if(branch_taken = '1') then
 			-- check for infinite loop as a trigger to write reg_file and data_mem
 			-- an infinite loop is a taken branch that changes the PC to its own PC
-			if (s_PC = branch_address) and (should_write = '0') then
-				should_write := '1';
-			end if;
+			--if (s_PC = branch_address) and (should_write = '0') then
+			--	should_write := '1';
+			--end if;
 
 			-- move to instruction pointed to by branch address
 			s_PC <= branch_address;
 		else
 			-- normal case: move to next instruction			
 			s_PC <= std_logic_vector(unsigned(s_PC) + unsigned(s_FOUR));
+		end if;
+
+		-- branches seem to have an issue; write to file if PC > 1024
+		if (branch_address >= "1000000000000") then
+			should_write := '1';
 		end if;
 		write_to_files <= should_write;
 	end if;
