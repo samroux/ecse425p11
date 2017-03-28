@@ -13,8 +13,6 @@ vcom if_id_reg.vhd
 vcom register_file.vhd
 vcom register_controller.vhd
 vcom id_ex_reg.vhd
-vcom alu.vhd
-vcom alu_control.vhd
 vcom execution.vhd
 vcom ex_mem_reg.vhd
 vcom data_memory.vhd

@@ -55,6 +55,10 @@ architecture behavior of DATA_MEMORY is
 				-- assume address was correctly calculated by EX
 				-- and has only 12 significant bits
 				PC_out <= ALUOutput(11 downto 0);
+
+				-- special case for jal: change LMD to nPC+4 to be used in WB
+				LMD(31 downto 12) <= (others => '0');
+				LMD(11 downto 0)  <= std_logic_vector(unsigned(PC_in) + "000000000100");
 			else
 				PC_out <= PC_in;
 			end if;
@@ -68,9 +72,9 @@ architecture behavior of DATA_MEMORY is
 			
 				-- TODO: Ensure that the other bits returned by the EX stage
 				--		 are not significant (i.e. sign/zero extended)	 
-				LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0))));
+				LMD <= data_mem_inst(to_integer(unsigned(ALUOutput(11 downto 0))));
 			elsif (MemWrite = '1') and (MemRead = '0') then
-				data_mem_inst(to_integer(unsigned(ALUOutput(12 downto 0)))) <= B_in;
+				data_mem_inst(to_integer(unsigned(ALUOutput(11 downto 0)))) <= B_in;
             	LMD <= (others => '0');
        		else
        			LMD <= (others => '0');

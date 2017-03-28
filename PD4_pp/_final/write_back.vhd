@@ -88,9 +88,10 @@ begin
 		
 		
 		--select register
-		if(instruction_type = '1') then
+		if (instruction_type = '1') then
 			s_IR_dest_reg <= rt;	-- rt for immediare and load instrcutions
-		
+		elsif (op = "000011") then
+			s_IR_dest_reg <= "11111"; -- jal writes back PC+8
 		else
 			s_IR_dest_reg <= rd;	-- rd for ALU reg-reg operations
 			
@@ -120,9 +121,10 @@ begin
 				
 			
 			--select output
-			if(is_load = '1') then
+			if (is_load = '1') then
 				s_WB_output <= LMD;
-			
+			elsif (opcode = "000011") then
+				s_WB_output <= LMD;
 			else
 				s_WB_output <= ALUOutput;
 			end if;

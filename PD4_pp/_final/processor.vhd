@@ -79,11 +79,7 @@ port (
 	IR_ID : out std_logic_vector(31 downto 0);
 	A : out std_logic_vector(31 downto 0);
 	B : out std_logic_vector(31 downto 0);
-	Imm : out std_logic_vector(31 downto 0);
-	branch_taken : out std_logic	-- returns 1 if rs == rt and instruction is beq
-								-- or if rs /= rt and instruction is bne.
-								-- to be used in EX stage 
-								
+	Imm : out std_logic_vector(31 downto 0)								
 	);
 end component;
 
@@ -124,14 +120,14 @@ signal s_MemWrite_EX : std_logic;
 component execution
   port(
   	clock: in std_logic;
-   instruction: in std_logic_vector(31 downto 0);
-    PC_plus_4: in std_logic_vector(11 downto 0);
-    read_data_1: in std_logic_vector(31 downto 0);
-    read_data_2: in std_logic_vector(31 downto 0);
-    imm: in std_logic_vector(31 downto 0);
+   	inst: in std_logic_vector(31 downto 0);
+    PC_ID_EX: in std_logic_vector(11 downto 0);
+    rs_from_ID: in std_logic_vector(31 downto 0);
+    rt_from_ID: in std_logic_vector(31 downto 0);
+    imm_sign_ext: in std_logic_vector(31 downto 0);
     
-    NEXT_PC: out std_logic_vector(11 downto 0);
-    EXE_result: out std_logic_vector(31 downto 0) := (others => '0');
+    PC_EX: out std_logic_vector(11 downto 0);
+    ALUOutput: out std_logic_vector(31 downto 0) := (others => '0');
     MemRead : out std_logic;
     MemWrite : out std_logic;
     branch_taken_EX : out std_logic;
@@ -278,8 +274,7 @@ BEGIN
 			s_IR_decode,
 			s_A_decode,
 			s_B_decode,
-			s_imm_decode,
-			s_branch_taken_decode
+			s_imm_decode
 		);
 		
 	ID_EX: id_ex_reg
