@@ -39,9 +39,11 @@ architecture behavior of REGISTER_CONTROLLER is
 	signal reg_write_input : std_logic_vector(31 downto 0);
 	signal reg_write_addr : std_logic_vector (4 downto 0);
 	signal Mem_R_W : std_logic := '0'; -- 0 for read, 1 for write
-	--signal MemRead : std_logic := '0';
 	signal reg_output_A : std_logic_vector(31 downto 0);
 	signal reg_output_B : std_logic_vector(31 downto 0);
+
+	signal A_temp : std_logic_vector(31 downto 0);
+	signal B_temp : std_logic_vector(31 downto 0);
 
 	component REGISTER_FILE
 		port (
@@ -107,13 +109,15 @@ architecture behavior of REGISTER_CONTROLLER is
 		PC_ID <= PC_IF;
 		IR_ID <= IR_IF;
 
-		-- Ensure that Imm is written to on a rising edge
+		-- Ensure that read results are returned on a rising edge
 		Imm <= Imm_temp;
+		A <= A_temp;
+		B <= B_temp;
 	end if;
 	end process;
 
 	-- needs to be outside the process block to avoid excess delay
-	A <= reg_output_A;
-	B <= reg_output_B;
+	A_temp <= reg_output_A;
+	B_temp <= reg_output_B;
 
 end behavior;
