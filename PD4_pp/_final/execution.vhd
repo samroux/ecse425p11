@@ -69,6 +69,8 @@ variable mult_result : std_logic_vector(63 downto 0); -- hi (63 downto 32), lo (
 
 variable inst_type : integer; -- 0=R, 1=I, 2=J
 
+-- TODO: eliminate ALU redundancy
+
 begin
 	if rising_edge(clock) then
 		opcode := inst(31 downto 26);

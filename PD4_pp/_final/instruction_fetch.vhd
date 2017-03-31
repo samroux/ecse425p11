@@ -25,9 +25,9 @@ ARCHITECTURE behaviour OF instruction_fetch IS
 --SIGNAL s_reset : std_logic := '0';
 SIGNAL s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
 SIGNAL s_IR : std_logic_vector (31 downto 0);
-SIGNAL s_FOUR: std_logic_vector (11 downto 0) := (2=>'1', others=>'0'); --signal hard wired to 4
+--SIGNAL s_FOUR: std_logic_vector (11 downto 0) := (2=>'1', others=>'0'); --signal hard wired to 4
 
-SIGNAL s_PC_int : integer;
+--SIGNAL s_PC_int : integer;
 
 component instruction_memory
   PORT (
@@ -75,7 +75,7 @@ begin
 			s_PC <= branch_address;
 		else
 			-- normal case: move to next instruction			
-			s_PC <= std_logic_vector(unsigned(s_PC) + unsigned(s_FOUR));
+			s_PC <= std_logic_vector(unsigned(s_PC) + "000000000100");
 		end if;
 
 		-- branches seem to have an issue; write to file if PC > 1024
@@ -86,7 +86,8 @@ begin
 	end if;
 end process;
 	
-PC <= s_PC;	--set output to signal value
+--set output to signal value
+PC <= s_PC;
 IR <= s_IR;
 
 END behaviour;

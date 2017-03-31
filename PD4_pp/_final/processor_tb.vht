@@ -70,16 +70,13 @@ architecture behaviour of processor_tb is
 	generate_test : process
 		
 	begin
-		s_reset <= '0';
+		--s_reset <= '0'; 
+        --wait for clock_period;
         
-        wait for clock_period;
+        s_reset <= '1';     
+        wait for clock_period/2;
         
-        s_reset <= '1';
-        
-        wait for clock_period;
-        
-        s_reset <= '0';
-        
+        s_reset <= '0';    
         wait for clock_period;
         
         REPORT "System has been reset";

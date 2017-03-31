@@ -173,7 +173,7 @@ end component;
 signal s_LMD_MEM : std_logic_vector(31 downto 0);
 signal s_PC_MEM : std_logic_vector(11 downto 0);
 signal s_IR_MEM : std_logic_vector(31 downto 0);
-signal s_B_MEM : std_logic_vector(31 downto 0);
+signal s_ALUOutput_MEM : std_logic_vector(31 downto 0);
 signal s_branch_taken_MEM : std_logic;
 
 component data_memory 
@@ -191,7 +191,7 @@ component data_memory
 		LMD : out std_logic_vector(31 downto 0);
 		PC_out : out std_logic_vector(11 downto 0);
 		IR_out : out std_logic_vector(31 downto 0);
-		B_out: out std_logic_vector(31 downto 0);
+		ALUOutput_out: out std_logic_vector(31 downto 0);
 		branch_taken_out : out std_logic
 	);
 end component;
@@ -207,7 +207,7 @@ component mem_wb_reg
 		clock : in std_logic;
 		
 		LMD_MEM : in std_logic_vector(31 downto 0);-- load memory data
-		ALUOutput_MEM : in std_logic_vector(31 downto 0);-- comes from ex/mem (see notes there)
+		ALUOutput_MEM : in std_logic_vector(31 downto 0);
 		IR_MEM : in std_logic_vector(31 downto 0); -- comes from ex/mem
 
 		LMD_WB : out std_logic_vector(31 downto 0);
@@ -217,7 +217,7 @@ component mem_wb_reg
 end component;
 
 --write back stage --
-signal s_IR_WB : std_logic_vector(4 downto 0);
+signal s_WB_dest_reg : std_logic_vector(4 downto 0);
 signal s_WB_output : std_logic_vector(31 downto 0);
 
 component write_back
@@ -228,7 +228,7 @@ component write_back
 		LMD : in std_logic_vector(31 downto 0);			-- Load Memory Data	
 		ALUOutput : in std_logic_vector(31 downto 0);	-- ALU Output
 		
-		IR_dest_reg : out std_logic_vector(4 downto 0);
+		WB_dest_reg : out std_logic_vector(4 downto 0);
 		WB_output : out std_logic_vector(31 downto 0)
    );
 end component;
@@ -265,7 +265,7 @@ BEGIN
 			clock,
 			s_PC_IF_ID,
 			s_IR_IF_ID,
-			s_IR_WB,	--> this comes from output of WB
+			s_WB_dest_reg,	--> this comes from output of WB
 			s_WB_output,	--> this comes from output of WB
 			s_write_to_files,
 
@@ -350,7 +350,7 @@ BEGIN
 			s_LMD_MEM,
 			s_PC_MEM, --> this goes back to IF
 			s_IR_MEM,
-			s_B_MEM,
+			s_ALUOutput_MEM,
 			s_branch_taken_MEM --> this goes back to IF
 		);
 		
@@ -359,7 +359,7 @@ BEGIN
 			--in
 			clock,
 			s_LMD_MEM,
-			s_B_MEM,
+			s_ALUOutput_MEM,
 			s_IR_MEM,
 			--out
 			s_LMD_MEM_WB,
@@ -371,11 +371,11 @@ BEGIN
 	port map (
 		--in
 		clock,
-		s_IR_EX_MEM,
+		s_IR_MEM_WB,
 		s_LMD_MEM_WB,
-		s_ALUOutput_EX_MEM,
+		s_ALUOutput_MEM_WB,
 		--out
-		s_IR_WB, --> This goes back to ID
+		s_WB_dest_reg, --> This goes back to ID
 		s_WB_output --> This goes back to ID
 		);
 

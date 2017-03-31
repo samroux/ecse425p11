@@ -75,9 +75,12 @@ architecture behavior of REGISTER_CONTROLLER is
 		);	
 
 	process(clock)
+
+	variable A_temp : std_logic_vector(31 downto 0);
+	variable B_temp : std_logic_vector(31 downto 0);
+	variable Imm_temp : std_logic_vector(31 downto 0);
 	begin
 
-	-- ID process's only interaction with reg file should be reads.
 	-- read in 2nd half of cycle, write in 1st half
 	if falling_edge(clock) then
 		-- Read registers
@@ -86,16 +89,15 @@ architecture behavior of REGISTER_CONTROLLER is
 
 		reg_address_A <= IR_IF(25 downto 21);
 		reg_address_B <= IR_IF(20 downto 16);
-		A <= reg_output_A;
-		B <= reg_output_B;
+		A_temp := reg_output_A;
+		B_temp := reg_output_B;
 
-		-- Preemptive steps	
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
 		if (IR_IF(31 downto 26) = "001100") OR (IR_IF(31 downto 26) = "001101") then
-			Imm <= std_logic_vector(resize(signed(IR_IF(15 downto 0)), Imm'length));
+			Imm_temp := std_logic_vector(resize(signed(IR_IF(15 downto 0)), Imm'length));
 		else
-			Imm <= std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
+			Imm_temp := std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
 		end if;
 
 	-- WB process runs concurrently but works on a previous instruction.
@@ -110,6 +112,11 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
 		PC_ID <= PC_IF;
 		IR_ID <= IR_IF;
+
+		-- output signals found in the last half-cycle -- ensures sync
+		A <= A_temp;
+		B <= B_temp;
+		Imm <= Imm_temp;
 	end if;
 	end process;
 

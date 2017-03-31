@@ -13,6 +13,7 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/dut/EX/IR_EX
     add wave -position end sim:/processor_tb/dut/MEM/IR_in
     add wave -position end sim:/processor_tb/dut/MEM/IR_out
+    add wave -position end sim:/processor_tb/dut/WB/IR_reg
     add wave -position end sim:/processor_tb/dut/I_F/PC 
     add wave -position end sim:/processor_tb/dut/I_D/PC_IF
     add wave -position end sim:/processor_tb/dut/I_D/PC_ID
@@ -27,6 +28,11 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/dut/EX/rt_from_ID
     add wave -position end sim:/processor_tb/dut/EX/imm_sign_ext
     add wave -position end sim:/processor_tb/dut/EX/ALUOutput
+    add wave -position end sim:/processor_tb/dut/MEM/ALUOutput
+    add wave -position end sim:/processor_tb/dut/MEM/ALUOutput_out
+    add wave -position end sim:/processor_tb/dut/WB/ALUOutput
+    add wave -position end sim:/processor_tb/dut/WB/WB_output
+    add wave -position end sim:/processor_tb/dut/WB/WB_dest_reg
     add wave -position end sim:/processor_tb/dut/I_D/WB_return
     add wave -position end sim:/processor_tb/dut/I_D/WB_addr
     add wave -position end sim:/processor_tb/dut/I_D/reg_write_input
