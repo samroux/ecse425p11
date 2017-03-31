@@ -34,9 +34,9 @@ begin
     -- Values should be fed on rising_edge to be returned on the next 
     -- rising_edge (i.e a full cycle after).
 
-    process (clock)
+    process (LMD_MEM, ALUOutput_MEM, IR_MEM)
     begin
-        if rising_edge(clock) then
+        --if rising_edge(clock) then
             LMD_WB <= LMD_MEM;
             ALUOutput_WB <= ALUOutput_MEM;
             IR_WB <= IR_MEM;
@@ -54,7 +54,7 @@ begin
             --    IR_WB <= IR_MEM_STORED;
             --    IR_MEM_STORED <= IR_MEM;
             --end if;
-        end if;
+        --end if;
     end process;
 
 end behavior;

@@ -48,9 +48,9 @@ architecture behavior of EX_MEM_REG is
 	-- Values should be fed on rising_edge to be returned on the next 
 	-- rising_edge (i.e a full cycle after).
 
-	process (clock)
+	process (branch_taken_EX, PC_EX, ALUOutput_EX, B_EX, IR_EX, MemRead_EX, MemWrite_EX)
 	begin
-		if rising_edge(clock) then
+		--if rising_edge(clock) then
 			branch_taken_MEM <= branch_taken_EX;
 			PC_MEM <= PC_EX;
 			ALUOutput_MEM <= ALUOutput_EX;
@@ -94,7 +94,7 @@ architecture behavior of EX_MEM_REG is
 			--	MemWrite_EX_STORED <= MemWrite_EX;
 			--end if;
 			
-		end if;
+		--end if;
 	end process;
 
 end behavior;

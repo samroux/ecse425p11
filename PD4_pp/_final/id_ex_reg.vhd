@@ -41,9 +41,9 @@ architecture behavior of ID_EX_REG is
 	-- Values should be fed on rising_edge to be returned on the next 
 	-- rising_edge (i.e a full cycle after).
 
-	process (clock)
+	process (A_ID, B_ID, IMM_ID, NPC_ID, IR_ID)
 	begin
-		if rising_edge(clock) then
+		--if rising_edge(clock) then
 			A_EX <= A_ID;
 			B_EX <= B_ID;
 			IMM_EX <= IMM_ID;
@@ -73,7 +73,7 @@ architecture behavior of ID_EX_REG is
 			--	IR_EX <= IR_ID_STORED;
 			--	IR_ID_STORED <= IR_ID;
 			--end if;
-		end if;
+		--end if;
 	end process;
 
 end behavior;

@@ -34,9 +34,9 @@ architecture behavior of IF_ID_REG is
 	-- Values should be fed on rising_edge to be returned on the next 
 	-- rising_edge (i.e a full cycle after).
 
-	process (clock)
+	process (NPC_IF, IR_IF)
 	begin
-		if rising_edge(clock) then
+		--if rising_edge(clock) then
 			NPC_ID <= NPC_IF;
 			IR_ID <= IR_IF;
 			--if (NPC_IF_STORED /= NPC_IF) then
@@ -48,7 +48,7 @@ architecture behavior of IF_ID_REG is
 			--	IR_ID <= IR_IF_STORED;
 			--	IR_IF_STORED <= IR_IF;
 			--end if;		
-		end if;
+		--end if;
 	end process;
 
 end behavior;
