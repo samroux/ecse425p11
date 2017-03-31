@@ -22,12 +22,9 @@ ENTITY instruction_fetch is
 END instruction_fetch;
 
 ARCHITECTURE behaviour OF instruction_fetch IS
---SIGNAL s_reset : std_logic := '0';
+
 SIGNAL s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
 SIGNAL s_IR : std_logic_vector (31 downto 0);
---SIGNAL s_FOUR: std_logic_vector (11 downto 0) := (2=>'1', others=>'0'); --signal hard wired to 4
-
---SIGNAL s_PC_int : integer;
 
 component instruction_memory
   PORT (
@@ -51,11 +48,11 @@ BEGIN
 -- performing instruction fetch
 fetch :	process (clock, reset)
 variable should_write : std_logic;
+variable pc_when_branch_issued : std_logic_vector(11 downto 0);
 begin
 	if reset = '1' then
-		-- This should bring to fill Instruction Memory Register
+		-- This should begin to fill Instruction Memory Register
 		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
-		--s_reset <= reset;
 		s_PC <= (others => '0');
 		should_write := '0';
 	elsif (rising_edge(clock)) then
@@ -67,21 +64,19 @@ begin
 		if(branch_taken = '1') then
 			-- check for infinite loop as a trigger to write reg_file and data_mem
 			-- an infinite loop is a taken branch that changes the PC to its own PC
-			--if (s_PC = branch_address) and (should_write = '0') then
-			--	should_write := '1';
-			--end if;
+			-- the current PC will be 4 cycles ahead of when the branch was issued
+			pc_when_branch_issued := std_logic_vector(unsigned(s_PC) - "000000010000");
+			if (pc_when_branch_issued = branch_address) and (should_write = '0') then
+				should_write := '1';
+			end if;
 
 			-- move to instruction pointed to by branch address
 			s_PC <= branch_address;
 		else
-			-- normal case: move to next instruction			
+			-- normal case: move to next instruction, PC + 4		
 			s_PC <= std_logic_vector(unsigned(s_PC) + "000000000100");
 		end if;
 
-		-- branches seem to have an issue; write to file if PC > 1024
-		if (branch_address >= "1000000000000") then
-			should_write := '1';
-		end if;
 		write_to_files <= should_write;
 	end if;
 end process;

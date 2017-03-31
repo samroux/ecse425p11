@@ -163,7 +163,8 @@ begin
 					should_branch := '1';
 					shifted_imm := std_logic_vector(shift_left(signed(imm_sign_ext), 2));
 					ALUOutput(31 downto 12) <= (others => '0');
-					ALUOutput(11 downto 0)  <= std_logic_vector(unsigned(PC_ID_EX) + unsigned(shifted_imm(11 downto 0)));
+					--ALUOutput(11 downto 0)  <= std_logic_vector(unsigned(PC_ID_EX) + unsigned(shifted_imm(11 downto 0)));
+					ALUOutput(11 downto 0) <= shifted_imm(11 downto 0);
 				else
 					ALUOutput <= (others => '0');
 				end if;
@@ -172,7 +173,8 @@ begin
 					should_branch := '1';
 					shifted_imm := std_logic_vector(shift_left(signed(imm_sign_ext), 2));
 					ALUOutput(31 downto 12) <= (others => '0');
-					ALUOutput(11 downto 0)  <= std_logic_vector(unsigned(PC_ID_EX) + unsigned(shifted_imm(11 downto 0)));
+					--ALUOutput(11 downto 0)  <= std_logic_vector(unsigned(PC_ID_EX) + unsigned(shifted_imm(11 downto 0)));
+					ALUOutput(11 downto 0) <= shifted_imm(11 downto 0);
 				else
 					ALUOutput <= (others => '0');
 				end if;
