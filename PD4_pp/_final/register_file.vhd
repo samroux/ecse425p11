@@ -21,8 +21,8 @@ port (
 	reg_address_B : in std_logic_vector(4 downto 0);
 	reg_write_input : in std_logic_vector(31 downto 0);
 	reg_write_addr : in std_logic_vector(4 downto 0);
-	MemWrite : in std_logic;
-	MemRead : in std_logic;
+	Mem_R_W : in std_logic; -- 0 for read, 1 for write
+	--MemRead : in std_logic;
 	write_to_file : in std_logic;
 
 	reg_output_A : out std_logic_vector(31 downto 0);
@@ -40,30 +40,24 @@ architecture behavior of REGISTER_FILE is
 
 	-- need to ensure that writes are done on rising edge, and
 	-- reads are done on falling edge, to allow for ID/WB overlap
-	process(clock)
+	read_write : process(Mem_R_W)
 	variable addr_int_A : integer;
 	variable addr_int_B : integer;
 	variable addr_int_w : integer;
+
 	begin
 		addr_int_A := to_integer(unsigned(reg_address_A));
 		addr_int_B := to_integer(unsigned(reg_address_B));
 		addr_int_w := to_integer(unsigned(reg_write_addr));
 
-		-- may read an unneeded register
-		if (MemRead = '1') then
+		-- may read an unneeded register; doesn't matter
+		if (Mem_R_W = '0') then
 			reg_output_A <= registers_inst(addr_int_A);	
-			reg_output_B <= registers_inst(addr_int_B); 
-
-		-- only need a single input, other one can be gibberish
-		elsif (MemWrite = '1') then
+			reg_output_B <= registers_inst(addr_int_B);
+		elsif (Mem_R_W = '1') then
 			if (addr_int_w /= 0) then -- $0 hardwired to 0
 				registers_inst(addr_int_w) <= reg_write_input;
 			end if;
-			reg_output_A <= (others => '0');
-			reg_output_B <= (others => '0');
-		else
-			reg_output_A <= (others => '0');
-			reg_output_B <= (others => '0');
 		end if;
 	end process;
 

@@ -38,8 +38,8 @@ architecture behavior of REGISTER_CONTROLLER is
 	signal reg_address_B : std_logic_vector(4 downto 0);
 	signal reg_write_input : std_logic_vector(31 downto 0);
 	signal reg_write_addr : std_logic_vector (4 downto 0);
-	signal MemWrite : std_logic := '0';
-	signal MemRead : std_logic := '0';
+	signal Mem_R_W : std_logic := '0'; -- 0 for read, 1 for write
+	--signal MemRead : std_logic := '0';
 	signal reg_output_A : std_logic_vector(31 downto 0);
 	signal reg_output_B : std_logic_vector(31 downto 0);
 
@@ -50,8 +50,8 @@ architecture behavior of REGISTER_CONTROLLER is
 			reg_address_B : in std_logic_vector(4 downto 0);
 			reg_write_input : in std_logic_vector(31 downto 0);
 			reg_write_addr : in std_logic_vector (4 downto 0);
-			MemWrite : in std_logic;
-			MemRead : in std_logic;
+			Mem_R_W : in std_logic;
+			--MemRead : in std_logic;
 			write_to_file : in std_logic;
 			reg_output_A : out std_logic_vector(31 downto 0);
 			reg_output_B : out std_logic_vector(31 downto 0)
@@ -67,8 +67,8 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_address_B => reg_address_B,
 		reg_write_addr => reg_write_addr,
 		reg_write_input => reg_write_input,
-		MemWrite => MemWrite,
-		MemRead => MemRead,
+		Mem_R_W => Mem_R_W,
+		--MemRead => MemRead,
 		write_to_file => write_to_file,
 		reg_output_A => reg_output_A,
 		reg_output_B => reg_output_B
@@ -76,21 +76,16 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	process(clock)
 
-	variable A_temp : std_logic_vector(31 downto 0);
-	variable B_temp : std_logic_vector(31 downto 0);
 	variable Imm_temp : std_logic_vector(31 downto 0);
 	begin
 
 	-- read in 2nd half of cycle, write in 1st half
 	if falling_edge(clock) then
 		-- Read registers
-		MemRead <= '1';
-		MemWrite <= '0';
+		Mem_R_W <= '0';
 
 		reg_address_A <= IR_IF(25 downto 21);
 		reg_address_B <= IR_IF(20 downto 16);
-		A_temp := reg_output_A;
-		B_temp := reg_output_B;
 
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
@@ -104,8 +99,7 @@ architecture behavior of REGISTER_CONTROLLER is
 	-- It only writes to reg file, which supports read/write in a single cycle.
 	elsif rising_edge(clock) then
 		-- Write to appropriate register
-		MemRead <= '0';
-		MemWrite <= '1';
+		Mem_R_W <= '1';
 		reg_write_addr <= WB_addr;
 		reg_write_input <= WB_return;
 
@@ -113,11 +107,13 @@ architecture behavior of REGISTER_CONTROLLER is
 		PC_ID <= PC_IF;
 		IR_ID <= IR_IF;
 
-		-- output signals found in the last half-cycle -- ensures sync
-		A <= A_temp;
-		B <= B_temp;
+		-- Ensure that Imm is written to on a rising edge
 		Imm <= Imm_temp;
 	end if;
 	end process;
+
+	-- needs to be outside the process block to avoid excess delay
+	A <= reg_output_A;
+	B <= reg_output_B;
 
 end behavior;
