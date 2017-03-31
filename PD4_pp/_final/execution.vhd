@@ -63,8 +63,8 @@ variable should_write : std_logic := '0';
 -- multiplications store results in two variables HI and LO,
 -- accessed by mfhi and mflo. These are implemented here as
 -- variables, and not registers.
-variable HI : std_logic_vector(31 downto 0) := (others => '0');
-variable LO : std_logic_vector(31 downto 0) := (others => '0');
+variable HI : std_logic_vector(31 downto 0);
+variable LO : std_logic_vector(31 downto 0);
 variable mult_result : std_logic_vector(63 downto 0); -- hi (63 downto 32), lo (31 downto 0)
 
 variable inst_type : integer; -- 0=R, 1=I, 2=J
@@ -115,8 +115,8 @@ begin
 			
 			when "011000" => -- mult
 				mult_result := std_logic_vector(unsigned(rs_from_ID) * unsigned(rt_from_ID));
-				LO := mult_result(63 downto 32);
-				HI := mult_result(31 downto 0);
+				LO := mult_result(31 downto 0);
+				HI := mult_result(63 downto 32);
 				ALUOutput <= (others => '0'); -- result accessed through mfhi, mflo
 			
 			when "011010" => -- div
@@ -128,7 +128,7 @@ begin
 				ALUOutput <= HI;
 			when "010010" => -- mflo
 				ALUOutput <= LO;
-			
+
 			when "100000" => -- add
 				ALUOutput <= std_logic_vector(unsigned(rs_from_ID) + unsigned(rt_from_ID));
 			when "100010" => -- sub
