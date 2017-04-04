@@ -17,8 +17,10 @@ ENTITY instruction_memory IS
 	PORT (
 		clock: IN STD_LOGIC;
 		reset: IN STD_LOGIC;
+		get_bubble : in std_logic;
 		address: in std_logic_vector(11 downto 0);
 		instruction: out std_logic_vector(31 downto 0)
+		--is_stalled : out std_logic
 	);
 END instruction_memory;
 
@@ -61,15 +63,20 @@ BEGIN
 			end if;
 	end process read_file;
 
-	process(clock, address)
+	return_IR : process(address, get_bubble)
 		begin
-		--Goal of this process is to output instruction from address
-			if (rising_edge(clock)) then
+		-- Goal of this process is to output instruction from address
+		-- does not need to be edge-triggered, as it is called in an edge-triggered process 
+		--if (rising_edge(clock)) then
+			if (get_bubble = '1') then
+				instruction <= "00000000000000000000000000000000";
+			else
 				instruction(31 downto 24) <= ram_block(to_integer(unsigned(address)));
 				instruction(23 downto 16) <= ram_block(to_integer(unsigned(address)) + 1);
 				instruction(15 downto 8) <= ram_block(to_integer(unsigned(address)) + 2);
 				instruction(7 downto 0) <= ram_block(to_integer(unsigned(address)) + 3);
 			end if;
+		--end if;
 	end process;
 
 END behaviour;

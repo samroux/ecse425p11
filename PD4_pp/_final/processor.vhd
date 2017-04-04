@@ -46,7 +46,7 @@ component if_id_reg
 		
 		NPC_IF: in std_logic_vector(11 downto 0);
 		IR_IF: in std_logic_vector(31 downto 0);
-		
+
 		NPC_ID : out std_logic_vector(11 downto 0);
 		IR_ID : out std_logic_vector(31 downto 0)
 	);
@@ -171,10 +171,8 @@ end component;
 
 -- memory stage --
 signal s_LMD_MEM : std_logic_vector(31 downto 0);
-signal s_PC_MEM : std_logic_vector(11 downto 0);
 signal s_IR_MEM : std_logic_vector(31 downto 0);
 signal s_ALUOutput_MEM : std_logic_vector(31 downto 0);
-signal s_branch_taken_MEM : std_logic;
 
 component data_memory 
 	port (
@@ -189,13 +187,10 @@ component data_memory
 		write_to_file : in std_logic;
 
 		LMD : out std_logic_vector(31 downto 0);
-		PC_out : out std_logic_vector(11 downto 0);
 		IR_out : out std_logic_vector(31 downto 0);
-		ALUOutput_out: out std_logic_vector(31 downto 0);
-		branch_taken_out : out std_logic
+		ALUOutput_out: out std_logic_vector(31 downto 0)
 	);
 end component;
-
 
 -- MEM/WB register --
 signal s_LMD_MEM_WB : std_logic_vector(31 downto 0);
@@ -240,8 +235,8 @@ BEGIN
 			--in
 			clock,
 			reset,
-			s_branch_taken_MEM, --> this comes from MEM stage
-			s_PC_MEM, --> this comes from MEM stage
+			s_branch_taken_EX_MEM, 			--> this comes from EX/MEM reg (not MEM)
+			s_ALUOutput_EX_MEM(11 downto 0),--> this comes from EX/MEM reg (not MEM)
 			--out
 			s_IR_Fetch,
 			s_PC_Fetch,
@@ -325,9 +320,9 @@ BEGIN
 			s_MemRead_EX,
 			s_MemWrite_EX,
 			--out
-			s_branch_taken_EX_MEM,
+			s_branch_taken_EX_MEM,	--> goes back to IF
 			s_PC_EX_MEM,
-			s_ALUOutput_EX_MEM, 	
+			s_ALUOutput_EX_MEM, 	--> goes back to IF	(last 12 bits only)
 			s_B_EX_MEM, 
 			s_IR_EX_MEM,
 			s_MemRead_EX_MEM,
@@ -348,10 +343,8 @@ BEGIN
 			s_write_to_files,
 			--out
 			s_LMD_MEM,
-			s_PC_MEM, --> this goes back to IF
 			s_IR_MEM,
-			s_ALUOutput_MEM,
-			s_branch_taken_MEM --> this goes back to IF
+			s_ALUOutput_MEM
 		);
 		
 	MEM_WB: mem_wb_reg

@@ -29,10 +29,8 @@ port (
 	write_to_file : in std_logic;
 
 	LMD : out std_logic_vector(31 downto 0);
-	PC_out : out std_logic_vector(11 downto 0);
 	IR_out : out std_logic_vector(31 downto 0);
-	ALUOutput_out: out std_logic_vector(31 downto 0);
-	branch_taken_out : out std_logic
+	ALUOutput_out: out std_logic_vector(31 downto 0)
 	);
 end DATA_MEMORY;
 
@@ -50,16 +48,6 @@ architecture behavior of DATA_MEMORY is
 	process(clock)
 	begin
 		if (rising_edge(clock)) then
-			-- branching logic
-			if (branch_taken_in = '1') then
-				-- assume address was correctly calculated by EX
-				-- and has only 12 significant bits
-				PC_out <= ALUOutput(11 downto 0);
-			else
-				PC_out <= PC_in;
-			end if;
-			branch_taken_out <= branch_taken_in;
-
 			-- read/write from memory
 			if (MemWrite = '0') and (MemRead = '1') then
 				-- ALUOutput is a 32-bit vector, so it has a range of 2^32 - 1

@@ -3,7 +3,6 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/clock
     add wave -position end sim:/processor_tb/s_reset
     add wave -position end sim:/processor_tb/dut/EX/branch_taken_EX
-    add wave -position end sim:/processor_tb/dut/MEM/branch_taken_out
     add wave -position end sim:/processor_tb/dut/I_F/branch_taken
     add wave -position end sim:/processor_tb/dut/I_F/branch_address
     add wave -position end sim:/processor_tb/dut/I_F/IR 
@@ -20,7 +19,6 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/dut/EX/PC_ID_EX
     add wave -position end sim:/processor_tb/dut/EX/PC_EX 
     add wave -position end sim:/processor_tb/dut/MEM/PC_in
-    add wave -position end sim:/processor_tb/dut/MEM/PC_out
     add wave -position end sim:/processor_tb/dut/I_D/A 
     add wave -position end sim:/processor_tb/dut/I_D/B 
     add wave -position end sim:/processor_tb/dut/I_D/Imm 

@@ -15,9 +15,11 @@ port (
 	-- to move to next inst. Our memory has size 4096 * 8 bits, which
 	-- means 4096/4 = 1024 instructions.
 	clock : in std_logic;
+
 	NPC_IF: in std_logic_vector(11 downto 0);
-	NPC_ID : out std_logic_vector(11 downto 0);
 	IR_IF: in std_logic_vector(31 downto 0);
+
+	NPC_ID : out std_logic_vector(11 downto 0);
 	IR_ID : out std_logic_vector(31 downto 0)
 	);
 end IF_ID_REG;

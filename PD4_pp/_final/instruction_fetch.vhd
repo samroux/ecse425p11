@@ -3,12 +3,12 @@
 -- @timestamp 2017-03-10 8:55 PM
 -- @brief vhdl entity defining the instruction fetch stage of the pipelined processor
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY instruction_fetch is
-	PORT (
+entity instruction_fetch is
+	port (
 		clock : in std_logic;
 		reset : in std_logic;
 		
@@ -19,61 +19,76 @@ ENTITY instruction_fetch is
 		PC : out std_logic_vector (11 downto 0);	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
 		write_to_files : out std_logic
 	);
-END instruction_fetch;
+end instruction_fetch;
 
-ARCHITECTURE behaviour OF instruction_fetch IS
+architecture behaviour of instruction_fetch is
 
-SIGNAL s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
-SIGNAL s_IR : std_logic_vector (31 downto 0);
+signal s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
+signal s_IR : std_logic_vector (31 downto 0);
+signal get_bubble : std_logic := '0';
 
 component instruction_memory
-  PORT (
-		clock: IN STD_LOGIC;
-		reset : IN STD_LOGIC;
-		address: IN std_logic_vector(11 downto 0);
-		instruction: OUT std_logic_vector(31 downto 0)
+  port (
+		clock: in STD_LOGIC;
+		reset : in STD_LOGIC;
+		get_bubble : in std_logic;
+		address: in std_logic_vector(11 downto 0);
+		instruction: out std_logic_vector(31 downto 0)
+		--is_stalled : out std_logic
 	);
 end component;
 
-BEGIN
+begin
 
 	IM: instruction_memory
 	port map (
 			clock,
 			reset,
+			get_bubble,
 			s_PC,
 			s_IR
+			--is_stalled
 		);
 
 -- performing instruction fetch
 fetch :	process (clock, reset)
 variable should_write : std_logic;
-variable pc_when_branch_issued : std_logic_vector(11 downto 0);
+variable branch_stall : integer := 0;
+
 begin
 	if reset = '1' then
-		-- This should begin to fill Instruction Memory Register
+		-- This should begin to fill Instruction Memory Register -- done only on reset
 		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
 		s_PC <= (others => '0');
 		should_write := '0';
 	elsif (rising_edge(clock)) then
-		-- can fetch instruction on rising edge
-		-- Get instruction from instruction memory
-		-- Here, s_IR should contain instruction
-					
-		-- Check MUX and output
-		if(branch_taken = '1') then
+		-- fetch instruction from instruction memory on rising edge
+		-- Here, s_IR will contain instruction when inst mem is done
+
+		-- if branch, stall for 2 cycles (until branch_taken is known, i.e. after EX)
+		if (s_IR(31 downto 26) = "000100" OR s_IR(31 downto 26) = "000101") then
+			get_bubble <= '1'; -- next inst should be a bubble
+			branch_stall := 1;
+		elsif (0 < branch_stall AND branch_stall <= 1) then
+			get_bubble <= '1'; -- stall for a second bubble
+			branch_stall := branch_stall + 1;
+
+		-- if branch taken, change PC to branch address
+		elsif(branch_taken = '1') then
 			-- check for infinite loop as a trigger to write reg_file and data_mem
 			-- an infinite loop is a taken branch that changes the PC to its own PC
-			-- the current PC will be 4 cycles ahead of when the branch was issued
-			pc_when_branch_issued := std_logic_vector(unsigned(s_PC) - "000000010000");
-			if (pc_when_branch_issued = branch_address) and (should_write = '0') then
+			if (s_PC = branch_address) and (should_write = '0') then
 				should_write := '1';
 			end if;
 
-			-- move to instruction pointed to by branch address
-			s_PC <= branch_address;
+			get_bubble <= '0';
+			branch_stall := 0;
+			s_PC <= branch_address;	
+
+		-- normal case: move to next instruction, PC + 4
 		else
-			-- normal case: move to next instruction, PC + 4		
+			get_bubble <= '0';	
+			branch_stall := 0;
 			s_PC <= std_logic_vector(unsigned(s_PC) + "000000000100");
 		end if;
 

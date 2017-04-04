@@ -89,14 +89,14 @@ begin
 		--instruction_type := opcode_to_instruction_type(op);	--get type of instruction to defin register
 
 		--select register
-		if (rd = "UUUUU") then
-			v_WB_dest_reg := "00000"; 	-- write to $0 (null) as default
+		if (rd = "UUUUU" OR op = "000100" OR op = "000101") then
+			v_WB_dest_reg := "00000"; 	-- write to $0 (null) as default or for branches
 		elsif (op = "000011") then		
 			v_WB_dest_reg := "11111"; 	-- jal writes back PC+8 in $31
 		elsif (op = "000000") then
 			v_WB_dest_reg := rd;		-- rd for ALU reg-reg operations; R-types have opcode = "000000"
 		else
-			v_WB_dest_reg := rt;		-- rt for immediate and load instrcutions	
+			v_WB_dest_reg := rt;		-- rt for immediate and load instructions	
 		end if;
 
 		WB_dest_reg <= v_WB_dest_reg;

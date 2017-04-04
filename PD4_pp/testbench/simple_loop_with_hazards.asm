@@ -21,11 +21,6 @@ loop:   addi $1, $1, 10
 
         bne $2, $3, loop
 
-
-        add $0, $0, $0
-        add $0, $0, $0
-        add $0, $0, $0
-        add $0, $0, $0
-        add $0, $0, $0
+        addi $2, $2, 50 # should be ignored until the loop is done
 
 EoP:    beq $0, $0, EoP
