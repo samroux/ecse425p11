@@ -1,4 +1,4 @@
-# simple loop: test branches without data hazards
+# simple loop with hazards : test branches with data hazards
 
         addi $1, $0, 1  # initial value
         addi $2, $0, 1  # loop counter
