@@ -165,7 +165,7 @@ architecture behavior of REGISTER_CONTROLLER is
 				else
 					hazard_detected := '0';
 				end if;
-			else
+			elsif (inst_type_if_id = 1 ) then
 				--i-type
 				if ( rd_id_ex = rt_if_id ) then
 					hazard_detected := '1';
@@ -184,7 +184,7 @@ architecture behavior of REGISTER_CONTROLLER is
 				else
 					hazard_detected := '0';
 				end if;
-			else
+			elsif (inst_type_if_id = 1 ) then
 				--i-type
 				if ( rt_id_ex = rs_if_id ) then
 					hazard_detected := '1';
