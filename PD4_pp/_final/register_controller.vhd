@@ -45,7 +45,7 @@ architecture behavior of REGISTER_CONTROLLER is
 	signal A_temp : std_logic_vector(31 downto 0);
 	signal B_temp : std_logic_vector(31 downto 0);
 	
-	signal hazard_detected : std_logic := '0';
+	signal s_hazard_detected : std_logic := '0';
 
 	component REGISTER_FILE
 		port (
@@ -93,7 +93,8 @@ architecture behavior of REGISTER_CONTROLLER is
 	variable rs_id_ex : std_logic_vector(4 downto 0);
 	variable rt_id_ex : std_logic_vector(4 downto 0);
 	variable rd_id_ex : std_logic_vector(4 downto 0);
-	variable inst_type_id_ex : integer; -- 0=R, 1=I
+	variable inst_type_id_ex : integer; -- 0=R, 1=I;
+	variable hazard_detected : std_logic;
 	
 	begin
 
@@ -116,12 +117,17 @@ architecture behavior of REGISTER_CONTROLLER is
 	-- WB process runs concurrently but works on a previous instruction.
 	-- It only writes to reg file, which supports read/write in a single cycle.
 	elsif rising_edge(clock) then
-	
-		--hazard detection--
-		opcode_if_id := inst(31 downto 26);
-		opcode_id_ex := inst(31 downto 26);
+		-- Write to appropriate register
+		Mem_R_W <= '1';
+		reg_write_addr <= WB_addr;
+		reg_write_input <= WB_return;
 		
-		-- find the type of operation and allocate necessary variables
+		
+		--hazard detection--
+		opcode_if_id := IR_IF(31 downto 26);
+		opcode_id_ex := IR_ID(31 downto 26);
+		
+		--decoding instruction in if_id
 		if ( opcode_if_id = "000000") then -- R-type
 			inst_type_if_id := 0;
 			rs_if_id := IR_IF(25 downto 21);
@@ -134,6 +140,7 @@ architecture behavior of REGISTER_CONTROLLER is
 			-- use the sign-extended immediate
 		end if;
 		
+		--decoding instruction in id_ex
 		if ( opcode_id_ex = "000000") then -- R-type
 			inst_type_id_ex := 0;
 			rs_id_ex := IR_ID(25 downto 21);
@@ -146,33 +153,70 @@ architecture behavior of REGISTER_CONTROLLER is
 			-- use the sign-extended immediate
 		end if;
 		
-		if (inst_type_if_id = 0) then
-			if (rt_id_ex = rs_if_id) then
-				hazard_detected <= '1';
-			elsif (rt_id_ex = rt_if_id) then
-				hazard_detected <= '1';
+		--check if there's an hazard or not
+		if (inst_type_id_ex = 0) then
+			--r-type
+			if (inst_type_if_id = 0) then
+				--r-type
+				if ( rd_id_ex = rs_if_id ) then
+					hazard_detected := '1';
+				elsif ( rd_id_ex = rt_if_id ) then
+					hazard_detected := '1';
+				else
+					hazard_detected := '0';
+				end if;
+			else
+				--i-type
+				if ( rd_id_ex = rt_if_id ) then
+					hazard_detected := '1';
+				else
+					hazard_detected := '0';
+				end if;
 			end if;
-		elsif (inst_type_if_id = 1) then
-			if (rt_id_ex = rs_if_id) then
-				hazard_detected <= '1';
+		elsif (inst_type_id_ex = 1) then
+			--i-type
+			if (inst_type_if_id = 0) then
+				--r-type
+				if ( rt_id_ex = rs_if_id ) then
+					hazard_detected := '1';
+				elsif ( rt_id_ex = rt_if_id ) then
+					hazard_detected := '1';
+				else
+					hazard_detected := '0';
+				end if;
+			else
+				--i-type
+				if ( rt_id_ex = rs_if_id ) then
+					hazard_detected := '1';
+				else
+					hazard_detected := '0';
+				end if;
 			end if;
 		end if;
-	
-	
-	
-		-- Write to appropriate register
-		Mem_R_W <= '1';
-		reg_write_addr <= WB_addr;
-		reg_write_input <= WB_return;
 
-		-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
-		PC_ID <= PC_IF;
-		IR_ID <= IR_IF;
+		if (hazard_detected) then
+		--push a bubble in pipeline
+			-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
+			PC_ID <= (others => '0');
+			IR_ID <= (others => '0');
+			-- Ensure that read results are returned on a rising edge
+			Imm <= (others => '0');
+			A <= (others => '0');
+			B <= (others => '0');
+			
+		else
+		--normal decode
+			-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
+			PC_ID <= PC_IF;
+			IR_ID <= IR_IF;
 
-		-- Ensure that read results are returned on a rising edge
-		Imm <= Imm_temp;
-		A <= A_temp;
-		B <= B_temp;
+			-- Ensure that read results are returned on a rising edge
+			Imm <= Imm_temp;
+			A <= A_temp;
+			B <= B_temp;
+		end if;
+		
+		s_hazard_detected <= hazard_detected;
 		
 	end if;
 	end process;

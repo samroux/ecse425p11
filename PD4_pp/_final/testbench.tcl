@@ -5,6 +5,7 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/dut/EX/branch_taken_EX
     add wave -position end sim:/processor_tb/dut/I_F/branch_taken
     add wave -position end sim:/processor_tb/dut/I_F/branch_address
+	add wave -position end sim:/processor_tb/dut/I_D/s_hazard_detected
     add wave -position end sim:/processor_tb/dut/I_F/IR 
     add wave -position end sim:/processor_tb/dut/I_D/IR_IF
     add wave -position end sim:/processor_tb/dut/I_D/IR_ID
@@ -50,7 +51,7 @@ vcom instruction_fetch.vhd
 vcom instruction_memory.vhd
 vcom if_id_reg.vhd
 vcom register_file.vhd
-vcom register_controller.vhd
+vcom -2008 register_controller.vhd ; #VHDL 2008 allows reading outputs.
 vcom id_ex_reg.vhd
 vcom execution.vhd
 vcom ex_mem_reg.vhd
