@@ -19,9 +19,9 @@ port (
 												  	-- or the ALU output (mux decided)
 	write_to_file : in std_logic;
 
-	PC_ID : out std_logic_vector (11 downto 0);
-	IR_ID : out std_logic_vector(31 downto 0);
-	A : out std_logic_vector(31 downto 0);
+	PC_ID : out std_logic_vector (11 downto 0);	--program counter
+	IR_ID : out std_logic_vector(31 downto 0);	-- instruction
+	A : out std_logic_vector(31 downto 0);		
 	B : out std_logic_vector(31 downto 0);
 	Imm : out std_logic_vector(31 downto 0)
 	--branch_taken : out std_logic	-- returns 1 if rs == rt and instruction is beq
@@ -44,6 +44,8 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	signal A_temp : std_logic_vector(31 downto 0);
 	signal B_temp : std_logic_vector(31 downto 0);
+	
+	signal hazard_detected : std_logic := '0';
 
 	component REGISTER_FILE
 		port (
@@ -79,6 +81,20 @@ architecture behavior of REGISTER_CONTROLLER is
 	process(clock)
 
 	variable Imm_temp : std_logic_vector(31 downto 0);
+	
+	
+	variable opcode_if_id : std_logic_vector(5 downto 0);
+	variable rs_if_id : std_logic_vector(4 downto 0);
+	variable rt_if_id : std_logic_vector(4 downto 0);
+	variable rd_if_id : std_logic_vector(4 downto 0);
+	variable inst_type_if_id : integer; -- 0=R, 1=I
+	
+	variable opcode_id_ex : std_logic_vector(5 downto 0);
+	variable rs_id_ex : std_logic_vector(4 downto 0);
+	variable rt_id_ex : std_logic_vector(4 downto 0);
+	variable rd_id_ex : std_logic_vector(4 downto 0);
+	variable inst_type_id_ex : integer; -- 0=R, 1=I
+	
 	begin
 
 	-- read in 2nd half of cycle, write in 1st half
@@ -100,6 +116,50 @@ architecture behavior of REGISTER_CONTROLLER is
 	-- WB process runs concurrently but works on a previous instruction.
 	-- It only writes to reg file, which supports read/write in a single cycle.
 	elsif rising_edge(clock) then
+	
+		--hazard detection--
+		opcode_if_id := inst(31 downto 26);
+		opcode_id_ex := inst(31 downto 26);
+		
+		-- find the type of operation and allocate necessary variables
+		if ( opcode_if_id = "000000") then -- R-type
+			inst_type_if_id := 0;
+			rs_if_id := IR_IF(25 downto 21);
+			rt_if_id := IR_IF(20 downto 16);
+			rd_if_id := IR_IF(15 downto 11);
+		else -- I-type
+			inst_type_if_id := 1;
+			rs_if_id := IR_IF(25 downto 21);
+			rt_if_id := IR_IF(20 downto 16);
+			-- use the sign-extended immediate
+		end if;
+		
+		if ( opcode_id_ex = "000000") then -- R-type
+			inst_type_id_ex := 0;
+			rs_id_ex := IR_ID(25 downto 21);
+			rt_id_ex := IR_ID(20 downto 16);
+			rd_id_ex := IR_ID(15 downto 11);
+		else -- I-type
+			inst_type_id_ex := 1;
+			rs_id_ex := IR_ID(25 downto 21);
+			rt_id_ex := IR_ID(20 downto 16);
+			-- use the sign-extended immediate
+		end if;
+		
+		if (inst_type_if_id = 0) then
+			if (rt_id_ex = rs_if_id) then
+				hazard_detected <= '1';
+			elsif (rt_id_ex = rt_if_id) then
+				hazard_detected <= '1';
+			end if;
+		elsif (inst_type_if_id = 1) then
+			if (rt_id_ex = rs_if_id) then
+				hazard_detected <= '1';
+			end if;
+		end if;
+	
+	
+	
 		-- Write to appropriate register
 		Mem_R_W <= '1';
 		reg_write_addr <= WB_addr;
@@ -113,8 +173,10 @@ architecture behavior of REGISTER_CONTROLLER is
 		Imm <= Imm_temp;
 		A <= A_temp;
 		B <= B_temp;
+		
 	end if;
 	end process;
+
 
 	-- needs to be outside the process block to avoid excess delay
 	A_temp <= reg_output_A;

@@ -122,8 +122,8 @@ component execution
   	clock: in std_logic;
    	inst: in std_logic_vector(31 downto 0);
     PC_ID_EX: in std_logic_vector(11 downto 0);
-    rs_from_ID: in std_logic_vector(31 downto 0);
-    rt_from_ID: in std_logic_vector(31 downto 0);
+    rs_from_ID: in std_logic_vector(31 downto 0);	--A
+    rt_from_ID: in std_logic_vector(31 downto 0);	--B
     imm_sign_ext: in std_logic_vector(31 downto 0);
     
     PC_EX: out std_logic_vector(11 downto 0);
