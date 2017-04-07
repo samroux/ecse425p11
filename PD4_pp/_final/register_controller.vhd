@@ -109,9 +109,10 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_write_addr <= WB_addr;
 		reg_write_input <= WB_return;
 
-		if (hazard_detected) then
+		if (hazard_detected = '1') then
 		--push a bubble in pipeline
-			PC_ID <= PC_ID;
+			--PC_ID <= PC_ID;
+			PC_ID <= PC_IF;
 			IR_ID <= (others => '0');
 			-- Ensure that read results are returned on a rising edge
 			Imm <= (others => '0');

@@ -51,7 +51,7 @@ vcom instruction_fetch.vhd
 vcom instruction_memory.vhd
 vcom if_id_reg.vhd
 vcom register_file.vhd
-vcom -2008 register_controller.vhd ; #VHDL 2008 allows reading outputs.
+vcom register_controller.vhd
 vcom hazard_detection.vhd
 vcom id_ex_reg.vhd
 vcom execution.vhd

@@ -1,4 +1,4 @@
--- @filename processor.vhd
+-- @filename hazard_detection.vhd
 -- @author Samuel Roux
 -- @timestamp 2017-04-5 3:33 PM
 -- @brief vhdl entity defining the hazard detection block
