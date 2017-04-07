@@ -53,6 +53,22 @@ component if_id_reg
 end component;
 
 
+-- hazard detection component (hazard_detection.vhd)--
+signal s_hazard_detected : std_logic := '0';
+
+component hazard_detection
+   port (
+		clock : in std_logic;
+		
+		IR_IF_ID : in std_logic_vector(31 downto 0);
+		IR_ID_EX : in std_logic_vector(31 downto 0);
+		
+		hazard_detected : out std_logic
+   );
+end component;
+
+
+
 --instruction decode stage (register_controller.vhd) --
 
 signal s_WB_addr : std_logic_vector(4 downto 0);
@@ -74,6 +90,7 @@ port (
 	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 												  	-- or the ALU output (mux decided)
 	write_to_file : in std_logic;
+	hazard_detected : in std_logic;
 
 	PC_ID : out std_logic_vector (11 downto 0);
 	IR_ID : out std_logic_vector(31 downto 0);
@@ -253,6 +270,16 @@ BEGIN
 			s_PC_IF_ID,
 			s_IR_IF_ID
 		);
+	
+	H_D: hazard_detection
+	port map (
+			--in
+			clock,
+			s_IR_IF_ID,
+			s_IR_ID_EX,
+			--out
+			s_hazard_detected
+		);
 		
 	I_D: register_controller
 	port map (
@@ -263,6 +290,7 @@ BEGIN
 			s_WB_dest_reg,	--> this comes from output of WB
 			s_WB_output,	--> this comes from output of WB
 			s_write_to_files,
+			s_hazard_detected,
 
 			--out
 			s_PC_decode,

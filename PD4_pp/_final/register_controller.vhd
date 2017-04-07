@@ -18,6 +18,7 @@ port (
 	WB_return : in std_logic_vector(31 downto 0); 	-- either a loaded register from memory 
 												  	-- or the ALU output (mux decided)
 	write_to_file : in std_logic;
+	hazard_detected : in std_logic;
 
 	PC_ID : out std_logic_vector (11 downto 0);	--program counter
 	IR_ID : out std_logic_vector(31 downto 0);	-- instruction
@@ -26,7 +27,7 @@ port (
 	Imm : out std_logic_vector(31 downto 0)
 	--branch_taken : out std_logic	-- returns 1 if rs == rt and instruction is beq
 								-- or if rs /= rt and instruction is bne.
-								-- to be used in EX stage 
+								-- to be used in EX stage
 								
 	);
 end REGISTER_CONTROLLER;
@@ -82,20 +83,6 @@ architecture behavior of REGISTER_CONTROLLER is
 
 	variable Imm_temp : std_logic_vector(31 downto 0);
 	
-	
-	variable opcode_if_id : std_logic_vector(5 downto 0);
-	variable rs_if_id : std_logic_vector(4 downto 0);
-	variable rt_if_id : std_logic_vector(4 downto 0);
-	variable rd_if_id : std_logic_vector(4 downto 0);
-	variable inst_type_if_id : integer; -- 0=R, 1=I
-	
-	variable opcode_id_ex : std_logic_vector(5 downto 0);
-	variable rs_id_ex : std_logic_vector(4 downto 0);
-	variable rt_id_ex : std_logic_vector(4 downto 0);
-	variable rd_id_ex : std_logic_vector(4 downto 0);
-	variable inst_type_id_ex : integer; -- 0=R, 1=I;
-	variable hazard_detected : std_logic;
-	
 	begin
 
 	-- read in 2nd half of cycle, write in 1st half
@@ -121,83 +108,10 @@ architecture behavior of REGISTER_CONTROLLER is
 		Mem_R_W <= '1';
 		reg_write_addr <= WB_addr;
 		reg_write_input <= WB_return;
-		
-		
-		--hazard detection--
-		opcode_if_id := IR_IF(31 downto 26);
-		opcode_id_ex := IR_ID(31 downto 26);
-		
-		--decoding instruction in if_id
-		if ( opcode_if_id = "000000") then -- R-type
-			inst_type_if_id := 0;
-			rs_if_id := IR_IF(25 downto 21);
-			rt_if_id := IR_IF(20 downto 16);
-			rd_if_id := IR_IF(15 downto 11);
-		else -- I-type
-			inst_type_if_id := 1;
-			rs_if_id := IR_IF(25 downto 21);
-			rt_if_id := IR_IF(20 downto 16);
-			-- use the sign-extended immediate
-		end if;
-		
-		--decoding instruction in id_ex
-		if ( opcode_id_ex = "000000") then -- R-type
-			inst_type_id_ex := 0;
-			rs_id_ex := IR_ID(25 downto 21);
-			rt_id_ex := IR_ID(20 downto 16);
-			rd_id_ex := IR_ID(15 downto 11);
-		else -- I-type
-			inst_type_id_ex := 1;
-			rs_id_ex := IR_ID(25 downto 21);
-			rt_id_ex := IR_ID(20 downto 16);
-			-- use the sign-extended immediate
-		end if;
-		
-		--check if there's an hazard or not
-		if (inst_type_id_ex = 0) then
-			--r-type
-			if (inst_type_if_id = 0) then
-				--r-type
-				if ( rd_id_ex = rs_if_id ) then
-					hazard_detected := '1';
-				elsif ( rd_id_ex = rt_if_id ) then
-					hazard_detected := '1';
-				else
-					hazard_detected := '0';
-				end if;
-			elsif (inst_type_if_id = 1 ) then
-				--i-type
-				if ( rd_id_ex = rt_if_id ) then
-					hazard_detected := '1';
-				else
-					hazard_detected := '0';
-				end if;
-			end if;
-		elsif (inst_type_id_ex = 1) then
-			--i-type
-			if (inst_type_if_id = 0) then
-				--r-type
-				if ( rt_id_ex = rs_if_id ) then
-					hazard_detected := '1';
-				elsif ( rt_id_ex = rt_if_id ) then
-					hazard_detected := '1';
-				else
-					hazard_detected := '0';
-				end if;
-			elsif (inst_type_if_id = 1 ) then
-				--i-type
-				if ( rt_id_ex = rs_if_id ) then
-					hazard_detected := '1';
-				else
-					hazard_detected := '0';
-				end if;
-			end if;
-		end if;
 
 		if (hazard_detected) then
 		--push a bubble in pipeline
-			-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
-			PC_ID <= PC_IF;
+			PC_ID <= PC_ID;
 			IR_ID <= (others => '0');
 			-- Ensure that read results are returned on a rising edge
 			Imm <= (others => '0');
