@@ -54,16 +54,37 @@ end component;
 
 
 -- hazard detection component (hazard_detection.vhd)--
-signal s_hazard_detected : std_logic := '0';
+signal s_hazard_detected_HDF : std_logic := '0';
+signal s_fwd_required_HDF : std_logic := '0';
+signal s_fwd_top_HDF : std_logic := '0';
+signal s_fwd_bottom_HDF : std_logic := '0';
+signal s_fwd_aluoutput_ex_mem_HDF : std_logic := '0';
+signal s_fwd_aluoutput_mem_wb_HDF : std_logic := '0';
+signal s_fwd_lmd_mem_wb_HDF : std_logic := '0';
 
-component hazard_detection
+component hazard_detection_fwd
    port (
 		clock : in std_logic;
 		
+		--Required for hazard detection only 
 		IR_IF_ID : in std_logic_vector(31 downto 0);
+		
+		--required for hazard detection and fwd
 		IR_ID_EX : in std_logic_vector(31 downto 0);
 		
-		hazard_detected : out std_logic
+		--required for forwarding only
+		IR_EX_MEM : in std_logic_vector(31 downto 0);
+		IR_MEM_WB : in std_logic_vector(31 downto 0);
+		
+		HAZARD_DETECTED : out std_logic;
+		FWD_REQUIRED : out std_logic;
+	
+		FWD_TOP : out std_logic;
+		FWD_BOTTOM : out std_logic;
+		
+		FWD_ALUOUTPUT_EX_MEM : out std_logic;
+		FWD_ALUOUTPUT_MEM_WB : out std_logic;
+		FWD_LMD_MEM_WB : out std_logic
    );
 end component;
 
@@ -135,22 +156,35 @@ signal s_MemRead_EX : std_logic;
 signal s_MemWrite_EX : std_logic;
 
 component execution
-  port(
-  	clock: in std_logic;
-   	inst: in std_logic_vector(31 downto 0);
-    PC_ID_EX: in std_logic_vector(11 downto 0);
-    rs_from_ID: in std_logic_vector(31 downto 0);	--A
-    rt_from_ID: in std_logic_vector(31 downto 0);	--B
-    imm_sign_ext: in std_logic_vector(31 downto 0);
-    
-    PC_EX: out std_logic_vector(11 downto 0);
-    ALUOutput: out std_logic_vector(31 downto 0) := (others => '0');
-    MemRead : out std_logic;
-    MemWrite : out std_logic;
-    branch_taken_EX : out std_logic;
-    B_EX : out std_logic_vector(31 downto 0);
-    IR_EX : out std_logic_vector(31 downto 0)
-  );
+	port(
+		clock: in std_logic;
+		inst: in std_logic_vector(31 downto 0);
+		PC_ID_EX: in std_logic_vector(11 downto 0);
+		rs_from_ID: in std_logic_vector(31 downto 0);
+		rt_from_ID: in std_logic_vector(31 downto 0);
+		imm_sign_ext: in std_logic_vector(31 downto 0);
+		
+		--Required for fwd
+		ALUOutput_EX_MEM: in std_logic_vector(31 downto 0);
+		ALUOutput_MEM_WB: in std_logic_vector(31 downto 0);
+		LMD_MEM_WB : in std_logic_vector(31 downto 0);
+		
+		FWD_REQUIRED : in std_logic;
+		FWD_TOP : in std_logic;
+		FWD_BOTTOM : in std_logic;
+		
+		FWD_ALUOUTPUT_EX_MEM : in std_logic;
+		FWD_ALUOUTPUT_MEM_WB : in std_logic;
+		FWD_LMD_MEM_WB : in std_logic;
+		
+		PC_EX: out std_logic_vector(11 downto 0);
+		ALUOutput: out std_logic_vector(31 downto 0) := (others => '0');
+		MemRead : out std_logic;
+		MemWrite : out std_logic;
+		branch_taken_EX : out std_logic;
+		B_EX : out std_logic_vector(31 downto 0);
+		IR_EX : out std_logic_vector(31 downto 0)
+	  );
 end component;
 
 -- EX/MEM register --
@@ -271,14 +305,22 @@ BEGIN
 			s_IR_IF_ID
 		);
 	
-	H_D: hazard_detection
+	H_D_F: hazard_detection_fwd
 	port map (
 			--in
 			clock,
 			s_IR_IF_ID,
 			s_IR_ID_EX,
+			s_IR_EX_MEM,
+			s_IR_MEM_WB,
 			--out
-			s_hazard_detected
+			s_hazard_detected_HDF,
+			s_fwd_required_HDF,
+			s_fwd_top_HDF,
+			s_fwd_bottom_HDF,
+			s_fwd_aluoutput_ex_mem_HDF,
+			s_fwd_aluoutput_mem_wb_HDF,
+			s_fwd_lmd_mem_wb_HDF
 		);
 		
 	I_D: register_controller
@@ -290,7 +332,7 @@ BEGIN
 			s_WB_dest_reg,	--> this comes from output of WB
 			s_WB_output,	--> this comes from output of WB
 			s_write_to_files,
-			s_hazard_detected,
+			s_hazard_detected_HDF,
 
 			--out
 			s_PC_decode,
@@ -326,6 +368,17 @@ BEGIN
 			s_A_ID_EX,
 			s_B_ID_EX,
 			s_IMM_ID_EX,
+			
+			s_ALUOutput_EX_MEM,
+			s_ALUOutput_MEM_WB,
+			s_LMD_MEM_WB,
+			
+			s_fwd_required_HDF,
+			s_fwd_top_HDF,
+			s_fwd_bottom_HDF,
+			s_fwd_aluoutput_ex_mem_HDF,
+			s_fwd_aluoutput_mem_wb_HDF,
+			s_fwd_lmd_mem_wb_HDF,
 			--out
 			s_PC_EX,
 			s_ALUOutput_EX,

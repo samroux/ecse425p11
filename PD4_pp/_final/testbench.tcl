@@ -52,7 +52,7 @@ vcom instruction_memory.vhd
 vcom if_id_reg.vhd
 vcom register_file.vhd
 vcom register_controller.vhd
-vcom hazard_detection.vhd
+vcom hazard_detection_fwd.vhd
 vcom id_ex_reg.vhd
 vcom execution.vhd
 vcom ex_mem_reg.vhd
