@@ -11,6 +11,7 @@ entity REGISTER_CONTROLLER is
 
 port (
 	clock : in std_logic;
+	reset : in std_logic;
 
 	PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
@@ -109,7 +110,7 @@ architecture behavior of REGISTER_CONTROLLER is
 		reg_write_addr <= WB_addr;
 		reg_write_input <= WB_return;
 
-		if (hazard_detected = '1') then
+		if (hazard_detected = '1' or reset = '1') then
 		--push a bubble in pipeline
 			--PC_ID <= PC_ID;
 			--PC_ID <= PC_IF;

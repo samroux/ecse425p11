@@ -105,6 +105,7 @@ signal s_PC_decode : std_logic_vector(11 downto 0);
 component register_controller
 port (
 	clock : in std_logic;
+	reset : in std_logic;
 
 	PC_IF : in std_logic_vector (11 downto 0);
 	IR_IF : in std_logic_vector(31 downto 0);
@@ -329,6 +330,7 @@ BEGIN
 	port map (
 			--in
 			clock,
+			reset,
 			s_PC_IF_ID,
 			s_IR_IF_ID,
 			s_WB_dest_reg,	--> this comes from output of WB

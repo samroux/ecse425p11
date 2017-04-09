@@ -65,7 +65,7 @@ begin
 	elsif (rising_edge(clock)) then
 		-- fetch instruction from instruction memory on rising edge
 		-- Here, s_IR will contain instruction when inst mem is done
-		if ( hazard_detected = '1' ) then
+		if ( hazard_detected = '1') then
 			--get_bubble <= '1'; -- next inst should be a bubble
 			branch_stall := 0;
 			s_PC <= s_PC;

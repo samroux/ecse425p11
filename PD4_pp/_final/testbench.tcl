@@ -74,4 +74,4 @@ force -deposit clock 0 0 ns, 1 1 ns -repeat 1 ns
 AddWaves
 
 ;# Run for 100 ns
-run 50ns
+run 100ns
