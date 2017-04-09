@@ -70,8 +70,8 @@ architecture behaviour of processor_tb is
 	generate_test : process
 		
 	begin
-		--s_reset <= '0'; 
-        --wait for clock_period;
+		s_reset <= '0'; 
+        wait for clock_period;
         
         s_reset <= '1';     
         wait for clock_period;
