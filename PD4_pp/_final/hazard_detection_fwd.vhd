@@ -96,6 +96,8 @@ begin
 	variable v_fwd_bottom : std_logic;
 	
 	begin
+		--Detection at falling edge allows to trigger what to do at next clock
+		--Determine ahead of time what to do.
 		if falling_edge (clock) then
 			--hazard detection--
 			opcode_if_id := IR_IF_ID (31 downto 26);
@@ -162,7 +164,8 @@ begin
 		------------------------------------------------
 		------------	  HAZARD DETECT     ------------
 		------------------------------------------------
-		
+			v_hazard_detected := '0';
+			
 			--check if there's an hazard or not
 			if (inst_type_id_ex = 0) then
 				--r-type
@@ -212,13 +215,69 @@ begin
 				end if;
 			end if;
 			
+			--Data hazard with MEM-WB
+			if (inst_type_mem_wb = 0) then
+				--r-type
+				if (inst_type_if_id = 0) then
+					--r-type
+					if (rd_mem_wb = "00000" or rd_mem_wb = "UUUUU") then
+						v_hazard_detected := '0';
+					elsif ( rd_mem_wb = rs_if_id ) then
+						v_hazard_detected := '1';
+					elsif ( rd_mem_wb = rt_if_id ) then
+						v_hazard_detected := '1';
+					else
+						v_hazard_detected := '0';
+					end if;
+				elsif (inst_type_if_id = 1 ) then
+					--i-type
+					if (rd_mem_wb = "00000" or rd_mem_wb = "UUUUU") then
+						v_hazard_detected := '0';
+					elsif ( rd_mem_wb = rt_if_id ) then
+						v_hazard_detected := '1';
+					else
+						v_hazard_detected := '0';
+					end if;
+				end if;
+			elsif (inst_type_mem_wb = 1) then
+				--i-type
+				if (inst_type_if_id = 0) then
+					--r-type
+					if (rt_mem_wb = "00000" or rt_mem_wb = "UUUUU") then
+						v_hazard_detected := '0';
+					elsif ( rt_mem_wb = rs_if_id ) then
+						v_hazard_detected := '1';
+					elsif ( rt_mem_wb = rt_if_id ) then
+						v_hazard_detected := '1';
+					else
+						v_hazard_detected := '0';
+					end if;
+				elsif (inst_type_if_id = 1 ) then
+					--i-type
+					if (rt_mem_wb = "00000" or rt_mem_wb = "UUUUU") then
+						v_hazard_detected := '0';
+					elsif ( rt_mem_wb = rs_if_id ) then
+						v_hazard_detected := '1';
+					else
+						v_hazard_detected := '0';
+					end if;
+				end if;
+			end if;
+			
 			hazard_detected <= v_hazard_detected;
 
 			
 		------------------------------------------------
 		------------		FORWARDING		------------
 		------------------------------------------------
-		
+			--re-initialize to make sure not keeping old state
+			v_fwd_top := '0';
+			v_fwd_bottom := '0';
+			v_fwd_required := '0';
+			v_fwd_aluoutput_ex_mem := '0';
+			v_fwd_aluoutput_mem_wb := '0';
+			v_fwd_lmd_mem_wb := '0';
+			
 			--check if forwarding is required or not
 			if (inst_type_id_ex = 0) then
 				--r-type
