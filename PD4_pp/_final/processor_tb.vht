@@ -74,7 +74,7 @@ architecture behaviour of processor_tb is
         --wait for clock_period;
         
         s_reset <= '1';     
-        wait for clock_period/2;
+        wait for clock_period;
         
         s_reset <= '0';    
         wait for clock_period;

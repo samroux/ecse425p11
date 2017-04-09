@@ -5,6 +5,7 @@ proc AddWaves {} {
     add wave -position end sim:/processor_tb/dut/EX/branch_taken_EX
     add wave -position end sim:/processor_tb/dut/I_F/branch_taken
     add wave -position end sim:/processor_tb/dut/I_F/branch_address
+	add wave -position end sim:/processor_tb/dut/H_D_F/FWD_REQUIRED
 	add wave -position end sim:/processor_tb/dut/I_D/hazard_detected
     add wave -position end sim:/processor_tb/dut/I_F/IR 
     add wave -position end sim:/processor_tb/dut/I_D/IR_IF
