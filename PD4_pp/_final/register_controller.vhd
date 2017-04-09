@@ -38,8 +38,8 @@ architecture behavior of REGISTER_CONTROLLER is
 	-- register file signals
 	signal reg_address_A : std_logic_vector(4 downto 0);
 	signal reg_address_B : std_logic_vector(4 downto 0);
-	signal reg_write_input : std_logic_vector(31 downto 0);
-	signal reg_write_addr : std_logic_vector (4 downto 0);
+	--signal reg_write_input : std_logic_vector(31 downto 0);
+	--signal reg_write_addr : std_logic_vector (4 downto 0);
 	signal Mem_R_W : std_logic := '0'; -- 0 for read, 1 for write
 	signal reg_output_A : std_logic_vector(31 downto 0);
 	signal reg_output_B : std_logic_vector(31 downto 0);
@@ -71,8 +71,11 @@ architecture behavior of REGISTER_CONTROLLER is
 		clock => clock,
 		reg_address_A => reg_address_A,
 		reg_address_B => reg_address_B,
-		reg_write_addr => reg_write_addr,
-		reg_write_input => reg_write_input,
+		--reg_write_addr => reg_write_addr,
+		--reg_write_input => reg_write_input,
+		reg_write_addr => WB_addr,
+		reg_write_input => WB_return,
+
 		Mem_R_W => Mem_R_W,
 		--MemRead => MemRead,
 		write_to_file => write_to_file,
@@ -107,13 +110,17 @@ architecture behavior of REGISTER_CONTROLLER is
 	elsif rising_edge(clock) then
 		-- Write to appropriate register
 		Mem_R_W <= '1';
-		reg_write_addr <= WB_addr;
-		reg_write_input <= WB_return;
+		
+		--reg_write_addr <= WB_addr;
+		--reg_write_input <= WB_return;
+		
+		reg_address_A <= "00000";
+		reg_address_B <= "00000";
 
 		if (hazard_detected = '1' or reset = '1') then
 		--push a bubble in pipeline
 			--PC_ID <= PC_ID;
-			--PC_ID <= PC_IF;
+			PC_ID <= PC_IF;
 			IR_ID <= (others => '0');
 			-- Ensure that read results are returned on a rising edge
 			Imm <= (others => '0');
