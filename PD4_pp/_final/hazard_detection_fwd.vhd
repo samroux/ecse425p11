@@ -96,7 +96,7 @@ begin
 	variable v_fwd_bottom : std_logic;
 	
 	begin
-		if rising_edge (clock) then
+		if falling_edge (clock) then
 			--hazard detection--
 			opcode_if_id := IR_IF_ID (31 downto 26);
 			opcode_id_ex := IR_ID_EX (31 downto 26);

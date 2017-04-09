@@ -14,6 +14,7 @@ entity instruction_fetch is
 		
 		branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
 		branch_address : in std_logic_vector (11 downto 0);
+		hazard_detected : in std_logic;
 
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
 		PC : out std_logic_vector (11 downto 0);	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
@@ -54,7 +55,7 @@ begin
 fetch :	process (clock, reset)
 variable should_write : std_logic;
 variable branch_stall : integer := 0;
-
+variable self_loop_counter : integer := 0;
 begin
 	if reset = '1' then
 		-- This should begin to fill Instruction Memory Register -- done only on reset
@@ -64,9 +65,14 @@ begin
 	elsif (rising_edge(clock)) then
 		-- fetch instruction from instruction memory on rising edge
 		-- Here, s_IR will contain instruction when inst mem is done
-
+		if ( hazard_detected = '1' ) then
+			--get_bubble <= '1'; -- next inst should be a bubble
+			branch_stall := 0;
+			s_PC <= s_PC;
+		
 		-- if branch, stall for 2 cycles (until branch_taken is known, i.e. after EX)
-		if (s_IR(31 downto 26) = "000100" OR s_IR(31 downto 26) = "000101") then
+		elsif (s_IR(31 downto 26) = "000100" OR s_IR(31 downto 26) = "000101") then
+	
 			get_bubble <= '1'; -- next inst should be a bubble
 			branch_stall := 1;
 		elsif (0 < branch_stall AND branch_stall <= 1) then
@@ -78,7 +84,10 @@ begin
 			-- check for infinite loop as a trigger to write reg_file and data_mem
 			-- an infinite loop is a taken branch that changes the PC to its own PC
 			if (s_PC = branch_address) and (should_write = '0') then
-				should_write := '1';
+				self_loop_counter := self_loop_counter + 1;
+				if ( self_loop_counter >= 2)then
+					should_write := '1';
+				end if;
 			end if;
 
 			get_bubble <= '0';

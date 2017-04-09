@@ -112,13 +112,12 @@ architecture behavior of REGISTER_CONTROLLER is
 		if (hazard_detected = '1') then
 		--push a bubble in pipeline
 			--PC_ID <= PC_ID;
-			PC_ID <= PC_IF;
+			--PC_ID <= PC_IF;
 			IR_ID <= (others => '0');
 			-- Ensure that read results are returned on a rising edge
 			Imm <= (others => '0');
 			A <= (others => '0');
 			B <= (others => '0');
-			
 		else
 		--normal decode
 			-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle

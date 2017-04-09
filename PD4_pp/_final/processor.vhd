@@ -28,6 +28,7 @@ component instruction_fetch
 		
 		branch_taken : in std_logic;		-- will be set to 1 when Branch is Taken
 		branch_address : in std_logic_vector (11 downto 0);	-- address to jump to when Branch is Taken
+		hazard_detected : in std_logic;
 		
 		IR : out std_logic_vector (31 downto 0);	-- Instruction Read -> Size of 32 bits defined by compiler 
 		PC : out std_logic_vector (11 downto 0);	-- Program Counter -> Assuming instruction memory of size 4096 (128 instructions of 32 bits)
@@ -288,6 +289,7 @@ BEGIN
 			reset,
 			s_branch_taken_EX_MEM, 			--> this comes from EX/MEM reg (not MEM)
 			s_ALUOutput_EX_MEM(11 downto 0),--> this comes from EX/MEM reg (not MEM)
+			s_hazard_detected_HDF,
 			--out
 			s_IR_Fetch,
 			s_PC_Fetch,
