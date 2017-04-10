@@ -48,19 +48,6 @@ begin
 	end if;
 end is_load_instruction;
 
-signal type_if_id : integer;
-signal type_id_ex : integer;
-
-signal s_if_id : std_logic_vector(4 downto 0);
-signal t_if_id : std_logic_vector(4 downto 0);
-signal d_if_id : std_logic_vector(4 downto 0);
-
-signal s_id_ex : std_logic_vector(4 downto 0);
-signal t_id_ex : std_logic_vector(4 downto 0);
-signal d_id_ex : std_logic_vector(4 downto 0);
-
-signal flag : std_logic;
-
 begin
 
 
@@ -178,21 +165,7 @@ begin
 		------------	  HAZARD DETECT     ------------
 		------------------------------------------------
 			v_hazard_detected := '0';
-			
-			type_id_ex <= inst_type_id_ex;
-			type_if_id <= inst_type_if_id;
-			
-			s_id_ex <= rs_id_ex;
-			t_id_ex <= rt_id_ex;
-			d_id_ex <= rd_id_ex;
-			
-			s_if_id <= rs_if_id;
-			t_if_id <= rt_if_id;
-			d_if_id <= rd_if_id;
-			flag <= '0';
-			
-			
-			
+						
 			--check if there's an hazard between IF-ID & ID-EX
 			if (inst_type_id_ex = 0) then
 				--r-type
@@ -205,7 +178,6 @@ begin
 					elsif ( rd_id_ex = rt_if_id ) then
 						v_hazard_detected := '1';
 					else
-						flag<='1';
 						v_hazard_detected := '0';
 					end if;
 				elsif (inst_type_if_id = 1 ) then
