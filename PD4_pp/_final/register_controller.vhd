@@ -36,8 +36,8 @@ architecture behavior of REGISTER_CONTROLLER is
 	-- register file signals
 	signal reg_address_A : std_logic_vector(4 downto 0);
 	signal reg_address_B : std_logic_vector(4 downto 0);
-	signal reg_write_input : std_logic_vector(31 downto 0);
-	signal reg_write_addr : std_logic_vector (4 downto 0);
+	--signal reg_write_input : std_logic_vector(31 downto 0);
+	--signal reg_write_addr : std_logic_vector (4 downto 0);
 	signal Mem_R_W : std_logic := '0'; -- 0 for read, 1 for write
 	signal reg_output_A : std_logic_vector(31 downto 0);
 	signal reg_output_B : std_logic_vector(31 downto 0);
@@ -67,8 +67,10 @@ architecture behavior of REGISTER_CONTROLLER is
 		clock => clock,
 		reg_address_A => reg_address_A,
 		reg_address_B => reg_address_B,
-		reg_write_addr => reg_write_addr,
-		reg_write_input => reg_write_input,
+		--reg_write_addr => reg_write_addr,
+		--reg_write_input => reg_write_input,
+		reg_write_addr => WB_addr,
+		reg_write_input => WB_return,
 		Mem_R_W => Mem_R_W,
 		--MemRead => MemRead,
 		write_to_file => write_to_file,
@@ -81,8 +83,29 @@ architecture behavior of REGISTER_CONTROLLER is
 	variable Imm_temp : std_logic_vector(31 downto 0);
 	begin
 
-	-- read in 2nd half of cycle, write in 1st half
-	if falling_edge(clock) then
+	-- write on 1st half
+	-- WB process runs concurrently but works on a previous instruction.
+	-- It only writes to reg file, which supports read/write in a single cycle.
+	if rising_edge(clock) then
+		-- Write to appropriate register
+		Mem_R_W <= '1';
+		--reg_write_addr <= WB_addr;
+		--reg_write_input <= WB_return;
+
+		reg_address_A <= "00000";
+		reg_address_B <= "00000";
+
+		-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
+		PC_ID <= PC_IF;
+		IR_ID <= IR_IF;
+
+		-- Ensure that read results are returned on a rising edge
+		Imm <= Imm_temp;
+		A <= A_temp;
+		B <= B_temp;
+
+	-- read in 2nd half of cycle
+	elsif falling_edge(clock) then
 		-- Read registers
 		Mem_R_W <= '0';
 
@@ -96,23 +119,6 @@ architecture behavior of REGISTER_CONTROLLER is
 		else
 			Imm_temp := std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
 		end if;
-
-	-- WB process runs concurrently but works on a previous instruction.
-	-- It only writes to reg file, which supports read/write in a single cycle.
-	elsif rising_edge(clock) then
-		-- Write to appropriate register
-		Mem_R_W <= '1';
-		reg_write_addr <= WB_addr;
-		reg_write_input <= WB_return;
-
-		-- Move PC_IF to PC_ID and IR_IF to IR_ID after a cycle
-		PC_ID <= PC_IF;
-		IR_ID <= IR_IF;
-
-		-- Ensure that read results are returned on a rising edge
-		Imm <= Imm_temp;
-		A <= A_temp;
-		B <= B_temp;
 	end if;
 	end process;
 

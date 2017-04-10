@@ -23,7 +23,7 @@ end instruction_fetch;
 
 architecture behaviour of instruction_fetch is
 
-signal s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
+signal s_PC: std_logic_vector (11 downto 0);
 signal s_IR : std_logic_vector (31 downto 0);
 signal get_bubble : std_logic := '0';
 
@@ -54,12 +54,14 @@ begin
 fetch :	process (clock, reset)
 variable should_write : std_logic;
 variable branch_stall : integer := 0;
+variable start_reading : std_logic := '0';
 
 begin
 	if reset = '1' then
 		-- This should begin to fill Instruction Memory Register -- done only on reset
 		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
-		s_PC <= (others => '0');
+		start_reading := '0';
+		--s_PC <= (others => '0');
 		should_write := '0';
 	elsif (rising_edge(clock)) then
 		-- fetch instruction from instruction memory on rising edge
@@ -84,6 +86,11 @@ begin
 			get_bubble <= '0';
 			branch_stall := 0;
 			s_PC <= branch_address;	
+		
+		-- inst file read; start PC at 0 and get first inst
+		elsif (start_reading = '0') then
+			start_reading := '1';
+			s_PC <= (others => '0');
 
 		-- normal case: move to next instruction, PC + 4
 		else
