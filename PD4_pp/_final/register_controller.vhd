@@ -58,8 +58,8 @@ architecture behavior of REGISTER_CONTROLLER is
 			reg_write_input : in std_logic_vector(31 downto 0);
 			reg_write_addr : in std_logic_vector (4 downto 0);
 			Mem_R_W : in std_logic;
-			--MemRead : in std_logic;
 			write_to_file : in std_logic;
+			
 			reg_output_A : out std_logic_vector(31 downto 0);
 			reg_output_B : out std_logic_vector(31 downto 0)
 		);
@@ -72,8 +72,6 @@ architecture behavior of REGISTER_CONTROLLER is
 		clock => clock,
 		reg_address_A => reg_address_A,
 		reg_address_B => reg_address_B,
-		--reg_write_addr => reg_write_addr,
-		--reg_write_input => reg_write_input,
 		reg_write_addr => WB_addr,
 		reg_write_input => WB_return,
 
@@ -115,9 +113,6 @@ architecture behavior of REGISTER_CONTROLLER is
 	elsif rising_edge(clock) then
 		-- Write to appropriate register
 		Mem_R_W <= '1';
-		
-		--reg_write_addr <= WB_addr;
-		--reg_write_input <= WB_return;
 		
 		reg_address_A <= "00000";
 		reg_address_B <= "00000";
