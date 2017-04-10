@@ -1,0 +1,106 @@
+\documentclass[12pt]{IEEEtran} 
+\usepackage[top=0.7in, bottom=0.7in, left=0.7in, right=0.7in]{geometry}  
+
+\usepackage[bookmarks, colorlinks, breaklinks, 
+    pdftitle={ECSE425p11 Report},
+    pdfauthor={Yijie Zhou},
+    pdfsubject={Implemetation of optimized pipelined processor},
+    pdfcreator={TeXwork},
+    pdfdisplaydoctitle={true}]
+    {hyperref}
+\usepackage{pdflscape} 
+\usepackage{epstopdf} 
+\usepackage{listings} 
+\usepackage{pdfpages} 
+\usepackage{graphicx} 
+\usepackage[section]{placeins}
+
+\lstset{
+  language=[x86masm]Assembler,
+  basicstyle=\small,
+  breaklines=true
+  }
+
+\title{Implemetation of optimized pipelined processor}
+
+\date{\today}
+\author{Yijie Zhou, William Bouchard, Samuel Roux, Po-shiang Wang}
+
+\begin{document}
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\end{@twocolumnfalse}
+\begin{abstract}
+	abstract to do
+\end{abstract}
+\bigskip]
+
+\section{Overview} 
+\label{sec:overview}
+
+overview
+
+\section{Design} 
+\label{sec:design}
+
+\subsection{IF Stage} 
+\label{sub:fetch_stage}
+
+instruction fetch stage\\
+to do
+
+\subsection{ID Stage} 
+\label{sub:decode_stage}
+
+instruction decode stage\\
+to do
+
+\subsection{Execute Stage} 
+\label{sub:execute_stage}
+execution stage\\
+to do
+
+\subsection{Memory stage and WB} 
+\label{sub:memory_and_write_back}
+memory stage and write back\\
+to do
+
+\subsection{registers}
+\label{sub:stage_interconnection}
+to do\\
+registers
+
+\subsection{Hazard Detection}
+\label{sub:hazard_detection}
+
+hazard detection\\
+to do
+
+\subsection{Forwarding} 
+\label{sub:forwarding}
+Forwarding\\
+to do
+
+\section{Optimization} 
+\label{sec:optimization}
+optimization
+
+\subsection{One Bit Predictor} 
+\label{sec:1_bit_predictor}
+
+
+\subsection{Two Bit Predictor} 
+\label{sub:2_bit_predictor}
+
+
+\subsection{Comparison} 
+\label{sub:comparison}
+
+
+\section{Conclusion \& Discussion}
+
+
+
+
+\end{document}
