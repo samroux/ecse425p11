@@ -48,6 +48,7 @@ architecture behavior of REGISTER_CONTROLLER is
 	signal B_temp : std_logic_vector(31 downto 0);
 	
 	signal s_hazard_detected : std_logic := '0';
+	signal signed_imm : signed (15 downto 0);
 
 	component REGISTER_FILE
 		port (
@@ -86,6 +87,10 @@ architecture behavior of REGISTER_CONTROLLER is
 	process(clock)
 
 	variable Imm_temp : std_logic_vector(31 downto 0);
+	variable Imm_temp_16 : std_logic_vector(15 downto 0);
+	variable Imm_temp_15 : std_logic_vector(14 downto 0);
+	variable zero_16 : std_logic_vector (15 downto 0) := (others => '0');
+	variable sign : integer;
 	
 	begin
 
@@ -100,9 +105,9 @@ architecture behavior of REGISTER_CONTROLLER is
 		-- Sign extend immediate 16->32 for signed instructions (general case)
 		-- Zero extend immediate 16->32 for unsigned instructions (andi, ori)
 		if (IR_IF(31 downto 26) = "001100") OR (IR_IF(31 downto 26) = "001101") then
-			Imm_temp := std_logic_vector(resize(signed(IR_IF(15 downto 0)), Imm'length));
-		else
 			Imm_temp := std_logic_vector(resize(unsigned(IR_IF(15 downto 0)), Imm'length));
+		else
+			Imm_temp := std_logic_vector(resize(signed(IR_IF(15 downto 0)), Imm'length));
 		end if;
 
 	-- WB process runs concurrently but works on a previous instruction.
