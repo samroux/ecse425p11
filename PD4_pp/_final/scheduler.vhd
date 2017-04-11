@@ -62,20 +62,7 @@ ARCHITECTURE behaviour OF scheduler IS
 		ready : out std_logic;
 		inst_count : out integer
 	);
-	end component;
-	
-	-- 	BUG 1:
-	-- 		- need to do loop unrolling
-	--		- branches are being reordered, which breaks program flow
-
-	--	BUG 2:
-	--		- mflo, mfhi are dependent on div, mults before them
-	--		- how should we ensure that these instructions remain associated with the correct inst?
-	--	eg. mult $5, $6, $7
-	--		div  $1, $2, $3
-	--		mfhi $11
-	--		mflo $12
-	--		
+	end component;	
 
 	function check_dependency (IR_base:std_logic_vector(31 downto 0); IR_comp:std_logic_vector(31 downto 0) ) 
 		return std_logic is
@@ -85,6 +72,7 @@ ARCHITECTURE behaviour OF scheduler IS
 		variable rs_base : std_logic_vector(4 downto 0);
 		variable rt_base : std_logic_vector(4 downto 0);
 		variable rd_base : std_logic_vector(4 downto 0);
+		variable funct_base : std_logic_vector(5 downto 0);
 		variable inst_type_base : integer; -- 0=R, 1=I
 		
 		--var for compared instruction
@@ -92,6 +80,7 @@ ARCHITECTURE behaviour OF scheduler IS
 		variable rs_comp : std_logic_vector(4 downto 0);
 		variable rt_comp : std_logic_vector(4 downto 0);
 		variable rd_comp : std_logic_vector(4 downto 0);
+		variable funct_comp : std_logic_vector(5 downto 0);
 		variable inst_type_comp : integer; -- 0=R, 1=I;
 		
 		variable isDependent : std_logic := 'U';
@@ -108,10 +97,14 @@ ARCHITECTURE behaviour OF scheduler IS
 				rs_base := IR_base (25 downto 21);
 				rt_base := IR_base (20 downto 16);
 				rd_base := IR_base (15 downto 11);
+				-- don't care about shamt
+				funct_base := IR_base(5 downto 0);
 			else -- I-type
 				inst_type_base := 1;
 				rs_base := IR_base (25 downto 21);
 				rt_base := IR_base (20 downto 16);
+
+				funct_base := "UUUUUU";
 			end if;
 			
 			--decoding compared instruction 
@@ -122,16 +115,21 @@ ARCHITECTURE behaviour OF scheduler IS
 				rs_comp := IR_comp (25 downto 21);
 				rt_comp := IR_comp (20 downto 16);
 				rd_comp := IR_comp (15 downto 11);
+
+				funct_comp := IR_comp(5 downto 0);
 			else -- I-type
 				inst_type_comp := 1;
 				rs_comp := IR_comp (25 downto 21);
 				rt_comp := IR_comp (20 downto 16);
+
+				funct_comp := "UUUUUU";
 			end if;
-			
+
 			-- compare register destinations of both insts to find RAW, WAR, WAW
 			if (inst_type_base < 0 OR inst_type_comp < 0) then -- one or both inst undefined
 				isDependent := 'U';
 			else	
+
 				if 	(rs_base = rs_comp AND rs_base /= "00000") OR 
 					(rs_base = rt_comp AND rs_base /= "00000") OR
 					(rt_base = rs_comp AND rt_base /= "00000") OR
@@ -157,6 +155,14 @@ ARCHITECTURE behaviour OF scheduler IS
 					if (rd_base = rd_comp AND rd_base /= "00000") then
 						isDependent := '1';
 					end if;
+				end if;
+
+				-- associate mult/div with following mflo/mfhi instructions
+				-- TODO: fix this to deal with special combinations of mult/div/mflo/mfhi
+				if (funct_base = "011000" OR funct_base = "011010") then		-- base is mult, div	
+					if (funct_comp = "010000" OR funct_comp = "010010") then	-- comp is mflo, mfhi
+						isDependent := '1'; -- mflo/mfhi placed in dependency list of mult/div
+					end if;	
 				end if;
 
 				if (isDependent = 'U') then -- no dependency has been found
