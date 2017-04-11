@@ -20,6 +20,8 @@ ENTITY scheduler IS
 		clock: IN STD_LOGIC;
 		reset: IN STD_LOGIC;
 		
+		start_sch : IN std_logic;
+		
 		get_bubble_sch : in std_logic;
 		
 		address: in std_logic_vector(11 downto 0);
@@ -111,34 +113,47 @@ ARCHITECTURE behaviour OF scheduler IS
 				rt_comp := IR_comp (20 downto 16);
 			end if;
 			
+			report "opcode_base: "&integer'image(to_integer(unsigned(opcode_base)));
+			report "opcode_comp: "&integer'image(to_integer(unsigned(opcode_comp)));
+			
 			
 			--check if there's an hazard between inst_base & inst_comp
 			if (inst_type_comp = 0) then
 				--r-type
 				if (inst_type_base = 0) then
 					--r-type
-					if (rd_comp = "00000" or rd_comp = "UUUUU") then
+					if (rd_comp = "UUUUU") then
 						isDependent := '0';
+					elsif (rs_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rd_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rs_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_base = "UUUUU") then
+						isDependent := '0';
+				
+					elsif ( rd_comp = rs_base and rd_comp /= "00000") then
+						isDependent := '1';
+					elsif ( rd_comp = rt_base and rd_comp /= "00000" ) then
+						isDependent := '1';
+					elsif ( rd_comp = rd_base and rd_comp /= "00000" ) then
+						isDependent := '1';
 						
-					elsif ( rd_comp = rs_base ) then
+					elsif ( rs_comp = rs_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rd_comp = rt_base ) then
+					elsif ( rs_comp = rt_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rd_comp = rd_base ) then
-						isDependent := '1';
-						
-					elsif ( rs_comp = rs_base ) then
-						isDependent := '1';
-					elsif ( rs_comp = rt_base ) then
-						isDependent := '1';
-					elsif ( rs_comp = rd_base ) then
+					elsif ( rs_comp = rd_base and rs_comp /= "00000" ) then
 						isDependent := '1';
 						
-					elsif ( rt_comp = rs_base ) then
+					elsif ( rt_comp = rs_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rt_base ) then
+					elsif ( rt_comp = rt_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rd_base ) then
+					elsif ( rt_comp = rd_base and rt_comp /= "00000") then
 						isDependent := '1';
 						
 					else
@@ -146,22 +161,31 @@ ARCHITECTURE behaviour OF scheduler IS
 					end if;
 				elsif (inst_type_base = 1 ) then
 					--i-type
-					if (rd_comp = "00000" or rd_comp = "UUUUU") then
+					if (rd_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rs_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_comp = "UUUUU") then
 						isDependent := '0';
 						
-					elsif ( rd_comp = rs_base ) then
+					elsif (rs_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_base = "UUUUU") then
+						isDependent := '0';
+						
+					elsif ( rd_comp = rs_base and rd_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rd_comp = rt_base ) then
+					elsif ( rd_comp = rt_base and rd_comp /= "00000" ) then
 						isDependent := '1';
 						
-					elsif ( rs_comp = rs_base ) then
+					elsif ( rs_comp = rs_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rs_comp = rt_base ) then
+					elsif ( rs_comp = rt_base and rs_comp /= "00000" ) then
 						isDependent := '1';
 						
-					elsif ( rt_comp = rs_base ) then
+					elsif ( rt_comp = rs_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rt_base ) then
+					elsif ( rt_comp = rt_base and rt_comp /= "00000" ) then
 						isDependent := '1';
 						
 					else
@@ -172,22 +196,31 @@ ARCHITECTURE behaviour OF scheduler IS
 				--i-type
 				if (inst_type_base = 0) then
 					--r-type
-					if (rt_comp = "00000" or rt_comp = "UUUUU") then
+					if (rt_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rs_comp = "UUUUU") then
 						isDependent := '0';
 						
-					elsif ( rt_comp = rs_base ) then
+					elsif (rd_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rs_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_base = "UUUUU") then
+						isDependent := '0';
+						
+					elsif ( rt_comp = rs_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rt_base ) then
+					elsif ( rt_comp = rt_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rd_base ) then
+					elsif ( rt_comp = rd_base and rt_comp /= "00000" ) then
 						isDependent := '1';
 						
 						
-					elsif ( rs_comp = rs_base ) then
+					elsif ( rs_comp = rs_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rs_comp = rt_base ) then
+					elsif ( rs_comp = rt_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rs_comp = rd_base ) then
+					elsif ( rs_comp = rd_base and rs_comp /= "00000" ) then
 						isDependent := '1';	
 						
 					else
@@ -195,20 +228,27 @@ ARCHITECTURE behaviour OF scheduler IS
 					end if;
 				elsif (inst_type_base = 1 ) then
 					--i-type
-					if (rt_comp = "00000" or rt_comp = "UUUUU") then
+					if (rt_comp = "UUUUU") then
+						isDependent := '0';
+					elsif (rs_comp = "UUUUU") then
 						isDependent := '0';
 						
-					elsif ( rt_comp = rs_base ) then
+					elsif (rs_base = "UUUUU") then
+						isDependent := '0';
+					elsif (rt_base = "UUUUU") then
+						isDependent := '0';
+					
+						
+					elsif ( rs_comp = rs_base and rs_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rt_comp = rt_base ) then
+					elsif ( rs_comp = rt_base and rs_comp /= "00000" ) then
 						isDependent := '1';
 						
-					elsif ( rs_comp = rs_base ) then
+					elsif ( rt_comp = rs_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-					elsif ( rs_comp = rt_base ) then
+					elsif ( rt_comp = rt_base and rt_comp /= "00000" ) then
 						isDependent := '1';
-						
-						
+				
 					else
 						isDependent := '0';
 					end if;
@@ -234,7 +274,7 @@ BEGIN
 			s_inst_count
 		);
 
-	scheduling : process (s_ready)
+	scheduling : process (start_sch)
 	
 		variable loop_i_PC : STD_LOGIC_VECTOR (11 downto 0):= (others => '0');
 		variable loop_j_PC : STD_LOGIC_VECTOR (11 downto 0):= (others => '0');
@@ -250,7 +290,7 @@ BEGIN
 		
 		variable candidate_list_counter : integer := 0;
 	begin
-		if(s_ready = '1') then
+		if(start_sch = '1' ) then
 		
 			-- fill raw_inst from I_M
 			-- Build Dependency lists (Stored into Dependency memory) & fill (Dependency Index buffer)
@@ -261,21 +301,24 @@ BEGIN
 				inst_base(7 downto 0) := s_raw_inst(to_integer(unsigned(loop_i_PC)) + 3);
 				
 				for J in I to s_inst_count-1 loop
-					loop_j_PC := std_logic_vector(unsigned(loop_i_PC) + "000000000100");
+					loop_j_PC := std_logic_vector(unsigned(loop_j_PC) + "000000000100");
 					inst_comp(31 downto 24) := s_raw_inst(to_integer(unsigned(loop_j_PC)));
 					inst_comp(23 downto 16) := s_raw_inst(to_integer(unsigned(loop_j_PC)) + 1);
 					inst_comp(15 downto 8) := s_raw_inst(to_integer(unsigned(loop_j_PC)) + 2);
 					inst_comp(7 downto 0) := s_raw_inst(to_integer(unsigned(loop_j_PC)) + 3);
 					
-					isDependent := check_dependency (inst_comp, inst_base);
+					isDependent := check_dependency (inst_base, inst_comp);
+					report "isDependent: "&std_logic'image(isDependent);
 					if (isDependent = '1') then
 						dependency_lists(I)(dib(I)) <= J;
 						dib(I) <= dib(I) + 1;
 					end if;
+					
 				end loop;
 				loop_i_PC := std_logic_vector(unsigned(loop_i_PC) + "000000000100");
-				report "s_raw_inst: "&integer'image(to_integer(unsigned(s_raw_inst(0))));
-				report "inst_base: "&integer'image(to_integer(unsigned(inst_base)));
+				--report "s_raw_inst: "&integer'image(to_integer(unsigned(s_raw_inst(0))));
+				--report "inst_base: "&integer'image(to_integer(unsigned(inst_base)));
+				--report "inst_comp: "&integer'image(to_integer(unsigned(inst_comp)));
 			end loop;
 			
 			-- Fill Candidate List

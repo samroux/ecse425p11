@@ -29,6 +29,10 @@ signal s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC 
 signal s_IR : std_logic_vector (31 downto 0);
 signal get_bubble : std_logic := '0';
 signal s_done : std_logic := '0';
+signal s_raw_inst : MEM;
+signal s_ready: std_logic;
+signal s_inst_count: integer;
+signal s_start_sch : std_logic;
 
 -- component instruction_memory
   -- port (
@@ -36,8 +40,10 @@ signal s_done : std_logic := '0';
 		-- reset : in STD_LOGIC;
 		-- get_bubble : in std_logic;
 		-- address: in std_logic_vector(11 downto 0);
-		-- instruction: out std_logic_vector(31 downto 0)
-		-- --is_stalled : out std_logic
+		-- instruction: out std_logic_vector(31 downto 0);
+		-- raw_inst: out MEM;
+		-- ready : out std_logic;
+		-- inst_count : out integer
 	-- );
 -- end component;
 
@@ -46,6 +52,7 @@ component scheduler
 		clock: IN STD_LOGIC;
 		reset: IN STD_LOGIC;
 		
+		start_sch : IN std_logic;
 		get_bubble_sch : in std_logic;
 		
 		address: in std_logic_vector(11 downto 0);
@@ -62,14 +69,17 @@ begin
 			-- reset,
 			-- get_bubble,
 			-- s_PC,
-			-- s_IR
-			-- --is_stalled
+			-- s_IR,
+			-- s_raw_inst,
+			-- s_ready,
+			-- s_inst_count
 		-- );
 		
 	SC: scheduler
 	port map (
 			clock,
 			reset,
+			s_start_sch,
 			get_bubble,
 			s_PC,
 			s_IR,
@@ -81,16 +91,22 @@ fetch :	process (clock, reset)
 variable should_write : std_logic;
 variable branch_stall : integer := 0;
 variable self_loop_counter : integer := 0;
+variable do_sch : std_logic;
 begin
-	if reset = '1' or s_done = '0' then
+	--if reset = '1' or s_done = '0' then
+	if reset = '1' then
 		-- This should begin to fill Instruction Memory Register -- done only on reset
 		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
 		s_PC <= (others => '0');
 		should_write := '0';
+		do_sch := '1';
 	elsif (rising_edge(clock)) then
 		-- fetch instruction from instruction memory on rising edge
 		-- Here, s_IR will contain instruction when inst mem is done
-		if ( hazard_detected = '1') then
+		if(do_sch = '1') then
+			s_start_sch <= '1';
+			do_sch := '0';
+		elsif ( hazard_detected = '1') then
 			--get_bubble <= '1'; -- next inst should be a bubble
 			branch_stall := 0;
 			s_PC <= s_PC;
