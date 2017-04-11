@@ -64,6 +64,19 @@ ARCHITECTURE behaviour OF scheduler IS
 	);
 	end component;
 	
+	-- 	BUG 1:
+	-- 		- need to do loop unrolling
+	--		- branches are being reordered, which breaks program flow
+
+	--	BUG 2:
+	--		- mflo, mfhi are dependent on div, mults before them
+	--		- how should we ensure that these instructions remain associated with the correct inst?
+	--	eg. mult $5, $6, $7
+	--		div  $1, $2, $3
+	--		mfhi $11
+	--		mflo $12
+	--		
+
 	function check_dependency (IR_base:std_logic_vector(31 downto 0); IR_comp:std_logic_vector(31 downto 0) ) 
 		return std_logic is
 	
@@ -175,6 +188,9 @@ BEGIN
 		variable inst_base : STD_LOGIC_VECTOR (31 downto 0);
 		variable inst_comp : STD_LOGIC_VECTOR (31 downto 0);
 		variable isDependent : std_logic;
+		variable branch_target : integer;
+		variable is_branch : std_logic := '0';
+		variable dup_dependency : std_logic := '0';
 		
 		variable v_PC_sch : STD_LOGIC_VECTOR (11 downto 0):= (others => '0');
 		variable v_scheduled_inst: MEM := ((others => (others => '0')));
@@ -209,24 +225,85 @@ BEGIN
 				inst_base(15 downto 8)  := s_raw_inst(to_integer(unsigned(loop_i_PC)) + 2);
 				inst_base(7 downto 0)   := s_raw_inst(to_integer(unsigned(loop_i_PC)) + 3);
 				
-				for J in I+1 to s_inst_count-1 loop -- through all insts after I 
-					inst_comp(31 downto 24) := s_raw_inst(J * 4);		-- PC of an inst = (inst #) times (4 bytes)
-					inst_comp(23 downto 16) := s_raw_inst((J * 4) + 1);
-					inst_comp(15 downto 8)  := s_raw_inst((J * 4) + 2);
-					inst_comp(7 downto 0)   := s_raw_inst((J * 4) + 3);
-					
-					isDependent := check_dependency (inst_base, inst_comp);
-					report "\/\/\/ for I = "&integer'image(I)&" and J = "&integer'image(J)&" isDependent = "&std_logic'image(isDependent)&"    \/\/\/";
-					if (isDependent = '1') then
-						dependency_lists(I)(dib(I)) := J;
+				-- ensure that branches are treated as their own special case 	-- loop:	...
+				-- instructions inside a branch block should stay within it 	-- 			...
+				-- instructions outside should not creep into the block			-- 		  	beq
+				-- POSSIBLE OPTIMIZATION: loop unrolling
+
+				if (inst_base(31 downto 26) = "000100" OR inst_base(31 downto 26) = "000101") then -- inst at I is a branch
+					is_branch := '1';
+					branch_target := to_integer(signed(inst_base(15 downto 0)));
+
+					report "\/\/\/ I = "&integer'image(I)&" is a branch pointing to "&integer'image(branch_target)&"    \/\/\/";
+
+					-- ensure that insts before the branch stay before it, using each inst's dep list
+					for S in 0 to I-1 loop
+						dependency_lists(S)(dib(S)) := I;
+						report "\/\/\/ dep_list(S)(dib(S)) @["&integer'image(S)&", "&integer'image(dib(S))&"] is set to "&integer'image(dependency_lists(S)(dib(S)))&"    \/\/\/";
+						dib(S) := dib(S) + 1;
+					end loop;
+
+					-- ensure that insts after the branch (inst I) stay after it, using the branch's dep list
+					for T in I+1 to s_inst_count-1 loop
+						dependency_lists(I)(dib(I)) := T;
 						report "\/\/\/ dep_list(I)(dib(I)) @["&integer'image(I)&", "&integer'image(dib(I))&"] is set to "&integer'image(dependency_lists(I)(dib(I)))&"    \/\/\/";
 						dib(I) := dib(I) + 1;
-					end if;
+					end loop;
+
+					-- ensure that insts before the first inst of the loop stay outside the loop
+					-- if the branch_target is already in the inst's dep list, take care not to add it twice
+					-- TODO: this logic forces the inst at branch_target to stay in place. Is there a better way to do this?
+					for U in 0 to branch_target-1 loop
+						dup_dependency := '0';
+						for Z in 0 to dib(U)-1 loop
+							if (dependency_lists(U)(Z) = branch_target) then
+								dup_dependency := '1';
+								exit;
+							end if;
+						end loop;
+
+						if dup_dependency = '0' then
+							dependency_lists(U)(dib(U)) := branch_target;
+							report "\/\/\/ dep_list(U)(dib(U)) @["&integer'image(U)&", "&integer'image(dib(U))&"] is set to "&integer'image(dependency_lists(U)(dib(U)))&"    \/\/\/";
+							dib(U) := dib(U) + 1;
+						end if;
+					end loop;
+
+					-- ensure that the first inst of the loop stays in place; make all insts after it depend on this one
+					-- clear the previously established dependency list (will always overwrite all entries, since this enacts a worst case scenario)
+					dib(branch_target) := 0;
+					for V in branch_target+1 to s_inst_count-1 loop
+						dependency_lists(branch_target)(dib(branch_target)) := V;
+						report "\/\/\/ dep_list(bt)(dib(bt)) @["&integer'image(I)&", "&integer'image(dib(I))&"] is set to "&integer'image(dependency_lists(branch_target)(dib(branch_target)))&"    \/\/\/";
+						dib(branch_target) := dib(branch_target) + 1;
+					end loop;
+
+				end if;
+
+				if (is_branch = '0') then
+					-- find instructions after the current one that cannot be switched before it
+					-- do not do this for branches; they are a separate case
+					for J in I+1 to s_inst_count-1 loop -- through all insts after I 
+						inst_comp(31 downto 24) := s_raw_inst(J * 4);		-- PC of an inst = (inst #) times (4 bytes)
+						inst_comp(23 downto 16) := s_raw_inst((J * 4) + 1);
+						inst_comp(15 downto 8)  := s_raw_inst((J * 4) + 2);
+						inst_comp(7 downto 0)   := s_raw_inst((J * 4) + 3);
+						
+						isDependent := check_dependency (inst_base, inst_comp);
+						report "\/\/\/ for I = "&integer'image(I)&" and J = "&integer'image(J)&" isDependent = "&std_logic'image(isDependent)&"    \/\/\/";
+						if (isDependent = '1') then
+							dependency_lists(I)(dib(I)) := J;
+							report "\/\/\/ dep_list(I)(dib(I)) @["&integer'image(I)&", "&integer'image(dib(I))&"] is set to "&integer'image(dependency_lists(I)(dib(I)))&"    \/\/\/";
+							dib(I) := dib(I) + 1;
+						end if;
 	
-				end loop;
+					end loop;
+				end if;
+
+				is_branch := '0';
 				loop_i_PC := std_logic_vector(unsigned(loop_i_PC) + "000000000100");
 			end loop;
-			
+
 			-- count the number of instructions that depend on each instruction
 			for K in 0 to s_inst_count-1 loop 	--where K is instruction number
 				for L in 0 to dib(K)-1 loop 	--where L is the index in dependency list
