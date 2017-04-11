@@ -66,8 +66,10 @@ proc AddWaves {} {
 vlib work
 
 ;# Compile components if any
+vcom common.vhd
 vcom instruction_fetch.vhd
 vcom instruction_memory.vhd
+vcom scheduler.vhd
 vcom if_id_reg.vhd
 vcom register_file.vhd
 vcom register_controller.vhd

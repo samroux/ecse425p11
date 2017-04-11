@@ -7,6 +7,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
 use STD.textio.all;
+use work.common.all;	-- this is our common package
 
 ENTITY instruction_memory IS
 	GENERIC(
@@ -17,10 +18,14 @@ ENTITY instruction_memory IS
 	PORT (
 		clock: IN STD_LOGIC;
 		reset: IN STD_LOGIC;
+		
 		get_bubble : in std_logic;
 		address: in std_logic_vector(11 downto 0);
-		instruction: out std_logic_vector(31 downto 0)
-		--is_stalled : out std_logic
+		
+		instruction: out std_logic_vector(31 downto 0);
+		raw_inst: out MEM;
+		ready : out std_logic;
+		inst_count : out integer
 	);
 END instruction_memory;
 
@@ -31,9 +36,8 @@ ARCHITECTURE behaviour OF instruction_memory IS
 	-- vector should be fed to the IF/ID register for decoding.
 	-- Memory can store 4096/4 = 1024 instructions.
 	-- The PC will keep track of inst locations by increasing by 4.
-	TYPE MEM IS ARRAY(ram_size-1 downto 0) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
+	--TYPE MEM IS ARRAY(ram_size-1 downto 0) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL ram_block: MEM;
-	
 		
 BEGIN
 
@@ -42,6 +46,7 @@ BEGIN
 		variable VEC_LINE : line;
 		variable VEC_VAR : bit_vector(0 to 31);
 		variable mem_address: integer := 0;
+		variable v_inst_count: integer := 0;
 		file VEC_FILE : text is in "program.txt"; -- Path of the program to be run.
 												  -- needs to be in PD4_pp/IF/
 
@@ -58,8 +63,11 @@ BEGIN
 					 mem_address := mem_address + 1;
 					 ram_block(mem_address) <= to_stdlogicvector(VEC_VAR(24 to 31));
 					 mem_address := mem_address + 1;
-					--wait for 10 ns; Probably need a way to wait in process...?
+					 
+					--count number of instructions
+					v_inst_count := v_inst_count + 1;
 				end loop;
+				inst_count <= v_inst_count;
 			end if;
 	end process read_file;
 
