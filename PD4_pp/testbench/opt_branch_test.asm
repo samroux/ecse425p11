@@ -25,3 +25,5 @@ loop:   add $1, $1, $2  # add 50 to $1
 
         sw $1, 0($9)
         addi $1, $1, 1000
+
+EoP:    beq $0, $0, EoP
