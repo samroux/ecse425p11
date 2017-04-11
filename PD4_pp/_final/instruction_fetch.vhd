@@ -28,7 +28,7 @@ architecture behaviour of instruction_fetch is
 signal s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
 signal s_IR : std_logic_vector (31 downto 0);
 signal get_bubble : std_logic := '0';
-signal s_done : std_logic := '0';
+signal s_done_sch : std_logic := '0';
 signal s_raw_inst : MEM;
 signal s_ready: std_logic;
 signal s_inst_count: integer;
@@ -57,7 +57,7 @@ component scheduler
 		
 		address: in std_logic_vector(11 downto 0);
 		inst_sch: out std_logic_vector(31 downto 0);
-		done: out std_logic
+		done_sch: out std_logic
 	);
 end component;
 
@@ -83,7 +83,7 @@ begin
 			get_bubble,
 			s_PC,
 			s_IR,
-			s_done
+			s_done_sch
 		);
 
 -- performing instruction fetch
