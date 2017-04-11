@@ -68,6 +68,8 @@ BEGIN
 					v_inst_count := v_inst_count + 1;
 				end loop;
 				inst_count <= v_inst_count;
+				raw_inst <= ram_block;
+				ready <= '1';
 			end if;
 	end process read_file;
 

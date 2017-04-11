@@ -28,28 +28,52 @@ architecture behaviour of instruction_fetch is
 signal s_PC: std_logic_vector (11 downto 0) := (others => '0'); --initialize PC to 0
 signal s_IR : std_logic_vector (31 downto 0);
 signal get_bubble : std_logic := '0';
+signal s_done : std_logic := '0';
 
-component instruction_memory
-  port (
-		clock: in STD_LOGIC;
-		reset : in STD_LOGIC;
-		get_bubble : in std_logic;
+-- component instruction_memory
+  -- port (
+		-- clock: in STD_LOGIC;
+		-- reset : in STD_LOGIC;
+		-- get_bubble : in std_logic;
+		-- address: in std_logic_vector(11 downto 0);
+		-- instruction: out std_logic_vector(31 downto 0)
+		-- --is_stalled : out std_logic
+	-- );
+-- end component;
+
+component scheduler
+	PORT (
+		clock: IN STD_LOGIC;
+		reset: IN STD_LOGIC;
+		
+		get_bubble_sch : in std_logic;
+		
 		address: in std_logic_vector(11 downto 0);
-		instruction: out std_logic_vector(31 downto 0)
-		--is_stalled : out std_logic
+		inst_sch: out std_logic_vector(31 downto 0);
+		done: out std_logic
 	);
 end component;
 
 begin
 
-	IM: instruction_memory
+	-- IM: instruction_memory
+	-- port map (
+			-- clock,
+			-- reset,
+			-- get_bubble,
+			-- s_PC,
+			-- s_IR
+			-- --is_stalled
+		-- );
+		
+	SC: scheduler
 	port map (
 			clock,
 			reset,
 			get_bubble,
 			s_PC,
-			s_IR
-			--is_stalled
+			s_IR,
+			s_done
 		);
 
 -- performing instruction fetch
@@ -58,7 +82,7 @@ variable should_write : std_logic;
 variable branch_stall : integer := 0;
 variable self_loop_counter : integer := 0;
 begin
-	if reset = '1' then
+	if reset = '1' or s_done = '0' then
 		-- This should begin to fill Instruction Memory Register -- done only on reset
 		-- since reset signal is hardwired between two devices, this will run the read_file process of instruction_memory
 		s_PC <= (others => '0');
