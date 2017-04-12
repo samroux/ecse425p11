@@ -1,4 +1,4 @@
-# this program is a companion to opt_branch_test.asm
+# this program is a companion to opt_branch_test_v2.asm
 # it contains an unrolled loop version of that file
 
 # this program should be tested with and without rescheduling to
@@ -7,10 +7,7 @@
         addi $1, $0, 0  # test reg
         addi $2, $0, 50 # factor reg
         addi $10, $0, 0 # counter
-        addi $11, $0, 2 # iterations
-        addi $12, $0, 2 # multiplier
-        mult $11, $12
-        mflo $11        # loop iterates 2*2 = 4 times
+        addi $11, $0, 4 # iterations
 
 loop:   add $1, $1, $2  # loop 1
         addi $11, $11, -1
